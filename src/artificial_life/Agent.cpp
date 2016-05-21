@@ -47,9 +47,9 @@ void Agent::Grow()
 	m_birthEnergyFraction	= m_brainGenome->GetBirthEnergyFraction();
 
 	// Genes modified by size.
-	m_maxSpeed				= m_brainGenome->GetMaxSpeed();// / m_size;
-	m_maxTurnRate			= 0.2f;// / m_size;
-	m_maxEnergy				= 30;//m_size * 12.0f;
+	m_maxSpeed				= m_brainGenome->GetMaxSpeed() / m_size;
+	m_maxTurnRate			= 0.2f / m_size;
+	m_maxEnergy				= m_size * 13.0f;
 
 	// Misc.
 	m_mateDelay				= Simulation::PARAMS.mateWait;
@@ -60,6 +60,9 @@ void Agent::Grow()
 void Agent::Reset()
 {
 	m_age				= 0;
+
+	m_numFoodEaten		= 0;
+	m_numChildren		= 0;
 
 	m_energy			= 0.0f;
 	m_heuristicFitness	= 0.0f;
@@ -217,13 +220,20 @@ bool Agent::CanMate() const
 
 void Agent::OnMate()
 {
+	m_numChildren++;
 	m_mateTimer = m_mateDelay;
 	m_heuristicFitness += Simulation::PARAMS.mateFitnessParam;
 	//m_energy *= m_brainGenome->GetBirthEnergyFraction(); // Done in Simulation.cpp
 }
 
+void Agent::MateDelay()
+{
+	m_mateTimer = m_mateDelay;
+}
+
 void Agent::OnEat()
 {
+	m_numFoodEaten++;
 	m_heuristicFitness += Simulation::PARAMS.eatFitnessParam;
 }
 

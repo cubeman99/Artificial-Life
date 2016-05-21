@@ -95,6 +95,8 @@ private:
 	std::vector<Agent*> m_agents;
 	std::vector<Food> m_food;
 	
+	float m_totalAgentEnergy;
+
 	int m_generationTickCounter;
 	int m_generationTickDuration;
 	int m_generation;

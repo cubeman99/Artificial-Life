@@ -27,6 +27,7 @@ public:
 	void UpdateBrain();
 	void UpdateVision(const float* pixels, int width);
 	void OnMate();
+	void MateDelay();
 	void OnEat();
 
 
@@ -46,6 +47,9 @@ public:
 	float		GetMateAmount()				const { return m_mateAmount; }
 	float		GetFightAmount()			const { return m_fightAmount; }
 	float		GetEatAmount()				const { return m_eatAmount; }
+
+	int			GetNumChildren()			const { return m_numChildren; }
+	int			GetNumFoodEaten()			const { return m_numFoodEaten; }
 
 	float		GetMaxEnergy()				const { return m_maxEnergy; }
 	float		GetFOV()					const { return m_retina.GetFOV(); }
@@ -80,6 +84,9 @@ public:
 private:
 	Simulation* m_simulation;
 	
+	int			m_numChildren;
+	int			m_numFoodEaten;
+
 	unsigned long m_id;
 	bool		m_isElite;
 

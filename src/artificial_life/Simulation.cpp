@@ -92,6 +92,8 @@ void Simulation::OnInitialize()
 	m_followAgent			= false;
 	m_selectedAgent			= NULL;
 
+	m_totalAgentEnergy = 0.0f;
+
 	m_cameraFOV				= 80.0f * Math::DEG_TO_RAD;
 
 	//-----------------------------------------------------------------------------
@@ -102,7 +104,7 @@ void Simulation::OnInitialize()
 	PARAMS.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
 	PARAMS.minAgents				= 45;//35;
-	PARAMS.maxAgents				= 200;//120;
+	PARAMS.maxAgents				= 150;//120;
 	PARAMS.minFood					= 220;
 	PARAMS.maxFood					= 300;
 	PARAMS.initialFoodCount			= 220;
@@ -157,7 +159,7 @@ void Simulation::OnInitialize()
 	PARAMS.minMutationRate			= 0.01f;
 	PARAMS.maxMutationRate			= 0.1f;
 	PARAMS.minNumCrossoverPoints	= 2;
-	PARAMS.maxNumCrossoverPoints	= 2; // supposed to be 8
+	PARAMS.maxNumCrossoverPoints	= 6; // supposed to be 8
 	PARAMS.minLifeSpan				= 1500;
 	PARAMS.maxLifeSpan				= 2800;
 	PARAMS.minBirthEnergyFraction	= 0.1f;
@@ -639,12 +641,16 @@ void Simulation::UpdateWorld()
 
 void Simulation::UpdateAgents()
 {
+	m_totalAgentEnergy = 0.0f;
+
 	// Update all agents.
 	for (unsigned int i = 0; i < m_agents.size(); i++)
 	{
 		Agent* agent = m_agents[i];
 		Vector2f agentPos = agent->GetPosition();
 		
+		m_totalAgentEnergy += agent->GetEnergy();
+
 		// Find food near the agent.
 		for (unsigned int j = 0; j < m_food.size(); j++)
 		{
@@ -806,6 +812,8 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 	{
 		m_numBirthsDenied++;
 		std::cout << "Birth denied!" << std::endl;
+		mommy->MateDelay();
+		daddy->MateDelay();
 		return NULL;
 	}
 
@@ -1222,6 +1230,8 @@ void Simulation::RenderPanelText()
 		DRAW_STRING("SIMULATION");
 		DRAW_STRING("--------------------------------");
 		DRAW_STRING("age            = %d", m_worldAge);
+		DRAW_STRING("energy         = %.1f", m_totalAgentEnergy);
+		DRAW_STRING("energy/agent   = %.2f", m_totalAgentEnergy / (float) m_agents.size());
 		DRAW_STRING("population     = %d", (int) m_agents.size());
 		DRAW_STRING("food           = %d", (int) m_food.size());
 		DRAW_STRING("");
@@ -1233,6 +1243,7 @@ void Simulation::RenderPanelText()
 		DRAW_STRING("  - elite      = %d", m_numAgentsCreatedElite);
 		DRAW_STRING("  - mate       = %d", m_numAgentsCreatedMate);
 		DRAW_STRING("  - random     = %d", m_numAgentsCreatedRandom);
+		DRAW_STRING("births denied  = %d", m_numBirthsDenied);
 		DRAW_STRING("");
 		DRAW_STRING("FPS = %.1f", GetCurrentFPS());
 	}
@@ -1244,33 +1255,36 @@ void Simulation::RenderPanelText()
 
 		DRAW_STRING("AGENT #%lu", agent->GetID());
 		DRAW_STRING("--------------------------------");
-		DRAW_STRING("age             = %d (%.0f%%)", agent->GetAge(), ((float) agent->GetAge() / agent->GetGenome()->GetLifespan()) * 100.0f);
-		DRAW_STRING("energy          = %.3f (%.0f%%)",	agent->GetEnergy(), (agent->GetEnergy() / agent->GetMaxEnergy()) * 100.0f);
-		DRAW_STRING("fitness         = %.2f",	agent->GetHeuristicFitness());
+		DRAW_STRING("age              = %d (%.0f%%)",	agent->GetAge(), ((float) agent->GetAge() / agent->GetGenome()->GetLifespan()) * 100.0f);
+		DRAW_STRING("energy           = %.3f (%.0f%%)",	agent->GetEnergy(), (agent->GetEnergy() / agent->GetMaxEnergy()) * 100.0f);
+		DRAW_STRING("fitness          = %.2f",			agent->GetHeuristicFitness());
 		DRAW_STRING("");
-		DRAW_STRING("move speed      = %.2f (%.0f%%)",	agent->GetMoveSpeed(), (agent->GetMoveSpeed() / agent->GetGenome()->GetMaxSpeed()) * 100.0f);
-		DRAW_STRING("turn speed      = %.2f%c",	agent->GetTurnSpeed() * Math::RAD_TO_DEG, degreesSymbol);
-		DRAW_STRING("mate            = %.0f%%",	agent->GetMateAmount() * 100.0f);
-		DRAW_STRING("fight           = %.0f%%",	agent->GetFightAmount() * 100.0f);
-		DRAW_STRING("eat             = %.0f%%",	agent->GetEatAmount() * 100.0f);
+		DRAW_STRING("move speed       = %.2f (%.0f%%)",	agent->GetMoveSpeed(), (agent->GetMoveSpeed() / agent->GetGenome()->GetMaxSpeed()) * 100.0f);
+		DRAW_STRING("turn speed       = %.2f%c",	agent->GetTurnSpeed() * Math::RAD_TO_DEG, degreesSymbol);
+		DRAW_STRING("mate             = %.0f%%",	agent->GetMateAmount() * 100.0f);
+		DRAW_STRING("fight            = %.0f%%",	agent->GetFightAmount() * 100.0f);
+		DRAW_STRING("eat              = %.0f%%",	agent->GetEatAmount() * 100.0f);
+		DRAW_STRING("");
+		DRAW_STRING("food eaten       = %d",	agent->GetNumFoodEaten());
+		DRAW_STRING("children         = %d",	agent->GetNumChildren());
 		DRAW_STRING("");
 		DRAW_STRING("--- Genome ---------------------");
-		DRAW_STRING("size            = %.2f",	agent->GetSize());
-		DRAW_STRING("strength        = %.2f",	agent->GetStrength());
-		DRAW_STRING("fov             = %.1f%c",	agent->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
-		DRAW_STRING("max speed       = %.2f",	agent->GetMaxSpeed());
-		DRAW_STRING("green color     = %d",		(int) (agent->GetGenome()->GetGreenColoration() * 255.0f));
-		DRAW_STRING("mutation rate   = %.2f%%",	agent->GetGenome()->GetMutationRate() * 100.0f);
-		DRAW_STRING("# crossover pts = %d",		agent->GetGenome()->GetNumCrossoverPoints());
-		DRAW_STRING("lifespan        = %d",		agent->GetLifeSpan());
-		DRAW_STRING("birth energy %%  = %.0f%%",	agent->GetGenome()->GetBirthEnergyFraction() * 100.0f);
-		DRAW_STRING("color neurons   = %d/%d/%d",
+		DRAW_STRING("size             = %.2f",	agent->GetSize());
+		DRAW_STRING("strength         = %.2f",	agent->GetStrength());
+		DRAW_STRING("fov              = %.1f%c",	agent->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
+		DRAW_STRING("max speed        = %.2f",	agent->GetMaxSpeed());
+		DRAW_STRING("green color      = %d",		(int) (agent->GetGenome()->GetGreenColoration() * 255.0f));
+		DRAW_STRING("mutation rate    = %.2f%%",	agent->GetGenome()->GetMutationRate() * 100.0f);
+		DRAW_STRING("# crossover pts  = %d",		agent->GetGenome()->GetNumCrossoverPoints());
+		DRAW_STRING("lifespan         = %d",		agent->GetLifeSpan());
+		DRAW_STRING("birth energy %%   = %.0f%%",	agent->GetGenome()->GetBirthEnergyFraction() * 100.0f);
+		DRAW_STRING("color neurons    = %d/%d/%d",
 			agent->GetGenome()->GetNumRedNeurons(),
 			agent->GetGenome()->GetNumGreenNeurons(),
 			agent->GetGenome()->GetNumBlueNeurons());
-		DRAW_STRING("# int. groups   = %d",	agent->GetGenome()->GetNumInternalNeuralGroups());
-		DRAW_STRING("# neurons       = %d",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numNeurons);
-		DRAW_STRING("# synapses      = %dl",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numSynapses);
+		DRAW_STRING("# int. groups    = %d",	agent->GetGenome()->GetNumInternalNeuralGroups());
+		DRAW_STRING("# neurons        = %d",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numNeurons);
+		DRAW_STRING("# synapses       = %dl",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numSynapses);
 		DRAW_STRING("--------------------------------");
 	}
 
