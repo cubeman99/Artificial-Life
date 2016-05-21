@@ -71,11 +71,12 @@ void Simulation::OnInitialize()
 	m_worldAge					= 0;
 	m_agentCounter				= 0;
 	m_numAgentsBorn				= 0;
+	m_numAgentsDeadOldAge		= 0;
+	m_numAgentsDeadEnergy		= 0;
 	m_numAgentsCreatedElite		= 0;
 	m_numAgentsCreatedMate		= 0;
 	m_numAgentsCreatedRandom	= 0;
 	m_numBirthsDenied			= 0;
-	
 
 	m_showFOVLines			= false;
 	m_showGraphs			= false;
@@ -133,8 +134,8 @@ void Simulation::OnInitialize()
 	PARAMS.maxFOV					= 130.0f * Math::DEG_TO_RAD;
 	PARAMS.minStrength				= 0.0f;
 	PARAMS.maxStrength				= 1.0f;
-	PARAMS.minSize					= 0.5f;
-	PARAMS.maxSize					= 2.0f;
+	PARAMS.minSize					= 0.7f;
+	PARAMS.maxSize					= 1.6f;
 	PARAMS.minMaxSpeed				= 1.0f;
 	PARAMS.maxMaxSpeed				= 2.5f;
 	PARAMS.minMutationRate			= 0.01f;
@@ -319,31 +320,6 @@ void Simulation::ResetCamera()
 	m_camera.distance = z;
 }
 
-Agent* Simulation::SweeperRoulette()
-{
-	if (m_agents.empty())
-		return NULL;
-
-	// Calculate the total fitness.
-	float totalFitness = 0.0f;
-	for (int i = 0; i < m_numAgents; i++)
-		totalFitness += m_agents[i]->GetHeuristicFitness();
-
-	// Select an agent at random.
-	float randomSelection = Random::NextFloat() * totalFitness;
-	float fitnessCounter = 0.0f;
-
-	for (int i = 0; i < (int) m_agents.size(); i++)
-	{
-		fitnessCounter += m_agents[i]->GetHeuristicFitness();
-
-		if (randomSelection <= fitnessCounter)
-			return m_agents[i];
-	}
-
-	return m_agents[0];
-}
-
 void Simulation::NextGeneration()
 {
 	// Reset food.
@@ -389,8 +365,8 @@ void Simulation::NextGeneration()
 	while ((int) newAgents.size() < m_numAgents - (m_numElites * m_numEliteCopies))
 	{
 		// Select two mates.
-		Agent* mommy = SweeperRoulette();
-		Agent* daddy = SweeperRoulette();
+		Agent* mommy = AgentRoulette();
+		Agent* daddy = AgentRoulette();
 		Agent* child = new Agent(this);
 		child->GetBrainGenome()->Crossover(
 			mommy->GetBrainGenome(),
@@ -442,6 +418,31 @@ void Simulation::NextGeneration()
 
 	if (!isSelectedAgentElite)
 		m_selectedAgent = NULL;
+}
+
+Agent* Simulation::AgentRoulette()
+{
+	if (m_agents.empty())
+		return NULL;
+
+	// Calculate the total fitness.
+	float totalFitness = 0.0f;
+	for (int i = 0; i < m_numAgents; i++)
+		totalFitness += m_agents[i]->GetHeuristicFitness();
+
+	// Select an agent at random.
+	float randomSelection = Random::NextFloat() * totalFitness;
+	float fitnessCounter = 0.0f;
+
+	for (int i = 0; i < (int) m_agents.size(); i++)
+	{
+		fitnessCounter += m_agents[i]->GetHeuristicFitness();
+
+		if (randomSelection <= fitnessCounter)
+			return m_agents[i];
+	}
+
+	return m_agents[0];
 }
 
 Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
@@ -840,8 +841,13 @@ void Simulation::UpdateWorld(float timeDelta)
 		RenderAgentVision(agent);
 		
 		// Kill the agent if its energy drops below zero.
-		if (agent->GetEnergy() < 0.0f || agent->GetAge() >= agent->GetLifeSpan())
+		if (agent->GetEnergy() <= 0.0f || agent->GetAge() >= agent->GetLifeSpan())
 		{
+			if (agent->GetAge() >= agent->GetLifeSpan())
+				m_numAgentsDeadOldAge++;
+			else if (agent->GetEnergy() <= 0.0f)
+				m_numAgentsDeadEnergy++;
+
 			Kill(agent);
 			m_agents.erase(m_agents.begin() + i);
 			i--;
@@ -902,11 +908,12 @@ void Simulation::UpdateWorld(float timeDelta)
 	float mateThreshhold = 0.6f;
 
 	// Mate agents.
-	for (unsigned int i = 0; i < m_agents.size(); i++)
+	int numAgents = (int) m_agents.size();
+	for (int i = 0; i < numAgents; i++)
 	{
 		Agent* mommy = m_agents[i];
 
-		for (unsigned int j = 0; j < m_agents.size(); j++)
+		for (int j = 0; j < numAgents; j++)
 		{
 			if (i == j)
 				continue;
@@ -930,15 +937,12 @@ void Simulation::UpdateWorld(float timeDelta)
 					//child->SetPosition(Vector2f(
 						//Random::NextFloat() * m_worldDimensions.x,
 						//Random::NextFloat() * m_worldDimensions.y));
-					newBorns.push_back(child);
+					m_agents.push_back(child);
 				}
 				break;
 			}
 		}
 	}
-	// Add the new-born agents to the population.
-	for (unsigned int i = 0; i < newBorns.size(); i++)
-		m_agents.push_back(newBorns[i]);
 }
 
 void Simulation::PickParentsUsingTournament(int numInPool, int* iParent, int* jParent)
@@ -1028,6 +1032,7 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 		g.ResetTransform();
 		g.Translate(pos);
 		g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
+		g.Scale(agent->GetSize());
 
 		Vector3f agentColor;
 		agentColor.x = agent->GetFightAmount();
@@ -1175,7 +1180,7 @@ void Simulation::RenderPanelWorld()
 
 	g.Clear(Color::BLACK);
 	
-	RenderWorld(&m_camera, false);
+	RenderWorld(&m_camera, NULL);
 }
 
 void Simulation::RenderPanelPOV()
@@ -1319,6 +1324,9 @@ void Simulation::RenderPanelText()
 		DRAW_STRING("food           = %d", (int) m_food.size());
 		DRAW_STRING("");
 		DRAW_STRING("agents born    = %d", m_numAgentsBorn);
+		DRAW_STRING("agents dead    = %d", m_numAgentsDeadOldAge + m_numAgentsDeadEnergy);
+		DRAW_STRING("  - old age    = %d", m_numAgentsDeadOldAge);
+		DRAW_STRING("  - hunger     = %d", m_numAgentsDeadEnergy);
 		DRAW_STRING("agents created = %d", m_numAgentsCreatedElite + m_numAgentsCreatedMate + m_numAgentsCreatedRandom);
 		DRAW_STRING("  - elite      = %d", m_numAgentsCreatedElite);
 		DRAW_STRING("  - mate       = %d", m_numAgentsCreatedMate);
@@ -1345,14 +1353,15 @@ void Simulation::RenderPanelText()
 		DRAW_STRING("eat             = %.0f%%",	agent->GetEatAmount() * 100.0f);
 		DRAW_STRING("");
 		DRAW_STRING("--- Genome ---------------------");
-		DRAW_STRING("size            = %.2f",	agent->GetBrainGenome()->GetSize());
-		DRAW_STRING("strength        = %.2f",	agent->GetBrainGenome()->GetStrength());
-		DRAW_STRING("fov             = %.1f%c",	agent->GetBrainGenome()->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
-		DRAW_STRING("max speed       = %.2f",	agent->GetBrainGenome()->GetMaxSpeed());
+		DRAW_STRING("size            = %.2f",	agent->GetSize());
+		DRAW_STRING("strength        = %.2f",	agent->GetStrength());
+		DRAW_STRING("fov             = %.1f%c",	agent->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
+		DRAW_STRING("max speed       = %.2f",	agent->GetMaxSpeed());
 		DRAW_STRING("green color     = %d",		(int) (agent->GetBrainGenome()->GetGreenColoration() * 255.0f));
 		DRAW_STRING("mutation rate   = %.2f%%",	agent->GetBrainGenome()->GetMutationRate() * 100.0f);
 		DRAW_STRING("# crossover pts = %d",		agent->GetBrainGenome()->GetNumCrossoverPoints());
-		DRAW_STRING("lifespan        = %d",		agent->GetBrainGenome()->GetLifespan());
+		DRAW_STRING("lifespan        = %d",		agent->GetLifeSpan());
+		DRAW_STRING("birth energy %%  = %.0f%%",	agent->GetBrainGenome()->GetBirthEnergyFraction() * 100.0f);
 		DRAW_STRING("color neurons   = %d/%d/%d",
 			agent->GetBrainGenome()->GetNumRedNeurons(),
 			agent->GetBrainGenome()->GetNumGreenNeurons(),

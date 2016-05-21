@@ -1,5 +1,5 @@
-#ifndef _FLUID_APPLICATION_H_
-#define _FLUID_APPLICATION_H_
+#ifndef _SIMULATION_H_
+#define _SIMULATION_H_
 
 #include "application/Application.h"
 #include "application/SpriteFont.h"
@@ -45,30 +45,28 @@ public:
 protected:
 	void OnInitialize() override;
 	void LoadModels();
+	
+	void ResetCamera();
 
 	void OnUpdate(float timeDelta) override;
 	void UpdateWorld(float timeDelta);
-	
+	void RenderAgentVision(Agent* agent);
 	void UpdateScreenLayout();
-
-	void NextGeneration();
-	void ResetCamera();
 
 	void OnRender() override;
 	void RenderWorld(ICamera* camera, Agent* agent = NULL);
-	void RenderAgentVision(Agent* agent);
-	
 	void RenderPanelWorld();
 	void RenderPanelGraphs();
 	void RenderPanelPOV();
 	void RenderPanelText();
 
-	Agent* SweeperRoulette();
-
 	Agent* Mate(Agent* mommy, Agent* daddy);
 	void Kill(Agent* agent);
-	
 	void PickParentsUsingTournament(int numInPool, int* iParent, int* jParent);
+	
+	// UNUSED:
+	void NextGeneration();
+	Agent* AgentRoulette();
 
 private:
 
@@ -89,6 +87,8 @@ private:
 	int m_generation;
 	int m_worldAge;
 	int m_numAgentsBorn;
+	int m_numAgentsDeadOldAge;
+	int m_numAgentsDeadEnergy;
 	int m_numAgentsCreatedElite;
 	int m_numAgentsCreatedMate;
 	int m_numAgentsCreatedRandom;
@@ -144,4 +144,4 @@ public:
 };
 
 
-#endif // _APPLICATION_H_
+#endif // _SIMULATION_H_

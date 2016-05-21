@@ -27,34 +27,60 @@ Agent::~Agent()
 	delete m_brainGenome; m_brainGenome = NULL;
 }
 
-void Agent::Reset()
+
+// Grow an agent from its genome.
+void Agent::Grow()
 {
+	// Grow the brain.
+	m_brain->Grow();
 
-	m_age		= 0;
-	m_energy	= 0.0f;
-	m_velocity	= Vector2f::ZERO;
-	m_direction	= Random::NextFloat() * Math::TWO_PI;
-	m_speed		= 0.0f;
-
-	m_mateAmount	= 0.0f;
-	m_fightAmount	= 0.0f;
-	//m_energy		= 15;
-
-	m_mateDelay		= 120;
-	m_mateTimer		= m_mateDelay;
-
-	m_heuristicFitness = 0.0f;
-
-
-	m_energy		= 10;
-	m_maxEnergy		= 20.0f;
-	m_lifeSpan		= m_brainGenome->GetLifespan();
-
-	// Configure retina.
+	// Configure the retina.
 	m_retina.SetFOV(m_brainGenome->GetFOV());
 	m_retina.SetNumNeurons(0, m_brainGenome->GetNumRedNeurons());
 	m_retina.SetNumNeurons(1, m_brainGenome->GetNumGreenNeurons());
 	m_retina.SetNumNeurons(2, m_brainGenome->GetNumBlueNeurons());
+
+	// Other genes.
+	m_lifeSpan				= m_brainGenome->GetLifespan();
+	m_size					= m_brainGenome->GetSize();
+	m_strength				= m_brainGenome->GetStrength();
+	m_maxSpeed				= m_brainGenome->GetMaxSpeed();
+	m_birthEnergyFraction	= m_brainGenome->GetBirthEnergyFraction();
+	
+	m_maxEnergy = 20.0f; // TODO: max energy determined by size.
+	
+	m_maxEnergy = m_size * 12.0f;
+
+	m_mateDelay = Simulation::PARAMS.mateWait;
+
+	Reset();
+}
+
+void Agent::PreBirth()
+{
+	// Send some random signals to the brain.
+	m_brain->PreBirth();
+}
+
+
+void Agent::Reset()
+{
+	m_age				= 0;
+
+	m_energy			= 0.0f;
+	m_heuristicFitness	= 0.0f;
+	m_velocity			= Vector2f::ZERO;
+	m_direction			= Random::NextFloat() * Math::TWO_PI;
+
+	m_speed				= 0.0f;
+	m_turnSpeed			= 0.0f;
+	m_mateAmount		= 0.0f;
+	m_fightAmount		= 0.0f;
+	m_eatAmount			= 0.0f;
+
+	m_mateTimer			= Simulation::PARAMS.initialMateWait;
+	
+	m_energy			= 10.0f; // Starting energy for generated agents (not born).
 }
 
 void Agent::Update(float timeDelta)
@@ -103,8 +129,8 @@ void Agent::Update(float timeDelta)
 	}
 
 	float maxTurnRate	= 0.2f;
-	m_speed			= neuralNetOutputs[0] * m_brainGenome->GetMaxSpeed();
-	m_turnSpeed		= ((neuralNetOutputs[1] * 2.0f) - 1.0f) * maxTurnRate;
+	m_speed			= neuralNetOutputs[0] * m_brainGenome->GetMaxSpeed() / m_brainGenome->GetSize();
+	m_turnSpeed		= ((neuralNetOutputs[1] * 2.0f) - 1.0f) * maxTurnRate / m_brainGenome->GetSize();
 	m_mateAmount	= neuralNetOutputs[2];
 	m_fightAmount	= neuralNetOutputs[3];
 	m_eatAmount		= neuralNetOutputs[4];
@@ -174,6 +200,13 @@ void Agent::UpdateVision(const float* pixels, int width)
 	m_retina.Update(pixels, width);
 }
 
+
+
+bool Agent::CanMate() const
+{
+	return (m_mateTimer <= 0);
+}
+
 void Agent::OnMate()
 {
 	m_mateTimer = m_mateDelay;
@@ -185,18 +218,4 @@ void Agent::OnEat()
 {
 	m_heuristicFitness += Simulation::PARAMS.eatFitnessParam;
 }
-
-void Agent::Grow()
-{
-	m_brain->Grow();
-
-	Reset();
-}
-
-void Agent::PreBirth()
-{
-	m_brain->PreBirth();
-}
-
-
 

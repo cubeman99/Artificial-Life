@@ -225,3 +225,15 @@ void Graphics::Translate(const Vector3f& translation)
 	glMatrixMode(GL_MODELVIEW);
 	glTranslatef(translation.x, translation.y, translation.z);
 }
+
+void Graphics::Scale(float scale)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glScalef(scale, scale, scale);
+}
+
+void Graphics::Scale(const Vector3f& scale)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glScalef(scale.x, scale.y, scale.z);
+}

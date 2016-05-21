@@ -25,35 +25,43 @@ public:
 	void Reset();
 	void Update(float timeDelta);
 	void UpdateVision(const float* pixels, int width);
-
+	void OnMate();
+	void OnEat();
 
 
 	//-----------------------------------------------------------------------------
 	// Getters.
-
-	int			GetAge()		const { return m_age; }
-	float		GetEnergy()		const { return m_energy; }
-	float		GetMaxEnergy()	const { return m_maxEnergy; }
-	Vector2f	GetPosition()	const { return m_position; }
-	Vector2f	GetVelocity()	const { return m_velocity; }
-	float		GetDirection()	const { return m_direction; }
-	bool		IsElite()		const { return m_isElite; }
-	float		GetFOV()		const { return m_retina.GetFOV(); }
 	
-	float		GetMoveSpeed()		const { return m_speed; }
-	float		GetTurnSpeed()		const { return m_turnSpeed; }
-	float		GetMateAmount()		const { return m_mateAmount; }
-	float		GetFightAmount()	const { return m_fightAmount; }
-	float		GetEatAmount()		const { return m_eatAmount; }
+	unsigned long GetID()					const { return m_id; }
 
-	int			GetLifeSpan()	const { return m_lifeSpan; }
-	float		GetHeuristicFitness()	const { return m_heuristicFitness; }
+	int			GetAge()					const { return m_age; }
+	float		GetEnergy()					const { return m_energy; }
+	float		GetHeuristicFitness()		const { return m_heuristicFitness; }
+	Vector2f	GetPosition()				const { return m_position; }
+	Vector2f	GetVelocity()				const { return m_velocity; }
+	float		GetDirection()				const { return m_direction; }
+	float		GetMoveSpeed()				const { return m_speed; }
+	float		GetTurnSpeed()				const { return m_turnSpeed; }
+	float		GetMateAmount()				const { return m_mateAmount; }
+	float		GetFightAmount()			const { return m_fightAmount; }
+	float		GetEatAmount()				const { return m_eatAmount; }
 
-	unsigned long GetID()		const { return m_id; }
+	float		GetMaxEnergy()				const { return m_maxEnergy; }
+	float		GetFOV()					const { return m_retina.GetFOV(); }
+	int			GetLifeSpan()				const { return m_lifeSpan; }
+	float		GetSize()					const { return m_size; }
+	float		GetStrength()				const { return m_strength; }
+	float		GetMaxSpeed()				const { return m_maxSpeed; }
+	float		GetBirthEnergyFraction()	const { return m_birthEnergyFraction; }
 	
+	bool		IsElite()					const { return m_isElite; }
+	
+	bool CanMate() const;	
+
 	Retina&			GetRetina()			{ return m_retina; }
 	Brain*			GetBrain()			{ return m_brain; }
 	BrainGenome*	GetBrainGenome()	{ return m_brainGenome; }
+
 
 	//-----------------------------------------------------------------------------
 	// Setters.
@@ -66,12 +74,7 @@ public:
 	void SetVelocity(const Vector2f& velocity)			{ m_velocity = velocity; }
 	void SetElite(bool isElite)							{ m_isElite = isElite; }
 	void SetHeuristicFitness(float heuristicFitness)	{ m_heuristicFitness = heuristicFitness; }
-
-	bool CanMate() const { return (m_mateTimer <= 0); }
-	void OnMate();
-	void OnEat();
 	
-	//-----------------------------------------------------------------------------
 
 private:
 	//float		m_radius;
@@ -100,6 +103,10 @@ private:
 
 	float		m_heuristicFitness;
 	int			m_lifeSpan;
+	float		m_strength;
+	float		m_size;
+	float		m_maxSpeed;
+	float		m_birthEnergyFraction;
 
 	Simulation* m_simulation;
 

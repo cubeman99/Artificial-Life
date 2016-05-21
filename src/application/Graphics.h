@@ -77,6 +77,8 @@ public:
 	void Rotate(const Quaternion& rotation);
 	void Translate(const Vector2f& translation);
 	void Translate(const Vector3f& translation);
+	void Scale(float scale);
+	void Scale(const Vector3f& scale);
 
 private:
 	

@@ -452,7 +452,7 @@ void Brain::PreBirth()
 {
 	for (int i = 0; i < Simulation::PARAMS.numPrebirthCycles; i++)
 	{
-		// Feed the net's inputs randomized values.
+		// Feed randomized values to the neural net's inputs.
 		int inputNeuronsBegin = m_neuronModel->GetDimensions().GetInputNeuronsBegin();
 		int inputNeuronsEnd   = m_neuronModel->GetDimensions().GetInputNeuronsEnd();
 		for (int i = inputNeuronsBegin; i < inputNeuronsEnd; i++)
