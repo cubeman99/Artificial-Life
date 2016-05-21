@@ -5,13 +5,17 @@
 #include "Simulation.h"
 
 
+//-----------------------------------------------------------------------------
+// Constructor & destructor.
+//-----------------------------------------------------------------------------
+
 BrainGenome::BrainGenome()
 {
 	int numGroups = Simulation::PARAMS.numInputNeurGroups +
 					Simulation::PARAMS.numOutputNeurGroups +
 					Simulation::PARAMS.maxInternalNeuralGroups;
 
-	int genomeSize = FIRST_GROUP_GENE +
+	int genomeSize = NUM_PHYSIOLOGICAL_GENES +
 		(numGroups * NUM_GROUP_GENES) +
 		(numGroups * numGroups * NUM_SYNAPSE_TYPES * NUM_SYNAPSE_GENES);
 
@@ -23,23 +27,116 @@ BrainGenome::~BrainGenome()
 }
 
 
+//-----------------------------------------------------------------------------
+// Gene Access.
+//-----------------------------------------------------------------------------
+
+float BrainGenome::GetFOV()
+{
+	return GetGene(GENE_FOV).AsFloat(
+		Simulation::PARAMS.minFOV,
+		Simulation::PARAMS.maxFOV);
+}
+
+float BrainGenome::GetSize()
+{
+	return GetGene(GENE_SIZE).AsFloat(
+		Simulation::PARAMS.minSize,
+		Simulation::PARAMS.maxSize);
+}
+
+float BrainGenome::GetStrength()
+{
+	return GetGene(GENE_STRENGTH).AsFloat(
+		Simulation::PARAMS.minStrength,
+		Simulation::PARAMS.maxStrength);
+}
+
+float BrainGenome::GetMaxSpeed()
+{
+	return GetGene(GENE_GENE_MAX_SPEED).AsFloat(
+		Simulation::PARAMS.minMaxSpeed,
+		Simulation::PARAMS.maxMaxSpeed);
+}
+
+float BrainGenome::GetGreenColoration()
+{
+	return GetGene(GENE_GREEN_COLOR).AsFloat(
+		0.0f,
+		1.0f);
+}
+
+float BrainGenome::GetMutationRate()
+{
+	return GetGene(GENE_MUTATION_RATE).AsFloat(
+		Simulation::PARAMS.minMutationRate,
+		Simulation::PARAMS.maxMutationRate);
+}
+
+int BrainGenome::GetLifespan()
+{
+	return GetGene(GENE_LIFE_SPAN).AsInt(
+		Simulation::PARAMS.minLifeSpan,
+		Simulation::PARAMS.maxLifeSpan);
+}
+
+float BrainGenome::GetBirthEnergyFraction()
+{
+	return GetGene(GENE_BIRTH_ENERGY_FRACTION).AsFloat(
+		Simulation::PARAMS.minBirthEnergyFraction,
+		Simulation::PARAMS.maxBirthEnergyFraction);
+}
+
+int BrainGenome::GetNumRedNeurons()
+{
+	return GetGene(BrainGenome::GENE_NUM_RED_NEURONS).AsInt(
+		Simulation::PARAMS.minVisNeuronsPerGroup,
+		Simulation::PARAMS.maxVisNeuronsPerGroup);
+}
+
+int BrainGenome::GetNumGreenNeurons()
+{
+	return GetGene(BrainGenome::GENE_NUM_GREEN_NEURONS).AsInt(
+		Simulation::PARAMS.minVisNeuronsPerGroup,
+		Simulation::PARAMS.maxVisNeuronsPerGroup);
+}
+
+int BrainGenome::GetNumBlueNeurons()
+{
+	return GetGene(BrainGenome::GENE_NUM_BLUE_NEURONS).AsInt(
+		Simulation::PARAMS.minVisNeuronsPerGroup,
+		Simulation::PARAMS.maxVisNeuronsPerGroup);
+}
+
+int BrainGenome::GetNumInternalNeuralGroups()
+{
+	return GetGene(BrainGenome::GENE_NUM_INTERNAL_NEURAL_GROUPS).AsInt(
+		Simulation::PARAMS.minInternalNeuralGroups,
+		Simulation::PARAMS.maxInternalNeuralGroups);
+}
+
+
+//-----------------------------------------------------------------------------
+// Neurogenetics.
+//-----------------------------------------------------------------------------
+
+Gene BrainGenome::GetGroupGene(GeneIndex gene, int group)
+{
+	int offset = NUM_PHYSIOLOGICAL_GENES + (group * NUM_GROUP_GENES) + gene;
+	return GetGene(offset);
+}
+
 Gene BrainGenome::GetSynapseGene(GeneIndex gene, int groupFrom, int groupTo, SynapseType synapseType)
 {
 	int numGroups = Simulation::PARAMS.numInputNeurGroups +
 					Simulation::PARAMS.numOutputNeurGroups +
 					Simulation::PARAMS.maxInternalNeuralGroups;
 
-	int offset = FIRST_SYNAPSE_GENE + (numGroups * NUM_GROUP_GENES) +
-		((groupFrom * numGroups  * NUM_SYNAPSE_TYPES) +
-		(groupTo * NUM_SYNAPSE_TYPES) + (synapseType))  * NUM_SYNAPSE_GENES;
+	int offset = NUM_PHYSIOLOGICAL_GENES + (numGroups * NUM_GROUP_GENES) +
+				 ((groupFrom * numGroups  * NUM_SYNAPSE_TYPES) +
+				 (groupTo * NUM_SYNAPSE_TYPES) + (synapseType))  * NUM_SYNAPSE_GENES;
 
 	return GetGene(offset + gene);
-}
-
-Gene BrainGenome::GetGroupGene(GeneIndex gene, int group)
-{
-	int offset = FIRST_GROUP_GENE + (group * NUM_GROUP_GENES) + gene;
-	return GetGene(offset);
 }
 
 
@@ -164,11 +261,82 @@ int BrainGenome::GetSynapseCount(int groupFrom, int groupTo, SynapseType synapse
 	return Math::NInt(nFrom * nTo * connectionDensity);
 }
 
+
+//-----------------------------------------------------------------------------
+// Overridden methods.
+//-----------------------------------------------------------------------------
+
+int BrainGenome::GetNumCrossoverPoints()
+{
+	return GetGene(GENE_NUM_CROSSOVER_POINTS).AsInt(
+		Simulation::PARAMS.minNumCrossoverPoints,
+		Simulation::PARAMS.maxNumCrossoverPoints);
+}
+
+void BrainGenome::GetCrossoverPoints(int* crossoverPoints, int numCrossoverPoints)
+{
+	int genomeSize = GetDataSize();
+
+	assert(numCrossoverPoints >= 2 && genomeSize >= numCrossoverPoints);
+
+	// Guarantee one crossover point in the physiological genes
+	// and another in the neurological genes.
+	crossoverPoints[0] = Random::NextInt(0, NUM_PHYSIOLOGICAL_GENES);
+	crossoverPoints[1] = Random::NextInt(NUM_PHYSIOLOGICAL_GENES, genomeSize);
+
+	// Pick random points for the rest.
+	for (int i = 2; i < numCrossoverPoints; i++)
+	{
+		int cp;
+		bool isUnique = true;
+
+		// Pick a unique crossover point.
+		do
+		{
+			cp = Random::NextInt(0, genomeSize);
+			isUnique = true;
+			for (int j = 0; j < i; j++)
+			{
+				if (crossoverPoints[j] == cp)
+				{
+					isUnique = false;
+					break;
+				}
+			}
+		}
+		while (!isUnique);
+
+		// Insert the crossover point in sorted order.
+
+		// Find the index at which to insert the new crossover point.
+		int insertIndex = i;
+		for (int j = 0; j < i; j++)
+		{
+			if (cp < crossoverPoints[j])
+			{
+				insertIndex = j;
+				break;
+			}
+		}
+
+		// Shift larger crossover points up.
+		for (int j = i; j > insertIndex; j--)
+			crossoverPoints[j] = crossoverPoints[j - 1];
+
+		// Finally, insert the crossover point in its rightful place.
+		crossoverPoints[insertIndex] = cp;
+	}
+}
+
 void BrainGenome::Mutate()
 {
 	Genome::Mutate(GetMutationRate());
 }
 
+
+//-----------------------------------------------------------------------------
+// Static methods.
+//-----------------------------------------------------------------------------
 
 NeuronType BrainGenome::GetSynapseNeuronType_From(SynapseType synpaseType)
 {
@@ -200,97 +368,4 @@ NeuronType BrainGenome::GetSynapseNeuronType_To(SynapseType synpaseType)
 		assert(false);
 		return NEURON_TYPE_EXCITATORY;
 	}
-}
-
-
-
-float BrainGenome::GetFOV()
-{
-	return GetGene(GENE_FOV).AsFloat(
-		Simulation::PARAMS.minFOV,
-		Simulation::PARAMS.maxFOV);
-}
-
-float BrainGenome::GetSize()
-{
-	return GetGene(GENE_SIZE).AsFloat(
-		Simulation::PARAMS.minSize,
-		Simulation::PARAMS.maxSize);
-}
-
-float BrainGenome::GetStrength()
-{
-	return GetGene(GENE_STRENGTH).AsFloat(
-		Simulation::PARAMS.minStrength,
-		Simulation::PARAMS.maxStrength);
-}
-
-float BrainGenome::GetMaxSpeed()
-{
-	return GetGene(GENE_GENE_MAX_SPEED).AsFloat(
-		Simulation::PARAMS.minMaxSpeed,
-		Simulation::PARAMS.maxMaxSpeed);
-}
-
-float BrainGenome::GetGreenColoration()
-{
-	return GetGene(GENE_GREEN_COLOR).AsFloat(
-		0.0f,
-		1.0f);
-}
-
-float BrainGenome::GetMutationRate()
-{
-	return GetGene(GENE_MUTATION_RATE).AsFloat(
-		Simulation::PARAMS.minMutationRate,
-		Simulation::PARAMS.maxMutationRate);
-}
-
-int BrainGenome::GetNumCrossoverPoints()
-{
-	return GetGene(GENE_NUM_CROSSOVER_POINTS).AsInt(
-		Simulation::PARAMS.minNumCrossoverPoints,
-		Simulation::PARAMS.maxNumCrossoverPoints);
-}
-
-int BrainGenome::GetLifespan()
-{
-	return GetGene(GENE_LIFE_SPAN).AsInt(
-		Simulation::PARAMS.minLifeSpan,
-		Simulation::PARAMS.maxLifeSpan);
-}
-
-float BrainGenome::GetBirthEnergyFraction()
-{
-	return GetGene(GENE_BIRTH_ENERGY_FRACTION).AsFloat(
-		Simulation::PARAMS.minBirthEnergyFraction,
-		Simulation::PARAMS.maxBirthEnergyFraction);
-}
-
-int BrainGenome::GetNumRedNeurons()
-{
-	return GetGene(BrainGenome::GENE_NUM_RED_NEURONS).AsInt(
-		Simulation::PARAMS.minVisNeuronsPerGroup,
-		Simulation::PARAMS.maxVisNeuronsPerGroup);
-}
-
-int BrainGenome::GetNumGreenNeurons()
-{
-	return GetGene(BrainGenome::GENE_NUM_GREEN_NEURONS).AsInt(
-		Simulation::PARAMS.minVisNeuronsPerGroup,
-		Simulation::PARAMS.maxVisNeuronsPerGroup);
-}
-
-int BrainGenome::GetNumBlueNeurons()
-{
-	return GetGene(BrainGenome::GENE_NUM_BLUE_NEURONS).AsInt(
-		Simulation::PARAMS.minVisNeuronsPerGroup,
-		Simulation::PARAMS.maxVisNeuronsPerGroup);
-}
-
-int BrainGenome::GetNumInternalNeuralGroups()
-{
-	return GetGene(BrainGenome::GENE_NUM_INTERNAL_NEURAL_GROUPS).AsInt(
-		Simulation::PARAMS.minInternalNeuralGroups,
-		Simulation::PARAMS.maxInternalNeuralGroups);
 }

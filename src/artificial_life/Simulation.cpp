@@ -101,8 +101,8 @@ void Simulation::OnInitialize()
 	PARAMS.worldHeight				= 1300;
 	PARAMS.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
-	PARAMS.minAgents				= 35;
-	PARAMS.maxAgents				= 120;
+	PARAMS.minAgents				= 45;//35;
+	PARAMS.maxAgents				= 200;//120;
 	PARAMS.minFood					= 220;
 	PARAMS.maxFood					= 300;
 	PARAMS.initialFoodCount			= 220;
@@ -119,10 +119,18 @@ void Simulation::OnInitialize()
 	PARAMS.eatFitnessParam			= 1.0f;
 	PARAMS.mateFitnessParam			= 10.0f;
 	PARAMS.moveFitnessParam			= 1.0f / 800.0f;
-	PARAMS.energyFitnessParam		= 5.0f;
-	PARAMS.ageFitnessParam			= 0.1f;
+	PARAMS.energyFitnessParam		= 2.0f;
+	PARAMS.ageFitnessParam			= 0.03f;
 	
-	// TODO: Energy costs.
+	// Energy costs.
+	PARAMS.energyCostEat			= 0.0f;
+	PARAMS.energyCostMate			= 0.003f;
+	PARAMS.energyCostFight			= 0.0f;
+	PARAMS.energyCostMove			= 0.0f;//0.002f;
+	PARAMS.energyCostTurn			= 0.0f; //0.002f;
+	PARAMS.energyCostNeuron			= 0.0f; // TODO: find a value for this.
+	PARAMS.energyCostSynapse		= 0.0f; // TODO: find a value for this.
+	PARAMS.energyCostExist			= 0.001f;
 
 	//float maxsynapse2energy; // (amount if all synapses usable)
 	//float maxneuron2energy;
@@ -149,11 +157,11 @@ void Simulation::OnInitialize()
 	PARAMS.minMutationRate			= 0.01f;
 	PARAMS.maxMutationRate			= 0.1f;
 	PARAMS.minNumCrossoverPoints	= 2;
-	PARAMS.maxNumCrossoverPoints	= 8;
+	PARAMS.maxNumCrossoverPoints	= 2; // supposed to be 8
 	PARAMS.minLifeSpan				= 1500;
 	PARAMS.maxLifeSpan				= 2800;
 	PARAMS.minBirthEnergyFraction	= 0.1f;
-	PARAMS.maxBirthEnergyFraction	= 0.9f;
+	PARAMS.maxBirthEnergyFraction	= 0.7f;
 	PARAMS.minVisNeuronsPerGroup	= 1;
 	PARAMS.maxVisNeuronsPerGroup	= 16;
 	PARAMS.minInternalNeuralGroups	= 1;
@@ -390,6 +398,7 @@ void Simulation::UpdateControls(float timeDelta)
 	cameraForwardMove.z = 0.0f;
 	Vector3f cameraRightMove = m_camera.rotation.GetRight();
 
+	// TODO: magic numbers.
 	float minCamMoveSpeed	= 100.0f;
 	float maxCamMoveSpeed	= 2500.0f;
 	float minCamDist		= 20.0f;
@@ -731,7 +740,7 @@ void Simulation::UpdateSteadyStateGA()
 			
 			int numAgentsCreated = m_numAgentsCreatedElite + m_numAgentsCreatedMate + m_numAgentsCreatedRandom;
 			
-			if (Random::NextFloat() < 0.8f) // TODO: magic number
+			if (Random::NextFloat() < 0.5f) // TODO: magic number
 			{
 				// Mate two agents.
 				int iParent, jParent;
@@ -834,7 +843,8 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 
 void Simulation::Kill(Agent* agent)
 {
-	//agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetAge() * m_ageFitnessParam));
+	agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetAge() * Simulation::PARAMS.ageFitnessParam));
+	agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetEnergy() * Simulation::PARAMS.energyFitnessParam));
 
 	m_fittestList->Update(agent, agent->GetHeuristicFitness());
 	

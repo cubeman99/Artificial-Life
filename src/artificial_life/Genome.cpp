@@ -68,6 +68,37 @@ void Genome::Crossover(Genome* g1, Genome* g2)
 {
 	assert(g1->GetDataSize() == g2->GetDataSize());
 
+	int genomeSize = g1->GetDataSize();
+
+	// Get a list of the crossover points.
+	int numCrossoverPoints = (Random::NextBool() ? g1->GetNumCrossoverPoints() : g2->GetNumCrossoverPoints());
+	int* crossoverPoints = new int[numCrossoverPoints];
+	GetCrossoverPoints(crossoverPoints, numCrossoverPoints);
+	
+	Genome* parents[] = { g1, g2 };
+	int parentIndex = (Random::NextBool() ? 0 : 1);
+
+	// Crossover the genes.
+	for (int i = 0; i < numCrossoverPoints + 1; i++)
+	{
+		int startIndex = 0;
+		int endIndex = genomeSize;
+		if (i > 0)
+			startIndex = crossoverPoints[i - 1];
+		if (i < numCrossoverPoints)
+			endIndex = crossoverPoints[i];
+
+		// Copy the genome data.
+		memcpy_s(&m_data[0] + startIndex, genomeSize - startIndex,
+			     &parents[parentIndex]->m_data[0] + startIndex, endIndex - startIndex);
+
+		// Switch parents for the next strip.
+		parentIndex = 1 - parentIndex;
+	}
+	
+	delete [] crossoverPoints;
+
+	/*
 	// TODO: Variable number of crossover points (one gaurenteed in phsiological), get rid of crossover rate.
 
 	float crossoverRate = 0.7f;
@@ -99,4 +130,5 @@ void Genome::Crossover(Genome* g1, Genome* g2)
 		for (int i = cp; i < (int) g1->m_data.size(); ++i)
 			m_data[i] = parents[1 - parentIndex]->m_data[i];
 	}
+	*/
 }

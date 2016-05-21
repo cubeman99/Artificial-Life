@@ -42,6 +42,13 @@ public:
 		return m_agentCounter++;
 	}
 
+	float GetEnergyScale() 
+	{
+		if (m_agents.size() > 80)
+			return 1.0f;
+		return (m_agents.size() - 45.0f) / 35.0f;
+	}
+
 protected:
 	void OnInitialize() override;
 	void LoadModels();

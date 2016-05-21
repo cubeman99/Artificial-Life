@@ -47,9 +47,9 @@ void Agent::Grow()
 	m_birthEnergyFraction	= m_brainGenome->GetBirthEnergyFraction();
 
 	// Genes modified by size.
-	m_maxSpeed				= m_brainGenome->GetMaxSpeed() / m_size;
-	m_maxTurnRate			= 0.2f / m_size;
-	m_maxEnergy				= m_size * 12.0f;
+	m_maxSpeed				= m_brainGenome->GetMaxSpeed();// / m_size;
+	m_maxTurnRate			= 0.2f;// / m_size;
+	m_maxEnergy				= 30;//m_size * 12.0f;
 
 	// Misc.
 	m_mateDelay				= Simulation::PARAMS.mateWait;
@@ -75,6 +75,9 @@ void Agent::Reset()
 	m_mateTimer			= Simulation::PARAMS.initialMateWait;
 	
 	m_energy			= 10.0f; // Starting energy for generated agents (not born).
+
+
+	m_energy			= m_maxEnergy;
 }
 
 void Agent::UpdateBrain()
@@ -180,10 +183,21 @@ void Agent::Update()
 	m_age++;
 	
 	// Energy costs.
-	m_energy -= 0.003f * m_mateAmount;
+	//m_energy -= 0.003f * m_mateAmount;
 	//m_energy -= 0.003f * m_fightAmount;
 	//m_energy -= 0.003f * m_eatAmount;
-	m_energy -= 0.001f; // Energy cost for existing.
+	//m_energy -= 0.001f; // Energy cost for existing.
+
+	float energyCost = Simulation::PARAMS.energyCostExist +
+		(Simulation::PARAMS.energyCostEat     * m_eatAmount) +
+		(Simulation::PARAMS.energyCostMate    * m_mateAmount) +
+		(Simulation::PARAMS.energyCostFight   * m_fightAmount) +
+		(Simulation::PARAMS.energyCostMove    * (m_speed / m_maxSpeed)) +
+		(Simulation::PARAMS.energyCostTurn    * (Math::Abs(m_turnSpeed) / m_maxTurnRate)) +
+		(Simulation::PARAMS.energyCostNeuron  * m_brain->GetNeuralNet()->GetDimensions().numNeurons) +
+		(Simulation::PARAMS.energyCostSynapse * m_brain->GetNeuralNet()->GetDimensions().numSynapses);
+
+	m_energy -= energyCost;// * m_simulation->GetEnergyScale();
 
 	// Award fitness for moving.
 	m_heuristicFitness += m_speed * Simulation::PARAMS.moveFitnessParam;

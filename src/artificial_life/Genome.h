@@ -53,6 +53,9 @@ public:
 	
 	virtual void Mutate() {}
 
+	virtual int GetNumCrossoverPoints() { return 1; }
+	virtual void GetCrossoverPoints(int* crossoverPoints, int numCrossoverPoints) { }
+
 	void Randomize();
 	void Mutate(float mutationRate);
 	void Crossover(Genome* g1, Genome* g2);

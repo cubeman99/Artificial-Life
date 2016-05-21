@@ -40,6 +40,16 @@ struct SimulationParams
 	float energyFitnessParam;	// Fitness per energy 
 	float ageFitnessParam;		// Fitness per age in ticks.
 	
+	// Energy costs.
+	float energyCostEat;
+	float energyCostMate;
+	float energyCostFight;
+	float energyCostMove;
+	float energyCostTurn;
+	float energyCostNeuron;
+	float energyCostSynapse;
+	float energyCostExist;
+
 	// TODO: Energy costs.
 
 	//float maxsynapse2energy; // (amount if all synapses usable)
