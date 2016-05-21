@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{25b85c12-1aae-4818-bc87-362b6e21c4b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd_party">
+      <UniqueIdentifier>{5281fc36-822f-4ecf-ba79-ef669501bfa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life">
+      <UniqueIdentifier>{2abab901-a990-4c6c-a837-97c4286347c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\UNUSED">
+      <UniqueIdentifier>{75e3622e-2414-475b-b608-9aa16b13a4bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="circle_fitting">
+      <UniqueIdentifier>{ef87a455-beb0-4220-95e1-56e781ca028d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application">
+      <UniqueIdentifier>{c7371620-a251-4d8c-b13e-8f59493d4e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\ui">
+      <UniqueIdentifier>{53fa4198-f969-4211-8467-6b2c71159d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\agent">
+      <UniqueIdentifier>{8fc63020-3ce5-400c-ad6b-0832e4f8470d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\brain">
+      <UniqueIdentifier>{7bfc2550-986a-43e4-893c-8ffe1aff9a78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\food">
+      <UniqueIdentifier>{f57134b1-3895-481a-8077-d5113b7a1911}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="artificial_life\genome">
+      <UniqueIdentifier>{a7ef11a2-9099-4e3c-88b9-1afea295fdfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{0fc0105a-74cd-476a-b3aa-72147de5bd61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\3rdParty\lodepng.cpp">
+      <Filter>3rd_party</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\MathLib.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\Matrix4f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\Quaternion.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\Vector2f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\Vector3f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\math\Vector4f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Camera.cpp">
+      <Filter>artificial_life</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\FittestList.cpp">
+      <Filter>artificial_life</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Simulation.cpp">
+      <Filter>artificial_life</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\SimulationParams.cpp">
+      <Filter>artificial_life</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Agent.cpp">
+      <Filter>artificial_life\agent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Brain.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\BrainRenderer.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\GraphPanel.cpp">
+      <Filter>artificial_life\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Food.cpp">
+      <Filter>artificial_life\food</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\NeuronModel.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Neuron.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\OldGenome.cpp">
+      <Filter>artificial_life\UNUSED</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Retina.cpp">
+      <Filter>artificial_life\agent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\BrainGenome.cpp">
+      <Filter>artificial_life\genome</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\Genome.cpp">
+      <Filter>artificial_life\genome</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp">
+      <Filter>circle_fitting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp">
+      <Filter>circle_fitting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\Random.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\Timing.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Application.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Color.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Graphics.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Keyboard.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Mouse.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\SpriteFont.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\application\Window.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\3rdParty\lodepng.h">
+      <Filter>3rd_party</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\MathLib.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\Matrix4f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\Quaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\Vector2f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\Vector3f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\math\Vector4f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Camera.h">
+      <Filter>artificial_life</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\FittestList.h">
+      <Filter>artificial_life</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Simulation.h">
+      <Filter>artificial_life</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\SimulationParams.h">
+      <Filter>artificial_life</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Agent.h">
+      <Filter>artificial_life\agent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Brain.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\BrainRenderer.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\GraphPanel.h">
+      <Filter>artificial_life\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Food.h">
+      <Filter>artificial_life\food</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\NeuronModel.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\NeuronType.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Neuron.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\OldGenome.h">
+      <Filter>artificial_life\UNUSED</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Retina.h">
+      <Filter>artificial_life\agent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\BrainGenome.h">
+      <Filter>artificial_life\genome</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\Genome.h">
+      <Filter>artificial_life\genome</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\circle_fitting\CircleAIApp.h">
+      <Filter>circle_fitting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\circle_fitting\CircleGenome.h">
+      <Filter>circle_fitting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\Random.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\Timing.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Application.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Color.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Graphics.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Keyboard.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Mouse.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\SpriteFont.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\application\Window.h">
+      <Filter>application</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
