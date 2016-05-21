@@ -12,7 +12,7 @@
 
 #include <Windows.h>
 #include <GL/glew.h>
-
+#include <assert.h>
 
 struct Viewport
 {
@@ -30,6 +30,7 @@ struct Viewport
 
 	float GetAspectRatio() const
 	{
+		assert(height != 0);
 		return ((float) width / (float) height);
 	}
 

@@ -121,6 +121,8 @@ private:
 
 	float m_agentSelectionRadius;
 
+	float* m_agentVisionPixels;
+
 	std::vector<GenerationInfo> m_generationInfo;
 	FittestList* m_fittestList;
 	std::vector<float> m_recentFitnesses;

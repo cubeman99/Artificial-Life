@@ -6,17 +6,19 @@
 #include "Brain.h"
 #include <algorithm> // for std::sort
 
-
 SimulationParams Simulation::PARAMS;
 
 
 Simulation::Simulation()
 	: m_fittestList(NULL)
+	, m_agentVisionPixels(NULL)
 {
 }
 
 Simulation::~Simulation()
 {
+	delete m_agentVisionPixels; m_agentVisionPixels = NULL;
+
 	delete m_font; m_font = NULL;
 
 	// Delete all agents.
@@ -126,13 +128,13 @@ void Simulation::OnInitialize()
 	
 	// Energy costs.
 	PARAMS.energyCostEat			= 0.0f;
-	PARAMS.energyCostMate			= 0.003f;
-	PARAMS.energyCostFight			= 0.0f;
-	PARAMS.energyCostMove			= 0.0f;//0.002f;
-	PARAMS.energyCostTurn			= 0.0f; //0.002f;
+	PARAMS.energyCostMate			= 0.002f;
+	PARAMS.energyCostFight			= 0.002f;
+	PARAMS.energyCostMove			= 0.0005f;//0.002f;
+	PARAMS.energyCostTurn			= 0.0005f; //0.002f;
 	PARAMS.energyCostNeuron			= 0.0f; // TODO: find a value for this.
 	PARAMS.energyCostSynapse		= 0.0f; // TODO: find a value for this.
-	PARAMS.energyCostExist			= 0.001f;
+	PARAMS.energyCostExist			= 0.0005f;
 
 	//float maxsynapse2energy; // (amount if all synapses usable)
 	//float maxneuron2energy;
@@ -204,6 +206,8 @@ void Simulation::OnInitialize()
 	m_graphPopulation.SetViewBounds(0, 120,
 		(float) (Simulation::PARAMS.minAgents / 2),
 		(float) ((int) (Simulation::PARAMS.maxAgents * 1.2f)));
+
+	m_agentVisionPixels = new float[PARAMS.retinaResolution * 3]; // 3 channels.
 
 	//-----------------------------------------------------------------------------
 
@@ -354,6 +358,40 @@ void Simulation::UpdateControls(float timeDelta)
 {
 	Keyboard* keyboard = GetKeyboard();
 	Mouse* mouse = GetMouse();
+	
+	if (keyboard->IsKeyPressed(Keys::SPACE))
+	{
+		printf("-----------------------------------\n");
+
+		// NANs
+		printf("%f\n", m_agents[0]->GetMoveSpeed());
+		printf("%f\n", m_agents[0]->GetTurnSpeed());
+		printf("%f\n", m_agents[0]->GetMateAmount());
+		printf("%f\n", m_agents[0]->GetFightAmount());
+		printf("%f\n", m_agents[0]->GetEatAmount());
+		printf("%f\n", m_agents[0]->GetHeuristicFitness());
+
+		printf("%f\n", m_agents[0]->GetEnergy());
+		printf("%f\n", m_agents[0]->GetDirection());
+		printf("%f\n", m_agents[0]->GetVelocity().x);
+
+		printf("----------\n");
+
+		// Working.
+		printf("%f\n", m_agents[0]->GetFOV());
+		printf("%lu\n", m_agents[0]->GetID());
+		printf("%f\n", m_agents[0]->GetSize());
+		printf("%d\n", m_agents[0]->GetAge());
+		printf("%f\n", m_agents[0]->GetMaxEnergy());
+		printf("%f\n", m_agents[0]->GetMaxSpeed());
+		
+		printf("----------\n");
+
+		printf("%d\n", m_panelPOV.width);
+		printf("%d\n", m_panelPOV.height);
+
+		printf("-----------------------------------\n");
+	}
 
 	//-----------------------------------------------------------------------------
 	// Simulation controls.
@@ -1025,10 +1063,9 @@ void Simulation::RenderAgentVision(Agent* agent)
 	g.SetViewport(m_windowViewport, true);
 
 	// Read the pixels that were rendered.
-	Vector3f vecPixels[128];
-	float pixels[128 * 3];
-	glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, pixels);
-	agent->UpdateVision(pixels, vp.width);
+	// FIXME: Undefined behavior when window is minimized.
+	glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, m_agentVisionPixels);
+	agent->UpdateVision(m_agentVisionPixels, vp.width);
 }
 
 
