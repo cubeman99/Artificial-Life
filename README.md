@@ -22,11 +22,9 @@ NOTE: the program does run slow currently, because it needs to render the scene 
 
 #### Camera
  - <b>WASD:</b> pan camera.
- - <b>Scroll wheel:</b> Zoom in/out
+ - <b>Right click:</b> rotate camera.
+ - <b>Scroll wheel:</b> zoom in/out
+ - <b>Middle click:</b> pan camera.
  - <b>Numpad 8456:</b> rotate camera.
- - <b>Numpad +/-:</b> Zoom in/out
- - When Holding <b>LEFT ALT</b>:
-  - <b>Left click:</b>  rotate camera.
-  - <b>Right click:</b> zoom in/out.
-  - <b>Middle click:</b> pan camera.
+ - <b>Numpad +/-:</b> zoom in/out
  - <b>Home:</b> Reset camera.

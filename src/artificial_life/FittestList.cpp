@@ -81,7 +81,7 @@ void FittestList::Update(Agent* agent, float fitness)
 		// Add in the new agent at its appropriate rank.
 		newElement->fitness = fitness;
 		newElement->agentID	= agent->GetID();
-		newElement->genome->CopyFrom(agent->GetBrainGenome());
+		newElement->genome->CopyFrom(agent->GetGenome());
 	}
 }
 

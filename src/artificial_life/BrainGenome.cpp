@@ -206,7 +206,7 @@ NeuronType BrainGenome::GetSynapseNeuronType_To(SynapseType synpaseType)
 
 float BrainGenome::GetFOV()
 {
-	return GetGene(GENE_SIZE).AsFloat(
+	return GetGene(GENE_FOV).AsFloat(
 		Simulation::PARAMS.minFOV,
 		Simulation::PARAMS.maxFOV);
 }
@@ -220,7 +220,7 @@ float BrainGenome::GetSize()
 
 float BrainGenome::GetStrength()
 {
-	return GetGene(GENE_SIZE).AsFloat(
+	return GetGene(GENE_STRENGTH).AsFloat(
 		Simulation::PARAMS.minStrength,
 		Simulation::PARAMS.maxStrength);
 }

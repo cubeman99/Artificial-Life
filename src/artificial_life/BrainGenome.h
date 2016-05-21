@@ -13,6 +13,7 @@ public:
 		// Single value genes.
 		GENE_SIZE = 0,
 		GENE_STRENGTH,
+		GENE_FOV,
 		GENE_GENE_MAX_SPEED,
 		GENE_GREEN_COLOR,
 		GENE_MUTATION_RATE,

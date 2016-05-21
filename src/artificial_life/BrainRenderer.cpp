@@ -14,9 +14,9 @@ void BrainRenderer::RenderBrain(Graphics* g, Agent* agent, const Vector2f& posit
 	NeuronModel::Dimensions dims = neuralNet->GetDimensions();
 		
 	int numNonInputNeurons	= dims.GetNumNonInputNeurons();
-	int numRedNeurons		= agent->GetBrainGenome()->GetNumRedNeurons();
-	int numGreenNeurons		= agent->GetBrainGenome()->GetNumGreenNeurons();
-	int numBlueNeurons		= agent->GetBrainGenome()->GetNumBlueNeurons();
+	int numRedNeurons		= agent->GetGenome()->GetNumRedNeurons();
+	int numGreenNeurons		= agent->GetGenome()->GetNumGreenNeurons();
+	int numBlueNeurons		= agent->GetGenome()->GetNumBlueNeurons();
 	int numVisionNeurons	= numRedNeurons + numGreenNeurons + numBlueNeurons;
 	int numInputGroups		= Simulation::PARAMS.numInputNeurGroups;
 	int numOutputGroups		= Simulation::PARAMS.numInputNeurGroups;
@@ -167,8 +167,8 @@ void BrainRenderer::RenderBrain(Graphics* g, Agent* agent, const Vector2f& posit
 	for (int i = numInputGroups + numOutputGroups; i < agent->GetBrain()->GetNumNeuralGroups(); i++)
 	{
 		int numNeuronsInGroup = 
-			agent->GetBrainGenome()->GetNeuronCount(NEURON_TYPE_EXCITATORY, i) +
-			agent->GetBrainGenome()->GetNeuronCount(NEURON_TYPE_INHIBITORY, i);
+			agent->GetGenome()->GetNeuronCount(NEURON_TYPE_EXCITATORY, i) +
+			agent->GetGenome()->GetNeuronCount(NEURON_TYPE_INHIBITORY, i);
 		sepCounter += numNeuronsInGroup;
 		groupSeps.push_back(sepCounter);
 	}

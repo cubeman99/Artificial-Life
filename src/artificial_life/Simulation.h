@@ -49,9 +49,15 @@ protected:
 	void ResetCamera();
 
 	void OnUpdate(float timeDelta) override;
-	void UpdateWorld(float timeDelta);
-	void RenderAgentVision(Agent* agent);
+	void UpdateControls(float timeDelta);
 	void UpdateScreenLayout();
+	void UpdateStatistics();
+
+	void UpdateWorld();
+	void UpdateAgents();
+	void RenderAgentVision(Agent* agent);
+	void UpdateFood();
+	void UpdateSteadyStateGA();
 
 	void OnRender() override;
 	void RenderWorld(ICamera* camera, Agent* agent = NULL);

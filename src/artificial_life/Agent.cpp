@@ -14,9 +14,8 @@ Agent::Agent(Simulation* simulation)
 	, m_simulation(simulation)
 {
 	m_brainGenome = new BrainGenome();
-	m_brainGenome->Randomize();
+
 	m_brain = new Brain(m_brainGenome);
-	m_brain->PreBirth();
 
 	m_id = m_simulation->GetNewAgentID();
 }
@@ -31,8 +30,9 @@ Agent::~Agent()
 // Grow an agent from its genome.
 void Agent::Grow()
 {
-	// Grow the brain.
+	// Grow the brain and some random signals to it.
 	m_brain->Grow();
+	m_brain->PreBirth();
 
 	// Configure the retina.
 	m_retina.SetFOV(m_brainGenome->GetFOV());
@@ -40,28 +40,22 @@ void Agent::Grow()
 	m_retina.SetNumNeurons(1, m_brainGenome->GetNumGreenNeurons());
 	m_retina.SetNumNeurons(2, m_brainGenome->GetNumBlueNeurons());
 
-	// Other genes.
+	// Physiological genes.
 	m_lifeSpan				= m_brainGenome->GetLifespan();
 	m_size					= m_brainGenome->GetSize();
 	m_strength				= m_brainGenome->GetStrength();
-	m_maxSpeed				= m_brainGenome->GetMaxSpeed();
 	m_birthEnergyFraction	= m_brainGenome->GetBirthEnergyFraction();
-	
-	m_maxEnergy = 20.0f; // TODO: max energy determined by size.
-	
-	m_maxEnergy = m_size * 12.0f;
 
-	m_mateDelay = Simulation::PARAMS.mateWait;
+	// Genes modified by size.
+	m_maxSpeed				= m_brainGenome->GetMaxSpeed() / m_size;
+	m_maxTurnRate			= 0.2f / m_size;
+	m_maxEnergy				= m_size * 12.0f;
+
+	// Misc.
+	m_mateDelay				= Simulation::PARAMS.mateWait;
 
 	Reset();
 }
-
-void Agent::PreBirth()
-{
-	// Send some random signals to the brain.
-	m_brain->PreBirth();
-}
-
 
 void Agent::Reset()
 {
@@ -83,58 +77,57 @@ void Agent::Reset()
 	m_energy			= 10.0f; // Starting energy for generated agents (not born).
 }
 
-void Agent::Update(float timeDelta)
+void Agent::UpdateBrain()
+{
+	NeuronModel* neuralNet = m_brain->GetNeuralNet();
+	
+	//-----------------------------------------------------------------------------
+	// Set the inputs.
+
+	// Set vision input-neuron activations.
+	int neuronIndex = 0;
+	for (int channel = 0; channel < m_retina.GetNumChannels(); channel++)
+	{
+		for (int i = 0; i < m_retina.GetNumNeurons(channel); i++)
+		{
+			neuralNet->SetNeuronActivation(neuronIndex,
+				m_retina.GetSightValue(channel, i));
+			neuronIndex++;
+		}
+	}
+
+	neuralNet->SetNeuronActivation(neuronIndex++, Math::Clamp(m_energy / m_maxEnergy, 0.0f, 1.0f)); // Energy
+	neuralNet->SetNeuronActivation(neuronIndex++, Random::NextFloat()); // Random
+		
+	//-----------------------------------------------------------------------------
+	// Update the brain's neural network.
+
+	neuralNet->Update();
+	
+	//-----------------------------------------------------------------------------
+	// Gather the outputs.
+
+	float neuralNetOutputs[10];
+	for (int i = 0; i < m_brain->GetNeuralNet()->GetDimensions().numOutputNeurons; i++)
+	{
+		neuralNetOutputs[i] = neuralNet->GetNeuronActivation(
+			neuralNet->GetDimensions().GetOutputNeuronsBegin() + i);
+	}
+
+	m_speed			= neuralNetOutputs[0] * m_brainGenome->GetMaxSpeed();
+	m_turnSpeed		= ((neuralNetOutputs[1] * 2.0f) - 1.0f) * m_maxTurnRate;
+	m_mateAmount	= neuralNetOutputs[2];
+	m_fightAmount	= neuralNetOutputs[3];
+	m_eatAmount		= neuralNetOutputs[4];
+}
+
+void Agent::Update()
 {
 	if (m_energy > m_maxEnergy)
 		m_energy = m_maxEnergy;
 
-	//-----------------------------------------------------------------------------
-	// Update brain.
-
-	NeuronModel* neuralNet = m_brain->GetNeuralNet();
-	
-	// Set input activations.
-	for (int i = neuralNet->GetDimensions().GetInputNeuronsBegin(); i < neuralNet->GetDimensions().GetInputNeuronsEnd(); i++)
-	{
-		neuralNet->SetNeuronActivation(i, Random::NextFloat());
-	}
-	
-	// NOTE: this may need to be done twice per time step??
-	//for (int k = 0; k < 2; k++)
-	{
-		// Set vision neuron activations.
-		int neuronIndex = 0;
-		for (int channel = 0; channel < m_retina.GetNumChannels(); channel++)
-		{
-			for (int i = 0; i < m_retina.GetNumNeurons(channel); i++)
-			{
-				neuralNet->SetNeuronActivation(neuronIndex,
-					m_retina.GetSightValue(channel, i));
-				neuronIndex++;
-			}
-		}
-
-		neuralNet->SetNeuronActivation(neuronIndex++, Math::Clamp(m_energy / m_maxEnergy, 0.0f, 1.0f)); // Energy
-		neuralNet->SetNeuronActivation(neuronIndex++, Random::NextFloat()); // Random
-
-		neuralNet->Update();
-	}
-	
-	// Gather the outputs.
-	std::vector<float> neuralNetOutputs;
-	for (int i = 0; i < m_brain->GetNeuralNet()->GetDimensions().numOutputNeurons; i++)
-	{
-		neuralNetOutputs.push_back(neuralNet->GetNeuronActivation(
-			neuralNet->GetDimensions().GetOutputNeuronsBegin() + i));
-	}
-
-	float maxTurnRate	= 0.2f;
-	m_speed			= neuralNetOutputs[0] * m_brainGenome->GetMaxSpeed() / m_brainGenome->GetSize();
-	m_turnSpeed		= ((neuralNetOutputs[1] * 2.0f) - 1.0f) * maxTurnRate / m_brainGenome->GetSize();
-	m_mateAmount	= neuralNetOutputs[2];
-	m_fightAmount	= neuralNetOutputs[3];
-	m_eatAmount		= neuralNetOutputs[4];
-	
+	UpdateBrain();
+		
 	//-----------------------------------------------------------------------------
 	// Update movement.
 	
@@ -186,12 +179,13 @@ void Agent::Update(float timeDelta)
 	
 	m_age++;
 	
+	// Energy costs.
 	m_energy -= 0.003f * m_mateAmount;
+	//m_energy -= 0.003f * m_fightAmount;
+	//m_energy -= 0.003f * m_eatAmount;
+	m_energy -= 0.001f; // Energy cost for existing.
 
-	m_energy -= 0.001f;
-
-	//m_energy -= 0.005f; // Energy cost for existing.
-
+	// Award fitness for moving.
 	m_heuristicFitness += m_speed * Simulation::PARAMS.moveFitnessParam;
 }
 

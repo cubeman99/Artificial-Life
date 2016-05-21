@@ -27,16 +27,21 @@ Simulation::~Simulation()
 	delete m_fittestList; m_fittestList = NULL;
 }
 
+
+
 void Simulation::OnInitialize()
 {
 	Random::SeedTime();
-
 	
-
+	//-----------------------------------------------------------------------------
 	// Load resources.
+
 	m_font = new SpriteFont("../assets/font_console.png", 16, 8, 12, 0);
 	LoadModels();
 	
+	//-----------------------------------------------------------------------------
+	// Configure graphs.
+
 	Color colorBestFitness		= Color::GREEN;
 	Color colorAverageFitness	= Color::YELLOW;
 	Color colorWorstFitness		= Color::RED;
@@ -57,6 +62,9 @@ void Simulation::OnInitialize()
 	m_graphFitness.AddGraph(Color::GREEN, 1, 4); // best
 	m_graphFitness.AddGraph(Color::RED, 2, 4); // worst
 	m_graphFitness.AddGraph(Color::YELLOW, 3, 4); // average
+
+	//-----------------------------------------------------------------------------
+	// Reset simulation variables.
 
 	m_agentSelectionRadius = 20;
 
@@ -191,15 +199,15 @@ void Simulation::OnInitialize()
 
 	// Setup OpenGL state.
 	glDepthMask(true);
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);
-    glEnable(GL_CULL_FACE);
-	glCullFace(GL_CCW);
 	
 	UpdateScreenLayout();
 	ResetCamera();
 	
-	// Create food.
+	//-----------------------------------------------------------------------------
+	// Initialize world.
+
+	// Create initial food.
 	m_food.resize(Simulation::PARAMS.initialFoodCount);
 	for (int i = 0; i < Simulation::PARAMS.initialFoodCount; i++)
 	{
@@ -208,13 +216,12 @@ void Simulation::OnInitialize()
 			Random::NextFloat() * m_worldDimensions.y));
 	}
 	
-	// Create agents.
+	// Create initial agents with random genomes.
 	for (int i = 0; i < Simulation::PARAMS.initialNumAgents; i++)
 	{
 		Agent* agent = new Agent(this);
+		agent->GetGenome()->Randomize();
 		agent->Grow();
-		agent->PreBirth();
-		agent->Reset();
 		agent->SetPosition(Vector2f(
 			Random::NextFloat() * m_worldDimensions.x,
 			Random::NextFloat() * m_worldDimensions.y));
@@ -320,202 +327,26 @@ void Simulation::ResetCamera()
 	m_camera.distance = z;
 }
 
-void Simulation::NextGeneration()
-{
-	// Reset food.
-	m_food.resize(Simulation::PARAMS.initialFoodCount);
-	for (int i = 0; i < Simulation::PARAMS.initialFoodCount; i++)
-	{
-		m_food[i].SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
-	}
-	
-	// Sort the population by fitness.
-	std::sort(m_agents.begin(), m_agents.end(), [](Agent* a, Agent* b) {
-		return (a->GetHeuristicFitness() > b->GetHeuristicFitness());
-	});
-	
-	// Calculate the total fitness.
-	float totalFitness = 0.0f;
-	for (unsigned int i = 0; i < m_agents.size(); i++)
-		totalFitness += m_agents[i]->GetHeuristicFitness();
-	float averageFitness = totalFitness / (float) m_agents.size();
-	
-	// Print the fitness statistics for the generation.
-	GenerationInfo genInfo;
-	genInfo.averageFitness	= averageFitness;
-	genInfo.bestFitness		= (float) m_agents.front()->GetHeuristicFitness();
-	genInfo.worstFitness	= (float) m_agents.back()->GetHeuristicFitness();
-	m_generationInfo.push_back(genInfo);
 
-	m_simulationStats.clear();
-
-	std::cout << "---------------------------------------------------" << std::endl;
-	std::cout << "Generation " << m_generation << ":" << std::endl;
-	std::cout << "Best fitness  = " << m_agents.front()->GetHeuristicFitness();
-	if (m_agents.front()->IsElite())
-		std::cout << " (elite)";
-	std::cout << std::endl;
-	std::cout << "Worst fitness = " << m_agents.back()->GetHeuristicFitness() << std::endl;
-	std::cout << "Avg fitness   = " << averageFitness << std::endl;
-
-	// Create new population of agents.
-	std::vector<Agent*> newAgents;
-	while ((int) newAgents.size() < m_numAgents - (m_numElites * m_numEliteCopies))
-	{
-		// Select two mates.
-		Agent* mommy = AgentRoulette();
-		Agent* daddy = AgentRoulette();
-		Agent* child = new Agent(this);
-		child->GetBrainGenome()->Crossover(
-			mommy->GetBrainGenome(),
-			daddy->GetBrainGenome());
-		child->GetBrainGenome()->Mutate();
-		child->Grow();
-		child->PreBirth();
-		child->Reset();
-		child->SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
-		newAgents.push_back(child);
-	}
-
-	bool isSelectedAgentElite = false;
-
-	// Add in elites.
-	for (int i = 0; i < m_numElites; i++)
-	{
-		Agent* elite = m_agents[i];
-		
-		for (int j = 0; j < m_numEliteCopies; j++)
-		{
-			Agent* agent = new Agent(this);
-			agent->GetBrainGenome()->CopyFrom(elite->GetBrainGenome());
-			agent->Grow();
-			agent->PreBirth();
-			agent->Reset();
-			agent->SetElite(true);
-			agent->SetPosition(Vector2f(
-				Random::NextFloat() * m_worldDimensions.x,
-				Random::NextFloat() * m_worldDimensions.y));
-			newAgents.push_back(agent);
-			
-			if (m_selectedAgent == elite)
-			{
-				isSelectedAgentElite = true;
-				m_selectedAgent = agent;
-			}
-		}
-	}
-
-	// Delete old generation of agents.
-	for (unsigned int i = 0; i < m_agents.size(); i++)
-		delete m_agents[i];
-
-	m_agents = newAgents;
-	m_generation++;
-
-	if (!isSelectedAgentElite)
-		m_selectedAgent = NULL;
-}
-
-Agent* Simulation::AgentRoulette()
-{
-	if (m_agents.empty())
-		return NULL;
-
-	// Calculate the total fitness.
-	float totalFitness = 0.0f;
-	for (int i = 0; i < m_numAgents; i++)
-		totalFitness += m_agents[i]->GetHeuristicFitness();
-
-	// Select an agent at random.
-	float randomSelection = Random::NextFloat() * totalFitness;
-	float fitnessCounter = 0.0f;
-
-	for (int i = 0; i < (int) m_agents.size(); i++)
-	{
-		fitnessCounter += m_agents[i]->GetHeuristicFitness();
-
-		if (randomSelection <= fitnessCounter)
-			return m_agents[i];
-	}
-
-	return m_agents[0];
-}
-
-Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
-{
-	if ((int) m_agents.size() + 1 > Simulation::PARAMS.maxAgents)
-	{
-		m_numBirthsDenied++;
-		std::cout << "Birth denied!" << std::endl;
-		return NULL;
-	}
-
-	if (!mommy->CanMate() || mommy->GetEnergy() <= 0.0f ||
-		!daddy->CanMate() || daddy->GetEnergy() <= 0.0f)
-		return NULL;
-
-	float mommyEnergy = mommy->GetEnergy() * mommy->GetBrainGenome()->GetBirthEnergyFraction();
-	float daddyEnergy = daddy->GetEnergy() * daddy->GetBrainGenome()->GetBirthEnergyFraction();
-	float childEnergy = mommyEnergy + daddyEnergy;
-	
-	// Mating costs energy.
-	mommy->AddEnergy(-mommyEnergy);
-	daddy->AddEnergy(-daddyEnergy);
-
-	// Create the child.
-	Agent* child = new Agent(this);
-	child->GetBrainGenome()->Crossover(
-		mommy->GetBrainGenome(),
-		daddy->GetBrainGenome());
-	child->GetBrainGenome()->Mutate();
-	child->Grow();
-	child->PreBirth();
-	child->Reset();
-	child->SetEnergy(childEnergy);
-	child->SetPosition((mommy->GetPosition() + daddy->GetPosition()) * 0.5f);
-	
-	mommy->OnMate();
-	daddy->OnMate();
-
-	std::cout << "An agent was born!" << std::endl;
-	
-	m_numAgentsBorn++;
-
-	return child;
-}
-
-void Simulation::Kill(Agent* agent)
-{
-	//agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetAge() * m_ageFitnessParam));
-
-	m_fittestList->Update(agent, agent->GetHeuristicFitness());
-	
-	std::cout << "Killing agent #" << agent->GetID() << " with fitness " << agent->GetHeuristicFitness() << std::endl;
-
-	m_recentFitnesses.push_back(agent->GetHeuristicFitness());
-
-	if (m_recentFitnesses.size() > 30)
-		m_recentFitnesses.erase(m_recentFitnesses.begin());
-
-	if (m_selectedAgent == agent)
-		m_selectedAgent = NULL;
-
-	delete agent;
-}
+//-----------------------------------------------------------------------------
+// Simulation Update
+//-----------------------------------------------------------------------------
 
 void Simulation::OnUpdate(float timeDelta)
+{
+	UpdateWorld();
+	UpdateControls(timeDelta);
+	UpdateScreenLayout();
+	UpdateStatistics();
+}
+
+void Simulation::UpdateControls(float timeDelta)
 {
 	Keyboard* keyboard = GetKeyboard();
 	Mouse* mouse = GetMouse();
 
-	UpdateScreenLayout();
-
 	//-----------------------------------------------------------------------------
-	// Keyboard controls.
+	// Simulation controls.
 		
 	// Escape: Exit the program.
 	if (keyboard->IsKeyPressed(Keys::ESCAPE))
@@ -579,7 +410,7 @@ void Simulation::OnUpdate(float timeDelta)
 		m_camera.position += cameraRightMove * camMoveSpeed * timeDelta;
 	if (keyboard->IsKeyDown(Keys::A))
 		m_camera.position -= cameraRightMove * camMoveSpeed * timeDelta;
-	if (mouse->IsButtonDown(MouseButtons::MIDDLE) && keyboard->IsKeyDown(Keys::LALT))
+	if (mouse->IsButtonDown(MouseButtons::MIDDLE))
 	{
 		m_camera.position -= cameraRightMove   * camMousePanAmount * (float) mouse->GetDeltaX();
 		m_camera.position += cameraForwardMove * camMousePanAmount * (float) mouse->GetDeltaY();
@@ -594,7 +425,7 @@ void Simulation::OnUpdate(float timeDelta)
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), -camRotateSpeed * timeDelta);
 	if (keyboard->IsKeyDown(Keys::NUMPAD_5)) // down
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), camRotateSpeed * timeDelta);
-	if (mouse->IsButtonDown(MouseButtons::LEFT) && keyboard->IsKeyDown(Keys::LALT))
+	if (mouse->IsButtonDown(MouseButtons::RIGHT))
 	{
 		m_camera.rotation.Rotate(Vector3f::UNITZ, camRotateRadians * mouse->GetDeltaX());
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), camRotateRadians * mouse->GetDeltaY());
@@ -603,8 +434,6 @@ void Simulation::OnUpdate(float timeDelta)
 	// Scroll Wheel or Right Mouse: Zoom in/out.
 	if (mouse->GetDeltaZ() != 0)
 		m_camera.distance = m_camera.distance * powf(0.9f, (float) mouse->GetDeltaZ());
-	if (mouse->IsButtonDown(MouseButtons::RIGHT) && keyboard->IsKeyDown(Keys::LALT) && mouse->GetDeltaX() != 0)
-		m_camera.distance = m_camera.distance * powf(0.99f, (float) mouse->GetDeltaX());
 	if (keyboard->IsKeyDown(Keys::NUMPAD_PLUS))
 		m_camera.distance = m_camera.distance * powf(0.1f, timeDelta);
 	if (keyboard->IsKeyDown(Keys::NUMPAD_MINUS))
@@ -614,34 +443,7 @@ void Simulation::OnUpdate(float timeDelta)
 	// Home: Reset the camera.
 	if (keyboard->IsKeyPressed(Keys::HOME))
 		ResetCamera();
-
-	// Update the world.
-	int numIterations = 1;
-	if (keyboard->IsKeyDown(Keys::SPACE))
-		numIterations = 10;
-	for (int i = 0; i < numIterations; i++)
-	{
-		UpdateWorld(timeDelta);
-		//m_generationTickCounter++;
-	}
 	
-	// 0: Process the entire generation.
-	//if (keyboard->IsKeyDown(Keys::D0))
-	//{
-	//	//while (m_generationTimer <= m_generationDuration)
-	//	while (m_generationTickCounter <= m_generationTickDuration)
-	//	{
-	//		UpdateWorld(timeDelta);
-	//		m_generationTickCounter++;
-	//	}
-	//}
-
-	if (m_generationTickCounter > m_generationTickDuration)
-	{
-		m_generationTickCounter = 0;
-		NextGeneration();
-	}
-
 	// Update agent camera following.
 	if (m_followAgent && m_selectedAgent != NULL)
 	{
@@ -683,8 +485,7 @@ void Simulation::OnUpdate(float timeDelta)
 	//-------------------------------------------------------
 	// Left click: select agents.
 
-	if (mouse->IsButtonPressed(MouseButtons::LEFT) &&
-		!keyboard->IsKeyDown(Keys::LALT))
+	if (mouse->IsButtonPressed(MouseButtons::LEFT))
 	{
 		m_selectedAgent = NULL;
 		float nearestAgentDist = 0.0f;
@@ -704,46 +505,6 @@ void Simulation::OnUpdate(float timeDelta)
 		if (nearestAgent != NULL && nearestAgentDist < m_agentSelectionRadius)
 			m_selectedAgent = nearestAgent;
 	}
-
-	// Update world statistics.
-	if (m_worldAge % 60 == 0)
-	{
-		float totalEnergy = 0.0f;
-		for (unsigned int i = 0; i < m_agents.size(); i++)
-			totalEnergy += m_agents[i]->GetEnergy();
-		
-		Stats stats;
-		stats.totalEnergy = totalEnergy;
-		m_simulationStats.push_back(stats);
-		m_populationData.push_back((float) m_agents.size());
-		m_graphEnergy.SetData((float*) &m_simulationStats[0], (int) m_simulationStats.size());
-		m_graphPopulation.SetData((float*) &m_populationData[0], (int) m_populationData.size());
-
-		float totalfit = 0.0f;
-		float avgFit = 0.0f;
-		float worstFit = 0.0f;
-		float bestFit = 0.0f;
-		if (m_recentFitnesses.size() > 0)
-		{
-			for (unsigned int i = 0; i < m_recentFitnesses.size(); i++)
-			{
-				totalfit += m_recentFitnesses[i];
-				if (m_recentFitnesses[i] < worstFit || i == 0)
-					worstFit = m_recentFitnesses[i];
-				if (m_recentFitnesses[i] > bestFit || i == 0)
-					bestFit = m_recentFitnesses[i];
-			}
-			avgFit = totalfit / (float) m_recentFitnesses.size();
-		}
-		GenerationInfo genInfo;
-		genInfo.averageFitness = avgFit;
-		genInfo.worstFitness = worstFit;
-		genInfo.bestFitness = bestFit;
-		genInfo.generationIndex = (int) m_generationInfo.size();
-		m_generationInfo.push_back(genInfo);
-	}
-	
-	m_graphFitness.SetData((float*) &m_generationInfo[0], (int) m_generationInfo.size() * 4);
 }
 
 void Simulation::UpdateScreenLayout()
@@ -810,10 +571,65 @@ void Simulation::UpdateScreenLayout()
 	m_camera.projection	= Matrix4f::CreatePerspective(m_cameraFOV, m_cameraAspect, 4.0f, 3000.0f);
 }
 
-void Simulation::UpdateWorld(float timeDelta)
+void Simulation::UpdateStatistics()
+{
+	// Update world statistics.
+	if (m_worldAge % 60 == 0)
+	{
+		float totalEnergy = 0.0f;
+		for (unsigned int i = 0; i < m_agents.size(); i++)
+			totalEnergy += m_agents[i]->GetEnergy();
+		
+		Stats stats;
+		stats.totalEnergy = totalEnergy;
+		m_simulationStats.push_back(stats);
+		m_populationData.push_back((float) m_agents.size());
+		m_graphEnergy.SetData((float*) &m_simulationStats[0], (int) m_simulationStats.size());
+		m_graphPopulation.SetData((float*) &m_populationData[0], (int) m_populationData.size());
+
+		float totalfit = 0.0f;
+		float avgFit = 0.0f;
+		float worstFit = 0.0f;
+		float bestFit = 0.0f;
+		if (m_recentFitnesses.size() > 0)
+		{
+			for (unsigned int i = 0; i < m_recentFitnesses.size(); i++)
+			{
+				totalfit += m_recentFitnesses[i];
+				if (m_recentFitnesses[i] < worstFit || i == 0)
+					worstFit = m_recentFitnesses[i];
+				if (m_recentFitnesses[i] > bestFit || i == 0)
+					bestFit = m_recentFitnesses[i];
+			}
+			avgFit = totalfit / (float) m_recentFitnesses.size();
+		}
+		GenerationInfo genInfo;
+		genInfo.averageFitness = avgFit;
+		genInfo.worstFitness = worstFit;
+		genInfo.bestFitness = bestFit;
+		genInfo.generationIndex = (int) m_generationInfo.size();
+		m_generationInfo.push_back(genInfo);
+	}
+	
+	m_graphFitness.SetData((float*) &m_generationInfo[0], (int) m_generationInfo.size() * 4);
+}
+
+
+//-----------------------------------------------------------------------------
+// Update World
+//-----------------------------------------------------------------------------
+
+void Simulation::UpdateWorld()
 {
 	m_worldAge++;
-	
+
+	UpdateAgents();
+	UpdateSteadyStateGA();
+	UpdateFood();
+}
+
+void Simulation::UpdateAgents()
+{
 	// Update all agents.
 	for (unsigned int i = 0; i < m_agents.size(); i++)
 	{
@@ -837,7 +653,7 @@ void Simulation::UpdateWorld(float timeDelta)
 		}
 		
 		// Update the agent.
-		agent->Update(timeDelta);
+		agent->Update();
 		RenderAgentVision(agent);
 		
 		// Kill the agent if its energy drops below zero.
@@ -853,58 +669,7 @@ void Simulation::UpdateWorld(float timeDelta)
 			i--;
 		}
 	}
-
-	// Grow more food at a constant rate.
-	if ((int) m_food.size() < Simulation::PARAMS.minFood && m_worldAge % 4 == 0)
-	{
-		Food food;
-		food.SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
-		m_food.push_back(food);
-	}
-
-	// Steady state GA for when the population is too small.
-	if (m_fittestList->GetSize() > 1)
-	{
-		while ((int) m_agents.size() < Simulation::PARAMS.minAgents)
-		{
-			Agent* child = new  Agent(this);
-			
-			if (Random::NextFloat() < 0.8f) // TODO: magic number
-			{
-				// Mate two agents.
-				int iParent, jParent;
-				PickParentsUsingTournament(m_fittestList->GetSize(), &iParent, &jParent);
-				child->GetBrainGenome()->Crossover(
-					m_fittestList->GetByRank(iParent)->genome,
-					m_fittestList->GetByRank(jParent)->genome);
-				child->GetBrainGenome()->Mutate();
-				m_numAgentsCreatedMate++;
-			}
-			else
-			{
-				// Create a random agent.
-				child->GetBrainGenome()->Randomize();
-				m_numAgentsCreatedRandom++;
-			}
-			
-			// TODO: Revive a fittest agent.
-			//m_numAgentsCreatedElite++;
-
-			child->Grow();
-			child->PreBirth();
-			child->Reset();
-			child->SetPosition(Vector2f(
-				Random::NextFloat() * m_worldDimensions.x,
-				Random::NextFloat() * m_worldDimensions.y));
-			
-			m_agents.push_back(child);
-		}
-	}
-
-	std::vector<Agent*> newBorns;
-
+	
 	float mateThreshhold = 0.6f;
 
 	// Mate agents.
@@ -919,11 +684,9 @@ void Simulation::UpdateWorld(float timeDelta)
 				continue;
 
 			Agent* daddy = m_agents[j];
-
 			float dist = Vector2f::Dist(mommy->GetPosition(), daddy->GetPosition());
 				
-			if (
-				dist < 60 &&
+			if (dist < 60 &&
 				mommy->CanMate() &&
 				daddy->CanMate() &&
 				mommy->GetMateAmount() > mateThreshhold &&
@@ -934,13 +697,67 @@ void Simulation::UpdateWorld(float timeDelta)
 				if (child != NULL)
 				{
 					child->SetPosition((mommy->GetPosition() + daddy->GetPosition()) * 0.5f);
-					//child->SetPosition(Vector2f(
-						//Random::NextFloat() * m_worldDimensions.x,
-						//Random::NextFloat() * m_worldDimensions.y));
 					m_agents.push_back(child);
 				}
 				break;
 			}
+		}
+	}
+}
+
+void Simulation::UpdateFood()
+{
+	// TODO: Better food.
+
+	// Spawn food at a constant rate.
+	if ((int) m_food.size() < Simulation::PARAMS.minFood && m_worldAge % 4 == 0)
+	{
+		Food food;
+		food.SetPosition(Vector2f(
+			Random::NextFloat() * m_worldDimensions.x,
+			Random::NextFloat() * m_worldDimensions.y));
+		m_food.push_back(food);
+	}
+}
+
+void Simulation::UpdateSteadyStateGA()
+{
+	// Steady state GA for when the population is too small.
+	if (m_fittestList->GetSize() > 1)
+	{
+		while ((int) m_agents.size() < Simulation::PARAMS.minAgents)
+		{
+			Agent* child = new  Agent(this);
+			
+			int numAgentsCreated = m_numAgentsCreatedElite + m_numAgentsCreatedMate + m_numAgentsCreatedRandom;
+			
+			if (Random::NextFloat() < 0.8f) // TODO: magic number
+			{
+				// Mate two agents.
+				int iParent, jParent;
+				PickParentsUsingTournament(m_fittestList->GetSize(), &iParent, &jParent);
+				child->GetGenome()->Crossover(
+					m_fittestList->GetByRank(iParent)->genome,
+					m_fittestList->GetByRank(jParent)->genome);
+				child->GetGenome()->Mutate();
+				m_numAgentsCreatedMate++;
+			}
+			else
+			{
+				// Create a random agent.
+				child->GetGenome()->Randomize();
+				m_numAgentsCreatedRandom++;
+			}
+			
+			// TODO: Revive a fittest agent.
+			//m_numAgentsCreatedElite++;
+
+			child->Grow();
+			child->SetPosition(Vector2f(
+				Random::NextFloat() * m_worldDimensions.x,
+				Random::NextFloat() * m_worldDimensions.y));
+			
+			m_agents.push_back(child);
 		}
 	}
 }
@@ -968,6 +785,76 @@ void Simulation::PickParentsUsingTournament(int numInPool, int* iParent, int* jP
 	}
 	while (*jParent == *iParent);
 }
+
+
+//-----------------------------------------------------------------------------
+// Agents.
+//-----------------------------------------------------------------------------
+
+Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
+{
+	if ((int) m_agents.size() + 1 > Simulation::PARAMS.maxAgents)
+	{
+		m_numBirthsDenied++;
+		std::cout << "Birth denied!" << std::endl;
+		return NULL;
+	}
+
+	if (!mommy->CanMate() || mommy->GetEnergy() <= 0.0f ||
+		!daddy->CanMate() || daddy->GetEnergy() <= 0.0f)
+		return NULL;
+
+	float mommyEnergy = mommy->GetEnergy() * mommy->GetGenome()->GetBirthEnergyFraction();
+	float daddyEnergy = daddy->GetEnergy() * daddy->GetGenome()->GetBirthEnergyFraction();
+	float childEnergy = mommyEnergy + daddyEnergy;
+	
+	// Mating costs energy.
+	mommy->AddEnergy(-mommyEnergy);
+	daddy->AddEnergy(-daddyEnergy);
+
+	// Create the child.
+	Agent* child = new Agent(this);
+	child->GetGenome()->Crossover(
+		mommy->GetGenome(),
+		daddy->GetGenome());
+	child->GetGenome()->Mutate();
+	child->Grow();
+	child->SetEnergy(childEnergy);
+	child->SetPosition((mommy->GetPosition() + daddy->GetPosition()) * 0.5f);
+	
+	mommy->OnMate();
+	daddy->OnMate();
+
+	std::cout << "An agent was born!" << std::endl;
+	
+	m_numAgentsBorn++;
+
+	return child;
+}
+
+void Simulation::Kill(Agent* agent)
+{
+	//agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetAge() * m_ageFitnessParam));
+
+	m_fittestList->Update(agent, agent->GetHeuristicFitness());
+	
+	std::cout << "Killing agent #" << agent->GetID() << " with fitness " << agent->GetHeuristicFitness() << std::endl;
+
+	m_recentFitnesses.push_back(agent->GetHeuristicFitness());
+
+	if (m_recentFitnesses.size() > 30)
+		m_recentFitnesses.erase(m_recentFitnesses.begin());
+
+	if (m_selectedAgent == agent)
+		m_selectedAgent = NULL;
+
+	delete agent;
+}
+
+
+//-----------------------------------------------------------------------------
+// World Rendering.
+//-----------------------------------------------------------------------------
 
 void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 {
@@ -1036,7 +923,7 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 
 		Vector3f agentColor;
 		agentColor.x = agent->GetFightAmount();
-		agentColor.y = agent->GetBrainGenome()->GetGreenColoration();
+		agentColor.y = agent->GetGenome()->GetGreenColoration();
 		agentColor.z = agent->GetMateAmount();
 
 		// Draw the agent's model.
@@ -1095,7 +982,7 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 	}
 }
 
-// Render an agent's 1D vision
+// Render an agent's 1D vision.
 void Simulation::RenderAgentVision(Agent* agent)
 {
 	Graphics g(GetWindow());
@@ -1125,6 +1012,11 @@ void Simulation::RenderAgentVision(Agent* agent)
 	glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, pixels);
 	agent->UpdateVision(pixels, vp.width);
 }
+
+
+//-----------------------------------------------------------------------------
+// Simulation Rendering
+//-----------------------------------------------------------------------------
 
 void Simulation::OnRender()
 {
@@ -1342,11 +1234,11 @@ void Simulation::RenderPanelText()
 
 		DRAW_STRING("AGENT #%lu", agent->GetID());
 		DRAW_STRING("--------------------------------");
-		DRAW_STRING("age             = %d (%.0f%%)", agent->GetAge(), ((float) agent->GetAge() / agent->GetBrainGenome()->GetLifespan()) * 100.0f);
+		DRAW_STRING("age             = %d (%.0f%%)", agent->GetAge(), ((float) agent->GetAge() / agent->GetGenome()->GetLifespan()) * 100.0f);
 		DRAW_STRING("energy          = %.3f (%.0f%%)",	agent->GetEnergy(), (agent->GetEnergy() / agent->GetMaxEnergy()) * 100.0f);
 		DRAW_STRING("fitness         = %.2f",	agent->GetHeuristicFitness());
 		DRAW_STRING("");
-		DRAW_STRING("move speed      = %.2f (%.0f%%)",	agent->GetMoveSpeed(), (agent->GetMoveSpeed() / agent->GetBrainGenome()->GetMaxSpeed()) * 100.0f);
+		DRAW_STRING("move speed      = %.2f (%.0f%%)",	agent->GetMoveSpeed(), (agent->GetMoveSpeed() / agent->GetGenome()->GetMaxSpeed()) * 100.0f);
 		DRAW_STRING("turn speed      = %.2f%c",	agent->GetTurnSpeed() * Math::RAD_TO_DEG, degreesSymbol);
 		DRAW_STRING("mate            = %.0f%%",	agent->GetMateAmount() * 100.0f);
 		DRAW_STRING("fight           = %.0f%%",	agent->GetFightAmount() * 100.0f);
@@ -1357,16 +1249,16 @@ void Simulation::RenderPanelText()
 		DRAW_STRING("strength        = %.2f",	agent->GetStrength());
 		DRAW_STRING("fov             = %.1f%c",	agent->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
 		DRAW_STRING("max speed       = %.2f",	agent->GetMaxSpeed());
-		DRAW_STRING("green color     = %d",		(int) (agent->GetBrainGenome()->GetGreenColoration() * 255.0f));
-		DRAW_STRING("mutation rate   = %.2f%%",	agent->GetBrainGenome()->GetMutationRate() * 100.0f);
-		DRAW_STRING("# crossover pts = %d",		agent->GetBrainGenome()->GetNumCrossoverPoints());
+		DRAW_STRING("green color     = %d",		(int) (agent->GetGenome()->GetGreenColoration() * 255.0f));
+		DRAW_STRING("mutation rate   = %.2f%%",	agent->GetGenome()->GetMutationRate() * 100.0f);
+		DRAW_STRING("# crossover pts = %d",		agent->GetGenome()->GetNumCrossoverPoints());
 		DRAW_STRING("lifespan        = %d",		agent->GetLifeSpan());
-		DRAW_STRING("birth energy %%  = %.0f%%",	agent->GetBrainGenome()->GetBirthEnergyFraction() * 100.0f);
+		DRAW_STRING("birth energy %%  = %.0f%%",	agent->GetGenome()->GetBirthEnergyFraction() * 100.0f);
 		DRAW_STRING("color neurons   = %d/%d/%d",
-			agent->GetBrainGenome()->GetNumRedNeurons(),
-			agent->GetBrainGenome()->GetNumGreenNeurons(),
-			agent->GetBrainGenome()->GetNumBlueNeurons());
-		DRAW_STRING("# int. groups   = %d",	agent->GetBrainGenome()->GetNumInternalNeuralGroups());
+			agent->GetGenome()->GetNumRedNeurons(),
+			agent->GetGenome()->GetNumGreenNeurons(),
+			agent->GetGenome()->GetNumBlueNeurons());
+		DRAW_STRING("# int. groups   = %d",	agent->GetGenome()->GetNumInternalNeuralGroups());
 		DRAW_STRING("# neurons       = %d",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numNeurons);
 		DRAW_STRING("# synapses      = %dl",	agent->GetBrain()->GetNeuralNet()->GetDimensions().numSynapses);
 		DRAW_STRING("--------------------------------");
@@ -1378,3 +1270,130 @@ void Simulation::RenderPanelText()
 
 	glLoadIdentity();
 }
+
+
+//-----------------------------------------------------------------------------
+// OUTDATED METHODS.
+//-----------------------------------------------------------------------------
+
+void Simulation::NextGeneration()
+{
+	// Reset food.
+	m_food.resize(Simulation::PARAMS.initialFoodCount);
+	for (int i = 0; i < Simulation::PARAMS.initialFoodCount; i++)
+	{
+		m_food[i].SetPosition(Vector2f(
+			Random::NextFloat() * m_worldDimensions.x,
+			Random::NextFloat() * m_worldDimensions.y));
+	}
+	
+	// Sort the population by fitness.
+	std::sort(m_agents.begin(), m_agents.end(), [](Agent* a, Agent* b) {
+		return (a->GetHeuristicFitness() > b->GetHeuristicFitness());
+	});
+	
+	// Calculate the total fitness.
+	float totalFitness = 0.0f;
+	for (unsigned int i = 0; i < m_agents.size(); i++)
+		totalFitness += m_agents[i]->GetHeuristicFitness();
+	float averageFitness = totalFitness / (float) m_agents.size();
+	
+	// Print the fitness statistics for the generation.
+	GenerationInfo genInfo;
+	genInfo.averageFitness	= averageFitness;
+	genInfo.bestFitness		= (float) m_agents.front()->GetHeuristicFitness();
+	genInfo.worstFitness	= (float) m_agents.back()->GetHeuristicFitness();
+	m_generationInfo.push_back(genInfo);
+
+	m_simulationStats.clear();
+
+	std::cout << "---------------------------------------------------" << std::endl;
+	std::cout << "Generation " << m_generation << ":" << std::endl;
+	std::cout << "Best fitness  = " << m_agents.front()->GetHeuristicFitness();
+	if (m_agents.front()->IsElite())
+		std::cout << " (elite)";
+	std::cout << std::endl;
+	std::cout << "Worst fitness = " << m_agents.back()->GetHeuristicFitness() << std::endl;
+	std::cout << "Avg fitness   = " << averageFitness << std::endl;
+
+	// Create new population of agents.
+	std::vector<Agent*> newAgents;
+	while ((int) newAgents.size() < m_numAgents - (m_numElites * m_numEliteCopies))
+	{
+		// Select two mates.
+		Agent* mommy = AgentRoulette();
+		Agent* daddy = AgentRoulette();
+		Agent* child = new Agent(this);
+		child->GetGenome()->Crossover(
+			mommy->GetGenome(),
+			daddy->GetGenome());
+		child->GetGenome()->Mutate();
+		child->Grow();
+		child->SetPosition(Vector2f(
+			Random::NextFloat() * m_worldDimensions.x,
+			Random::NextFloat() * m_worldDimensions.y));
+		newAgents.push_back(child);
+	}
+
+	bool isSelectedAgentElite = false;
+
+	// Add in elites.
+	for (int i = 0; i < m_numElites; i++)
+	{
+		Agent* elite = m_agents[i];
+		
+		for (int j = 0; j < m_numEliteCopies; j++)
+		{
+			Agent* agent = new Agent(this);
+			agent->GetGenome()->CopyFrom(elite->GetGenome());
+			agent->Grow();
+			agent->SetElite(true);
+			agent->SetPosition(Vector2f(
+				Random::NextFloat() * m_worldDimensions.x,
+				Random::NextFloat() * m_worldDimensions.y));
+			newAgents.push_back(agent);
+			
+			if (m_selectedAgent == elite)
+			{
+				isSelectedAgentElite = true;
+				m_selectedAgent = agent;
+			}
+		}
+	}
+
+	// Delete old generation of agents.
+	for (unsigned int i = 0; i < m_agents.size(); i++)
+		delete m_agents[i];
+
+	m_agents = newAgents;
+	m_generation++;
+
+	if (!isSelectedAgentElite)
+		m_selectedAgent = NULL;
+}
+
+Agent* Simulation::AgentRoulette()
+{
+	if (m_agents.empty())
+		return NULL;
+
+	// Calculate the total fitness.
+	float totalFitness = 0.0f;
+	for (int i = 0; i < m_numAgents; i++)
+		totalFitness += m_agents[i]->GetHeuristicFitness();
+
+	// Select an agent at random.
+	float randomSelection = Random::NextFloat() * totalFitness;
+	float fitnessCounter = 0.0f;
+
+	for (int i = 0; i < (int) m_agents.size(); i++)
+	{
+		fitnessCounter += m_agents[i]->GetHeuristicFitness();
+
+		if (randomSelection <= fitnessCounter)
+			return m_agents[i];
+	}
+
+	return m_agents[0];
+}
+

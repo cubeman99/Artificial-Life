@@ -1,6 +1,7 @@
 #ifndef _AGENT_H_
 #define _AGENT_H_
 
+#include "math/MathLib.h"
 #include "math/Vector2f.h"
 #include "math/Vector3f.h"
 #include "NeuronModel.h"
@@ -21,9 +22,9 @@ public:
 	// Simulation.
 	
 	void Grow();
-	void PreBirth();
 	void Reset();
-	void Update(float timeDelta);
+	void Update();
+	void UpdateBrain();
 	void UpdateVision(const float* pixels, int width);
 	void OnMate();
 	void OnEat();
@@ -56,20 +57,20 @@ public:
 	
 	bool		IsElite()					const { return m_isElite; }
 	
-	bool CanMate() const;	
 
-	Retina&			GetRetina()			{ return m_retina; }
-	Brain*			GetBrain()			{ return m_brain; }
-	BrainGenome*	GetBrainGenome()	{ return m_brainGenome; }
+	Retina&			GetRetina()		{ return m_retina; }
+	Brain*			GetBrain()		{ return m_brain; }
+	BrainGenome*	GetGenome()		{ return m_brainGenome; }
+	
+	bool CanMate() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Setters.
 
 	void SetID(unsigned long id)						{ m_id = id; }
-
-	void SetEnergy(float energy)						{ m_energy = energy; }
-	void AddEnergy(float amount)						{ m_energy += amount; }
+	void SetEnergy(float energy)						{ m_energy = Math::Min(energy, m_maxEnergy); }
+	void AddEnergy(float amount)						{ m_energy = Math::Min(m_energy + amount, m_maxEnergy); }
 	void SetPosition(const Vector2f& pos)				{ m_position = pos; }
 	void SetVelocity(const Vector2f& velocity)			{ m_velocity = velocity; }
 	void SetElite(bool isElite)							{ m_isElite = isElite; }
@@ -77,12 +78,15 @@ public:
 	
 
 private:
-	//float		m_radius;
+	Simulation* m_simulation;
+	
+	unsigned long m_id;
+	bool		m_isElite;
 
 	Vector2f	m_position;
 	Vector2f	m_velocity;
 	float		m_direction;
-
+	
 	// Outputs.
 	float		m_speed;
 	float		m_turnSpeed;
@@ -90,33 +94,24 @@ private:
 	float		m_fightAmount;
 	float		m_eatAmount;
 
-	float		m_energy;
-	float		m_maxEnergy; // Max energy is directly related to size.
-
 	int			m_age;
+	float		m_energy;
 	int			m_mateTimer;
 	int			m_mateDelay;
-
-	Retina		m_retina;
 	
-	bool		m_isElite;
-
+	// Genes.
 	float		m_heuristicFitness;
 	int			m_lifeSpan;
 	float		m_strength;
 	float		m_size;
 	float		m_maxSpeed;
+	float		m_maxTurnRate;
 	float		m_birthEnergyFraction;
-
-	Simulation* m_simulation;
-
+	float		m_maxEnergy;			// Max energy is directly related to size.
+	
+	Retina			m_retina;
 	Brain*			m_brain;
 	BrainGenome*	m_brainGenome;
-
-public:
-	Vector3f	m_visionNeurons[10];
-
-	unsigned long m_id;
 };
 
 
