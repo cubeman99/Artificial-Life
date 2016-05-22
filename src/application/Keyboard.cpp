@@ -163,9 +163,13 @@ Keyboard::~Keyboard()
 {
 }
 
-void Keyboard::Update()
+void Keyboard::OnFrameStart()
 {
 	memcpy(m_statePrev.keys, m_state.keys, sizeof(m_state.keys));
+}
+
+void Keyboard::Update()
+{
 }
 
 bool Keyboard::IsKeyDown(keycode_type key)

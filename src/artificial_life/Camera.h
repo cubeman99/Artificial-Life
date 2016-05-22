@@ -13,6 +13,7 @@ public:
 	virtual Vector3f GetViewPosition() const = 0;
 	virtual Matrix4f GetViewProjection() const = 0;
 	virtual Matrix4f GetProjection() const = 0;
+	virtual void SetProjection(const Matrix4f& projection) = 0;
 };
 
 
@@ -38,6 +39,12 @@ public:
 	{
 		return projection;
 	}
+	
+	void SetProjection(const Matrix4f& projection) override
+	{
+		this->projection = projection;
+	}
+	
 
 	Matrix4f GetViewProjection() const override
 	{
@@ -64,6 +71,11 @@ public:
 	Quaternion GetOrientation() const override
 	{
 		return rotation;
+	}
+	
+	void SetProjection(const Matrix4f& projection) override
+	{
+		this->projection = projection;
 	}
 	
 	Matrix4f GetProjection() const override

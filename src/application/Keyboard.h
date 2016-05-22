@@ -60,6 +60,7 @@ public:
 	Keyboard();
 	~Keyboard();
 
+	void OnFrameStart();
 	void Update();
 
 	bool IsKeyDown(keycode_type key);

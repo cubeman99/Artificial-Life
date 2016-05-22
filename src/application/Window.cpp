@@ -107,4 +107,3 @@ void Window::OnResize()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
-

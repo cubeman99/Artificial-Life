@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+class Window;
+
 
 struct MouseButtons
 {
@@ -30,10 +32,15 @@ public:
 	typedef MouseButtons::value_type button_type;
 
 public:
-	Mouse();
+	Mouse(Window* window);
 	~Mouse();
 
+	
+	void OnFrameStart();
 	void Update();
+	
+	void SetVisible(bool isVisible);
+	void SetPositionInWindow(int x, int y);
 	
 	bool IsButtonDown(button_type button) const;
 	bool IsButtonPressed(button_type button) const;
@@ -60,8 +67,9 @@ private:
 		bool buttons[MouseButtons::COUNT];
 	};
 
-	MouseState m_state;
-	MouseState m_statePrev;
+	Window*		m_window;
+	MouseState	m_state;
+	MouseState	m_statePrev;
 };
 
 

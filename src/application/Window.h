@@ -7,6 +7,10 @@
 class Window
 {
 public:
+	friend class Keyboard;
+	friend class Mouse;
+
+public:
 	Window();
 	~Window();
 	

@@ -1,5 +1,6 @@
 #include "Mouse.h"
 #include <string.h>
+#include "Window.h"
 
 
 MouseButtons::value_type Mouse::TranslateSDLMouseButton(Uint8 button)
@@ -18,7 +19,8 @@ MouseButtons::value_type Mouse::TranslateSDLMouseButton(Uint8 button)
 
 
 
-Mouse::Mouse()
+Mouse::Mouse(Window* window)
+	: m_window(window)
 {
 	memset(m_state.buttons, 0, sizeof(m_state.buttons));
 	memset(m_statePrev.buttons, 0, sizeof(m_state.buttons));
@@ -28,17 +30,30 @@ Mouse::~Mouse()
 {
 }
 
-void Mouse::Update()
+void Mouse::OnFrameStart()
 {
 	memcpy(m_statePrev.buttons, m_state.buttons, sizeof(m_state.buttons));
 
 	m_statePrev.x = m_state.x;
 	m_statePrev.y = m_state.y;
 	m_statePrev.z = m_state.z;
+}
 
+void Mouse::Update()
+{
 	SDL_GetMouseState(&m_state.x, &m_state.y);
-	
-	// TODO: Scroll wheel.
+}
+
+void Mouse::SetVisible(bool isVisible)
+{
+	SDL_ShowCursor(isVisible ? 1 : 0);
+}
+
+void Mouse::SetPositionInWindow(int x, int y)
+{
+	SDL_WarpMouseInWindow(m_window->m_sdlWindow, x, y);
+	m_state.x = x;
+	m_state.y = y;
 }
 
 bool Mouse::IsButtonDown(button_type button) const

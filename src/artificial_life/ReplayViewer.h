@@ -47,6 +47,8 @@ protected:
 	void OnUpdate(float timeDelta) override;
 	void OnRender() override;
 
+	void UpdateCameraControls(float timeDelta);
+
 	void SetFrame(int frameIndex);
 
 private:
@@ -56,8 +58,15 @@ private:
 
 	ReplayHeader			m_replayHeader;
 
-	ArcBallCamera			m_camera;
 	float					m_cameraFOV;
+	ArcBallCamera			m_arcBallCamera;
+	Camera					m_fpsCamera;
+	ICamera*				m_camera;
+
+	bool					m_loop;
+	bool					m_isPlaying;
+
+	unsigned long			m_selectedAgentId;
 
 	WorldRenderer			m_worldRenderer;
 
@@ -67,6 +76,10 @@ private:
 	Vector2f				m_worldDimensions;
 
 	std::fstream			m_file;
+
+	Vector2f				m_cursorPos;
+	float					m_agentSelectionRadius;
+	ReplayAgent				m_selectedAgent;
 
 	std::vector<unsigned int> m_frameFileOffsets;
 };

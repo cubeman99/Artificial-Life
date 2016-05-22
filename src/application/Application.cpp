@@ -5,6 +5,7 @@
 
 Application::Application()
 	: m_isRunning(false)
+	, m_mouse(&m_window)
 {
 }
 
@@ -73,13 +74,16 @@ void Application::Run()
 
 void Application::Update(float timeDelta)
 {
-	m_keyboard.Update();
-	m_mouse.Update();
-	
+	m_keyboard.OnFrameStart();
+	m_mouse.OnFrameStart();
+
 	// Handle the SDL event queue.
 	SDL_Event e;
 	while (SDL_PollEvent(&e))
 		HandleSDLEvent(&e);
+
+	m_keyboard.Update();
+	m_mouse.Update();
 	
 	OnUpdate(timeDelta);
 }
