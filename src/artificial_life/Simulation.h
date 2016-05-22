@@ -18,8 +18,10 @@
 #include "GraphPanel.h"
 #include "BrainRenderer.h"
 #include "SimulationParams.h"
+#include "WorldRenderer.h"
 #include <vector>
-	
+
+
 //-----------------------------------------------------------------------------
 
 struct GenerationInfo
@@ -34,6 +36,10 @@ struct GenerationInfo
 
 class Simulation : public Application
 {
+public:
+	typedef std::vector<Food> food_list;
+	typedef std::vector<Agent*> agent_list;
+
 public:
 	Simulation();
 	~Simulation();
@@ -50,9 +56,13 @@ public:
 		return (m_agents.size() - 45.0f) / 35.0f;
 	}
 
+	food_list::iterator		food_begin()	{ return m_food.begin(); }
+	food_list::iterator		food_end()		{ return m_food.end(); }
+	agent_list::iterator	agents_begin()	{ return m_agents.begin(); }
+	agent_list::iterator	agents_end()	{ return m_agents.end(); }
+
 protected:
 	void OnInitialize() override;
-	void LoadModels();
 	
 	void ResetCamera();
 
@@ -69,7 +79,6 @@ protected:
 	void UpdateSteadyStateGA();
 
 	void OnRender() override;
-	void RenderWorld(ICamera* camera, Agent* agent = NULL);
 	void RenderPanelWorld();
 	void RenderPanelGraphs();
 	void RenderPanelPOV();
@@ -89,13 +98,12 @@ private:
 
 	// Resources.
 	SpriteFont* m_font;
-	std::vector<Vector3f> m_agentVertices;
-	std::vector<Vector3f> m_foodVertices;
 
-	Vector2f m_worldDimensions;
-
+	// World objects.
 	std::vector<Agent*> m_agents;
 	std::vector<Food> m_food;
+	
+	Vector2f m_worldDimensions;
 	
 	float m_totalAgentEnergy;
 
@@ -148,6 +156,7 @@ private:
 	Viewport m_panelSide;
 	Viewport m_windowViewport;
 
+	WorldRenderer	m_worldRenderer;
 	BrainRenderer	m_brainRenderer;
 	GraphPanel		m_graphFitness;
 	GraphPanel		m_graphPopulation;
@@ -156,6 +165,8 @@ private:
 	std::vector<Stats> m_simulationStats;
 	std::vector<float> m_populationData;
 	
+	
+
 	Renderer*		m_renderer;
 	Shader*			m_shader;
 	RenderParams	m_renderParams3D;

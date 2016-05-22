@@ -50,9 +50,7 @@ struct Viewport
 class Graphics
 {
 public:
-	Graphics(Window* window, Renderer* renderer);
-
-	Renderer* GetRenderer() { return m_renderer; }
+	Graphics(Window* window);
 
 	void Clear(const Color& color);
 	void SetViewport(const Viewport& viewport, bool scissor, bool flipY = true);
@@ -93,10 +91,6 @@ private:
 	void gl_Color(const Color& color);
 
 	Window* m_window;
-
-	Matrix4f m_transform;
-
-	Renderer* m_renderer;
 };
 
 

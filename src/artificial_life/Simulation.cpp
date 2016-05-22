@@ -13,6 +13,7 @@ Simulation::Simulation()
 	: m_fittestList(NULL)
 	, m_agentVisionPixels(NULL)
 	, m_renderer(NULL)
+	, m_worldRenderer(this)
 {
 }
 
@@ -42,7 +43,8 @@ void Simulation::OnInitialize()
 	// Load resources.
 
 	m_font = new SpriteFont("../assets/font_console.png", 16, 8, 12, 0);
-	LoadModels();
+
+	m_worldRenderer.LoadModels();
 
 	m_renderer = new Renderer();
 	
@@ -281,9 +283,9 @@ void Simulation::OnInitialize()
 	//PARAMS.maxAgents				= 20;
 	//PARAMS.initialNumAgents			= 15;
 	
-	PARAMS.minAgents				= 110;
-	PARAMS.maxAgents				= 110;
-	PARAMS.initialNumAgents			= 110;
+	//PARAMS.minAgents				= 110;
+	//PARAMS.maxAgents				= 110;
+	//PARAMS.initialNumAgents			= 110;
 
 	m_worldDimensions.x = Simulation::PARAMS.worldWidth;
 	m_worldDimensions.y = Simulation::PARAMS.worldHeight;
@@ -326,90 +328,6 @@ void Simulation::OnInitialize()
 			Random::NextFloat() * m_worldDimensions.x,
 			Random::NextFloat() * m_worldDimensions.y));
 		m_agents.push_back(agent);
-	}
-}
-
-void Simulation::LoadModels()
-{
-	// Create agent model.
-	{
-		float ah = 5.0f; // agent height.
-		Vector3f v1( 10.0f,  0.0f, 0.0f);
-		Vector3f v2(-10.0f, -9.0f, 0.0f);
-		Vector3f v3(-10.0f,  9.0f, 0.0f);
-		Vector3f v4( 10.0f,  0.0f, ah);
-		Vector3f v5(-10.0f, -9.0f, ah);
-		Vector3f v6(-10.0f,  9.0f, ah);
-
-		m_agentVertices.push_back(v1); // Bottom
-		m_agentVertices.push_back(v2);
-		m_agentVertices.push_back(v3);
-		m_agentVertices.push_back(v4); // Top
-		m_agentVertices.push_back(v6);
-		m_agentVertices.push_back(v5);
-		m_agentVertices.push_back(v1); // Left
-		m_agentVertices.push_back(v4);
-		m_agentVertices.push_back(v5);
-		m_agentVertices.push_back(v1);
-		m_agentVertices.push_back(v5);
-		m_agentVertices.push_back(v2);
-		m_agentVertices.push_back(v3); // Right
-		m_agentVertices.push_back(v6);
-		m_agentVertices.push_back(v4);
-		m_agentVertices.push_back(v3);
-		m_agentVertices.push_back(v4);
-		m_agentVertices.push_back(v1);
-		m_agentVertices.push_back(v2); // Back
-		m_agentVertices.push_back(v5);
-		m_agentVertices.push_back(v6);
-		m_agentVertices.push_back(v2);
-		m_agentVertices.push_back(v6);
-		m_agentVertices.push_back(v3);
-	}
-	
-	// Create food model.
-	{
-		float fw = 4.0f; // food width.
-		float fh = 5.0f; // food height.
-
-		Vector3f v1(-fw, -fw, 0.0f);
-		Vector3f v2(-fw,  fw, 0.0f);
-		Vector3f v3( fw,  fw, 0.0f);
-		Vector3f v4( fw, -fw, 0.0f);
-		Vector3f v5(-fw, -fw, fh);
-		Vector3f v6(-fw,  fw, fh);
-		Vector3f v7( fw,  fw, fh);
-		Vector3f v8( fw, -fw, fh);
-
-		m_foodVertices.push_back(v2); // Bottom
-		m_foodVertices.push_back(v1);
-		m_foodVertices.push_back(v4);
-		m_foodVertices.push_back(v3);
-
-		m_foodVertices.push_back(v5); // Top
-		m_foodVertices.push_back(v6);
-		m_foodVertices.push_back(v7);
-		m_foodVertices.push_back(v8);
-
-		m_foodVertices.push_back(v1); // Front
-		m_foodVertices.push_back(v5);
-		m_foodVertices.push_back(v8);
-		m_foodVertices.push_back(v4);
-	
-		m_foodVertices.push_back(v3); // Back
-		m_foodVertices.push_back(v7);
-		m_foodVertices.push_back(v6);
-		m_foodVertices.push_back(v2);
-
-		m_foodVertices.push_back(v2); // Left
-		m_foodVertices.push_back(v6);
-		m_foodVertices.push_back(v5);
-		m_foodVertices.push_back(v1);
-
-		m_foodVertices.push_back(v4); // Right
-		m_foodVertices.push_back(v8);
-		m_foodVertices.push_back(v7);
-		m_foodVertices.push_back(v3);
 	}
 }
 
@@ -994,142 +912,14 @@ void Simulation::Kill(Agent* agent)
 
 
 //-----------------------------------------------------------------------------
-// World Rendering.
+// Agent Vision.
 //-----------------------------------------------------------------------------
 
-void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
-{
-	Graphics g(GetWindow(), m_renderer);
-	
-	g.EnableCull(false); // Dont cull.
-	g.EnableDepthTest(true);
-	g.Clear(Color::BLACK);
-
-	g.SetProjection(camera->GetViewProjection());
-	g.ResetTransform();
-
-	Vector4f foodColor(0.0f, 1.0f, 0.0f, 1.0f); // green
-	Vector4f floorColor(0.0f, 0.15f, 0.0f, 1.0f); // dark green
-
-
-	//-----------------------------------------------------------------------------
-	// Draw the floor.
-
-	//if (agentPOV == NULL)
-	{
-		glBegin(GL_QUADS);
-		glColor4fv(&floorColor.x);
-		float floorZ = -0.1f;
-		glVertex3f(0.0f, 0.0f, floorZ);
-		glVertex3f(Simulation::PARAMS.worldWidth, 0.0f, floorZ);
-		glVertex3f(Simulation::PARAMS.worldWidth, Simulation::PARAMS.worldHeight, floorZ);
-		glVertex3f(0.0f, Simulation::PARAMS.worldHeight, floorZ);
-		glEnd();
-	}
-
-	//-----------------------------------------------------------------------------
-	// Draw food.
-	
-	for (unsigned int i = 0; i < m_food.size(); i++)
-	//for (unsigned int i = 0; i < 0; i++)
-	{
-		Vector2f pos = m_food[i].GetPosition();
-		
-		g.ResetTransform();
-		g.Translate(pos);
-
-		glBegin(GL_QUADS);
-		glColor4fv(&foodColor.x);
-		for (unsigned int j = 0; j < m_foodVertices.size(); j++)
-			glVertex3fv(m_foodVertices[j].data());
-
-		glEnd();
-	}
-
-	//-----------------------------------------------------------------------------
-	// Draw agents.
-
-	for (unsigned int i = 0; i < m_agents.size(); i++)
-	//for (unsigned int i = 0; i < 0; i++)
-	{
-		Agent* agent = m_agents[i];
-
-		if (agent == agentPOV)
-			continue;
-
-		Vector2f pos = agent->GetPosition();
-
-		g.ResetTransform();
-		g.Translate(pos);
-		g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
-		g.Scale(agent->GetSize());
-
-		Vector3f agentColor;
-		agentColor.x = agent->GetFightAmount();
-		agentColor.y = agent->GetGenome()->GetGreenColoration();
-		agentColor.z = agent->GetMateAmount();
-
-		// Draw the agent's model.
-		glBegin(GL_TRIANGLES);
-		glColor3fv(agentColor.data());
-		for (unsigned int j = 0; j < m_foodVertices.size(); j++)
-			glVertex3fv(m_agentVertices[j].data());
-		glEnd();
-		
-		if (agentPOV == NULL)
-		{
-			if (m_showFOVLines)
-			{
-				// Draw FOV lines.
-				Vector3f v1(0.0f, 0.0f, 3.0f);
-				Vector3f v2(40.0f, 0.0f, 3.0f);
-				Vector3f v3(40.0f, 0.0f, 3.0f);
-				v2.Rotate(Vector3f::UNITZ, agent->GetFOV() * 0.5f);
-				v3.Rotate(Vector3f::UNITZ, -agent->GetFOV() * 0.5f);
-				glBegin(GL_LINE_STRIP);
-				glColor3ub(0, 255, 255);
-				glVertex3fv(v3.data());
-				glVertex3fv(v1.data());
-				glVertex3fv(v2.data());
-				glEnd();
-
-				// Draw vision strip between FOV lines.
-				int numVisionNeurons = agent->GetRetina().GetNumNeurons(0);
-				glLineWidth(3.0f);
-				glBegin(GL_LINES);
-
-				int visionWidth = 32;
-				for (int j = 0; j < visionWidth; j++)
-				{
-					Vector3f color;
-					for (int c = 0; c < agent->GetRetina().GetNumChannels(); c++)
-					{
-						int neuronIndex = (int) ((j / (float) visionWidth) * agent->GetRetina().GetNumNeurons(c));
-						color[c] = agent->GetRetina().GetSightValue(c, neuronIndex);
-					}
-				
-					Vector3f vv1 = Vector3f::Lerp(v3, v2, (float) j / (float) visionWidth);
-					Vector3f vv2 = Vector3f::Lerp(v3, v2, (float) (j + 1) / (float) visionWidth);
-					glColor3fv(color.data());
-					glVertex3fv(vv1.data());
-					glVertex3fv(vv2.data());
-				}
-				glEnd();
-				glLineWidth(1.0f);
-			}
-			
-			// Draw a selection circle.
-			if (m_selectedAgent == agent)
-				g.DrawCircle(Vector2f::ZERO, m_agentSelectionRadius, Color::GREEN);
-		}
-	}
-}
-
-// Render an agent's 1D vision.
+// Render the vision of all agents.
 void Simulation::RenderAgentsVision()
 {
 	Viewport vp(0, 0, Simulation::PARAMS.retinaResolution, 1);
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
 	g.SetViewport(vp, true, false);
 
@@ -1155,9 +945,9 @@ void Simulation::RenderAgentsVision()
 // Render an agent's 1D vision.
 void Simulation::RenderAgentVision(Agent* agent, int index)
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
-	float fovY = 0.01f;
+	float fovY = 0.01f; // TODO: magic number: agent FOV-Y.
 
 	// Setup the camera for the agent.
 	Camera agentCam;
@@ -1173,13 +963,7 @@ void Simulation::RenderAgentVision(Agent* agent, int index)
 	// Render the world from the agent's point-of-view.
 	Viewport vp(0, index, Simulation::PARAMS.retinaResolution, 1);
 	g.SetViewport(vp, true, false);
-		RenderWorld(&agentCam, agent);
-	//g.SetViewport(m_windowViewport, true);
-
-	// Read the pixels that were rendered.
-	// FIXME: Undefined behavior when window is minimized.
-	//glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, m_agentVisionPixels);
-	//agent->UpdateVision(m_agentVisionPixels, vp.width);
+	m_worldRenderer.RenderWorld(&agentCam, agent);
 }
 
 
@@ -1189,7 +973,7 @@ void Simulation::RenderAgentVision(Agent* agent, int index)
 
 void Simulation::OnRender()
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
 	// Render the vision for all agents.
 	RenderAgentsVision();
@@ -1236,7 +1020,7 @@ void Simulation::OnRender()
 
 void Simulation::RenderPanelWorld()
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
 	g.SetViewport(m_panelWorld, true);
 	g.EnableCull(true);
@@ -1244,12 +1028,74 @@ void Simulation::RenderPanelWorld()
 
 	g.Clear(Color::BLACK);
 	
-	RenderWorld(&m_camera, NULL);
+	// Render the world.
+	m_worldRenderer.RenderWorld(&m_camera, NULL);
+		
+	// Draw a circle around the selected agent.
+	if (m_selectedAgent != NULL)
+	{
+		g.ResetTransform();
+		g.Translate(m_selectedAgent->GetPosition());
+		g.Rotate(Vector3f::UNITZ, -m_selectedAgent->GetDirection());
+		g.Scale(m_selectedAgent->GetSize());
+		g.DrawCircle(Vector2f::ZERO, m_agentSelectionRadius, Color::GREEN);
+	}
+
+	// Draw lines for FOV and vision.
+	if (m_showFOVLines)
+	{
+		for (auto it = agents_begin(); it < agents_end(); ++it)
+		{
+			Agent* agent = *it;
+
+			g.ResetTransform();
+			g.Translate(agent->GetPosition());
+			g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
+			g.Scale(agent->GetSize());
+				
+			// Draw FOV lines.
+			Vector3f v1(0.0f, 0.0f, 3.0f);
+			Vector3f v2(40.0f, 0.0f, 3.0f);
+			Vector3f v3(40.0f, 0.0f, 3.0f);
+			v2.Rotate(Vector3f::UNITZ, agent->GetFOV() * 0.5f);
+			v3.Rotate(Vector3f::UNITZ, -agent->GetFOV() * 0.5f);
+			glBegin(GL_LINE_STRIP);
+			glColor3ub(0, 255, 255);
+			glVertex3fv(v3.data());
+			glVertex3fv(v1.data());
+			glVertex3fv(v2.data());
+			glEnd();
+
+			// Draw vision strip between FOV lines.
+			int numVisionNeurons = agent->GetRetina().GetNumNeurons(0);
+			glLineWidth(3.0f);
+			glBegin(GL_LINES);
+
+			int visionWidth = 32;
+			for (int j = 0; j < visionWidth; j++)
+			{
+				Vector3f color;
+				for (int c = 0; c < agent->GetRetina().GetNumChannels(); c++)
+				{
+					int neuronIndex = (int) ((j / (float) visionWidth) * agent->GetRetina().GetNumNeurons(c));
+					color[c] = agent->GetRetina().GetSightValue(c, neuronIndex);
+				}
+				
+				Vector3f vv1 = Vector3f::Lerp(v3, v2, (float) j / (float) visionWidth);
+				Vector3f vv2 = Vector3f::Lerp(v3, v2, (float) (j + 1) / (float) visionWidth);
+				glColor3fv(color.data());
+				glVertex3fv(vv1.data());
+				glVertex3fv(vv2.data());
+			}
+			glEnd();
+			glLineWidth(1.0f);
+		}
+	}
 }
 
 void Simulation::RenderPanelPOV()
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 		
 	g.SetViewport(m_panelPOV, true);
 
@@ -1271,7 +1117,7 @@ void Simulation::RenderPanelPOV()
 		agentCam.rotation.Rotate(Vector3f::UNITZ, Math::HALF_PI);
 		agentCam.rotation.Rotate(Vector3f::UNITY, Math::HALF_PI);
 		agentCam.rotation.Rotate(Vector3f::UNITZ, agent->GetDirection());
-		RenderWorld(&agentCam, agent);
+		m_worldRenderer.RenderWorld(&agentCam, agent);
 		
 		g.EnableCull(false);
 		g.EnableDepthTest(false);
@@ -1319,7 +1165,7 @@ void Simulation::RenderPanelPOV()
 
 void Simulation::RenderPanelGraphs()
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
 	g.SetViewport(m_panelGraphs, true);
 
@@ -1346,7 +1192,7 @@ void Simulation::RenderPanelGraphs()
 
 void Simulation::RenderPanelText()
 {
-	Graphics g(GetWindow(), m_renderer);
+	Graphics g(GetWindow());
 
 	g.SetViewport(m_panelText, true);
 

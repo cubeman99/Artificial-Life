@@ -47,6 +47,9 @@
     <Filter Include="graphics_tests">
       <UniqueIdentifier>{cf355036-1860-4aa3-ab60-aa79732a396c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="artificial_life\graphics">
+      <UniqueIdentifier>{ddae343a-36df-4451-a49b-379f0f2fb968}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdParty\lodepng.cpp">
@@ -162,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="..\src\application\Shader.cpp">
       <Filter>application\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp">
+      <Filter>artificial_life\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +287,9 @@
     </ClInclude>
     <ClInclude Include="..\src\application\Shader.h">
       <Filter>application\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\WorldRenderer.h">
+      <Filter>artificial_life\graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

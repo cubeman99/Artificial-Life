@@ -3,12 +3,9 @@
 #include <SDL2/SDL.h>
 
 
-Graphics::Graphics(Window* window, Renderer* renderer)
+Graphics::Graphics(Window* window)
 	: m_window(window)
-	, m_renderer(renderer)
-	, m_transform(Matrix4f::IDENTITY)
 {
-	m_renderer->SetModelMatrix(m_transform);
 }
 
 void Graphics::Clear(const Color& color)
