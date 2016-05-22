@@ -101,6 +101,16 @@ Vector3f Vector4f::GetXYZ() const
 	return Vector3f(x, y, z);
 }
 
+float* Vector4f::data()
+{
+	return  &x;
+}
+
+const float* Vector4f::data() const
+{
+	return &x;
+}
+
 
 
 //-----------------------------------------------------------------------------

@@ -108,14 +108,13 @@ void GraphPanel::Draw(Graphics* g)
 		(float) m_viewport.y,
 		-1.0f, 1.0f));
 	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	g->ResetTransform();
 	
 	// Draw the background and outline.
 	g->FillRect(m_viewport, m_colorBackground);
 	g->DrawRect(m_viewport, m_colorOutline);
 
-	glTranslatef((float) m_viewport.x, (float) m_viewport.y, 0.0f);
+	g->Translate(Vector2f((float) m_viewport.x, (float) m_viewport.y));
 	
 	// Draw the graph area's background.
 	g->FillRect(m_graphViewport, m_colorGraphArea);

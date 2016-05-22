@@ -3,10 +3,12 @@
 #include <SDL2/SDL.h>
 
 
-Graphics::Graphics(Window* window)
+Graphics::Graphics(Window* window, Renderer* renderer)
 	: m_window(window)
+	, m_renderer(renderer)
+	, m_transform(Matrix4f::IDENTITY)
 {
-
+	m_renderer->SetModelMatrix(m_transform);
 }
 
 void Graphics::Clear(const Color& color)
@@ -114,38 +116,6 @@ void Graphics::FillRect(float x, float y, float width, float height, const Color
 }
 
 
-void Graphics::gl_Vertex(const Vector2f& v)
-{
-	glVertex2fv(v.data());
-}
-
-void Graphics::gl_Vertex(const Vector3f& v)
-{
-	glVertex3fv(v.data());
-}
-
-void Graphics::gl_Color(const Color& color)
-{
-	glColor4ubv(color.data());
-}
-
-void Graphics::EnableCull(bool cull)
-{
-	if (cull)
-		glEnable(GL_CULL_FACE);
-	else
-		glDisable(GL_CULL_FACE);
-}
-
-void Graphics::EnableDepthTest(bool depthTest)
-{
-	if (depthTest)
-		glEnable(GL_DEPTH_TEST);
-	else
-		glDisable(GL_DEPTH_TEST);
-}
-
-
 void Graphics::DrawCircle(const Vector2f& pos, float radius, const Color& color, int numEdges)
 {
 	glBegin(GL_LINE_LOOP);
@@ -175,6 +145,38 @@ void Graphics::FillCircle(const Vector2f& pos, float radius, const Color& color,
 void Graphics::DrawString(SpriteFont* font, const char* text, const Vector2f& pos, const Color& color, float scale)
 {
 	font->DrawString(text, pos, color.ToVector4f(), scale);
+}
+
+
+void Graphics::gl_Vertex(const Vector2f& v)
+{
+	glVertex2fv(v.data());
+}
+
+void Graphics::gl_Vertex(const Vector3f& v)
+{
+	glVertex3fv(v.data());
+}
+
+void Graphics::gl_Color(const Color& color)
+{
+	glColor4ubv(color.data());
+}
+
+void Graphics::EnableCull(bool cull)
+{
+	if (cull)
+		glEnable(GL_CULL_FACE);
+	else
+		glDisable(GL_CULL_FACE);
+}
+
+void Graphics::EnableDepthTest(bool depthTest)
+{
+	if (depthTest)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
 }
 
 void Graphics::SetProjection(const Matrix4f& projection)

@@ -20,6 +20,7 @@ public:
 
 	inline int GetWidth() const { return m_width; }
 	inline int GetHeight() const { return m_height; }
+	inline float GetAspectRatio() const { return ((float) m_width / (float) m_height); }
 
 private:
 	SDL_Window* m_sdlWindow;

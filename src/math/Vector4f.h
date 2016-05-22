@@ -38,6 +38,9 @@ struct Vector4f
 	float		LengthSquared() const;
 	Vector3f	GetXYZ() const;
 
+	float* data();
+	const float* data() const;
+
 	// Mutators.
 	Vector4f&	SetZero();
 	Vector4f&	Set(float x, float y, float z, float w);

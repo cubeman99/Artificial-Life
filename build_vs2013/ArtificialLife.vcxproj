@@ -17,6 +17,9 @@
     <ClCompile Include="..\src\application\Graphics.cpp" />
     <ClCompile Include="..\src\application\Keyboard.cpp" />
     <ClCompile Include="..\src\application\Mouse.cpp" />
+    <ClCompile Include="..\src\application\Renderer.cpp" />
+    <ClCompile Include="..\src\application\RenderParams.cpp" />
+    <ClCompile Include="..\src\application\Shader.cpp" />
     <ClCompile Include="..\src\application\SpriteFont.cpp" />
     <ClCompile Include="..\src\application\Window.cpp" />
     <ClCompile Include="..\src\artificial_life\Agent.cpp" />
@@ -36,6 +39,7 @@
     <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
     <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp" />
     <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp" />
+    <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\math\MathLib.cpp" />
     <ClCompile Include="..\src\math\Matrix4f.cpp" />
@@ -53,6 +57,10 @@
     <ClInclude Include="..\src\application\Graphics.h" />
     <ClInclude Include="..\src\application\Keyboard.h" />
     <ClInclude Include="..\src\application\Mouse.h" />
+    <ClInclude Include="..\src\application\OpenGLIncludes.h" />
+    <ClInclude Include="..\src\application\Renderer.h" />
+    <ClInclude Include="..\src\application\RenderParams.h" />
+    <ClInclude Include="..\src\application\Shader.h" />
     <ClInclude Include="..\src\application\SpriteFont.h" />
     <ClInclude Include="..\src\application\Window.h" />
     <ClInclude Include="..\src\artificial_life\Agent.h" />
@@ -73,6 +81,7 @@
     <ClInclude Include="..\src\artificial_life\SimulationParams.h" />
     <ClInclude Include="..\src\circle_fitting\CircleAIApp.h" />
     <ClInclude Include="..\src\circle_fitting\CircleGenome.h" />
+    <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h" />
     <ClInclude Include="..\src\math\MathLib.h" />
     <ClInclude Include="..\src\math\Matrix4f.h" />
     <ClInclude Include="..\src\math\Quaternion.h" />

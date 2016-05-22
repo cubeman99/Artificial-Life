@@ -4,6 +4,7 @@
 #include "application/Application.h"
 #include "application/SpriteFont.h"
 #include "application/Graphics.h"
+#include "application/Renderer.h"
 #include <math/Vector2f.h>
 #include <math/Vector3f.h>
 #include <math/Vector4f.h>
@@ -62,7 +63,8 @@ protected:
 
 	void UpdateWorld();
 	void UpdateAgents();
-	void RenderAgentVision(Agent* agent);
+	void RenderAgentsVision();
+	void RenderAgentVision(Agent* agent, int index);
 	void UpdateFood();
 	void UpdateSteadyStateGA();
 
@@ -153,7 +155,11 @@ private:
 
 	std::vector<Stats> m_simulationStats;
 	std::vector<float> m_populationData;
-
+	
+	Renderer*		m_renderer;
+	Shader*			m_shader;
+	RenderParams	m_renderParams3D;
+	RenderParams	m_renderParams2D;
 
 	
 public:

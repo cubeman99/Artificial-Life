@@ -5,6 +5,7 @@
 #include "artificial_life/Genome.h"
 #include "artificial_life/BrainGenome.h"
 #include "artificial_life/Brain.h"
+#include "graphics_tests/GraphicsTestApp.h"
 #include "math/MathLib.h"
 #include <iostream>
 
@@ -174,6 +175,7 @@ int main(int argc, char** argv)
 
 	//circle_fitting::CircleAIApp application;
 	Simulation application;
+	//GraphicsTestApp application;
 	if (!application.Initialize(title, width, height))
 		return 1;
 

@@ -14,6 +14,9 @@
 #include <GL/glew.h>
 #include <assert.h>
 
+#include "Renderer.h"
+
+
 struct Viewport
 {
 	int x;
@@ -47,7 +50,9 @@ struct Viewport
 class Graphics
 {
 public:
-	Graphics(Window* window);
+	Graphics(Window* window, Renderer* renderer);
+
+	Renderer* GetRenderer() { return m_renderer; }
 
 	void Clear(const Color& color);
 	void SetViewport(const Viewport& viewport, bool scissor, bool flipY = true);
@@ -88,6 +93,10 @@ private:
 	void gl_Color(const Color& color);
 
 	Window* m_window;
+
+	Matrix4f m_transform;
+
+	Renderer* m_renderer;
 };
 
 

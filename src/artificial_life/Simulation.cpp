@@ -12,11 +12,14 @@ SimulationParams Simulation::PARAMS;
 Simulation::Simulation()
 	: m_fittestList(NULL)
 	, m_agentVisionPixels(NULL)
+	, m_renderer(NULL)
 {
 }
 
 Simulation::~Simulation()
 {
+	delete m_renderer; m_renderer = NULL;
+
 	delete m_agentVisionPixels; m_agentVisionPixels = NULL;
 
 	delete m_font; m_font = NULL;
@@ -40,7 +43,81 @@ void Simulation::OnInitialize()
 
 	m_font = new SpriteFont("../assets/font_console.png", 16, 8, 12, 0);
 	LoadModels();
+
+	m_renderer = new Renderer();
 	
+	m_renderParams3D = m_renderer->GetRenderParams();
+	m_renderParams3D.SetClearColor(Color::BLACK);
+	m_renderParams3D.SetClearBits(ClearBits::COLOR_BUFFER_BIT | ClearBits::DEPTH_BUFFER_BIT);
+	m_renderParams3D.EnableCullFace(false);
+	m_renderParams3D.EnableDepthTest(true);
+	m_renderParams3D.EnableDepthBufferWrite(true);
+	
+	m_renderParams2D = m_renderer->GetRenderParams();
+	m_renderParams2D.SetClearColor(Color::BLACK);
+	m_renderParams2D.SetClearBits(ClearBits::COLOR_BUFFER_BIT | ClearBits::DEPTH_BUFFER_BIT);
+	m_renderParams2D.EnableCullFace(false);
+	m_renderParams2D.EnableDepthTest(false);
+	m_renderParams2D.EnableDepthBufferWrite(false);
+	
+	m_renderer->SetRenderParams(m_renderParams3D);
+	
+	std::string codeVS2 =
+		"#extension GL_ARB_draw_instanced : enable"
+		"uniform sampler2D vtxtex;"
+		""
+		"void main()"
+		"{"
+			"int y = (gl_InstanceID * 4) / 1024;"
+			""
+			"mat4 mvp = mat4(texture2D(vtxtex,vec2((gl_InstanceID*4+0)&1023,y) * (1.0/1024.0)),"
+							"texture2D(vtxtex,vec2((gl_InstanceID*4+1)&1023,y) * (1.0/1024.0)),"
+							"texture2D(vtxtex,vec2((gl_InstanceID*4+2)&1023,y) * (1.0/1024.0)),"
+							"texture2D(vtxtex,vec2((gl_InstanceID*4+3)&1023,y) * (1.0/1024.0)));"
+			""
+			"gl_Position = gl_ModelViewProjectionMatrix * mvp * gl_Vertex;"
+			"gl_TexCoord[0] = gl_MultiTexCoord0;"
+		"}";
+
+
+	std::string codeVS =
+		"#version 330 core" "\n"
+		"" "\n"
+		"in vec3 a_vertPos;" "\n"
+		//"in vec2 a_vertTexCoord;" "\n"
+		"" "\n"
+		//"out vec2 v_texCoord;" "\n"
+		"" "\n"
+		"uniform mat4 u_mvp;" "\n"
+		"" "\n"
+		"void main()" "\n"
+		"{" "\n"
+		"	gl_Position = u_mvp * vec4(a_vertPos, 1.0);" "\n"
+		//"	v_texCoord = a_vertTexCoord;" "\n"
+		"}" "\n"
+	;
+	std::string codeFS =
+		"#version 330 core" "\n"
+		"" "\n"
+		//"in vec2 v_texCoord;" "\n"
+		"" "\n"
+		"out vec4 o_color;" "\n"
+		"" "\n"
+		//"uniform sampler2D s_texture;" "\n"
+		"uniform vec4 u_color;" "\n"
+		"" "\n"
+		"void main()" "\n"
+		"{" "\n"
+		//"	o_color = texture2D(s_texture, v_texCoord);" "\n"
+		"	o_color = u_color;" "\n"
+		"}" "\n"
+	;
+
+	m_shader = new Shader();
+	m_shader->AddStage(codeVS, ShaderType::VERTEX_SHADER);
+	m_shader->AddStage(codeFS, ShaderType::FRAGMENT_SHADER);
+	m_shader->CompileAndLink();
+
 	//-----------------------------------------------------------------------------
 	// Configure graphs.
 
@@ -107,10 +184,11 @@ void Simulation::OnInitialize()
 
 	PARAMS.minAgents				= 45;//35;
 	PARAMS.maxAgents				= 150;//120;
+	PARAMS.initialNumAgents			= 45;
+
 	PARAMS.minFood					= 220;
 	PARAMS.maxFood					= 300;
 	PARAMS.initialFoodCount			= 220;
-	PARAMS.initialNumAgents			= 45;
 		
 	//-----------------------------------------------------------------------------
 	// Energy and fitness parameters.
@@ -199,6 +277,14 @@ void Simulation::OnInitialize()
 	
 	//-----------------------------------------------------------------------------
 	
+	//PARAMS.minAgents				= 10;
+	//PARAMS.maxAgents				= 20;
+	//PARAMS.initialNumAgents			= 15;
+	
+	PARAMS.minAgents				= 110;
+	PARAMS.maxAgents				= 110;
+	PARAMS.initialNumAgents			= 110;
+
 	m_worldDimensions.x = Simulation::PARAMS.worldWidth;
 	m_worldDimensions.y = Simulation::PARAMS.worldHeight;
 	m_fittestList = new FittestList(Simulation::PARAMS.numFittest);
@@ -207,7 +293,7 @@ void Simulation::OnInitialize()
 		(float) (Simulation::PARAMS.minAgents / 2),
 		(float) ((int) (Simulation::PARAMS.maxAgents * 1.2f)));
 
-	m_agentVisionPixels = new float[PARAMS.retinaResolution * 3]; // 3 channels.
+	m_agentVisionPixels = new float[PARAMS.retinaResolution * 3 * PARAMS.maxAgents]; // 3 channels.
 
 	//-----------------------------------------------------------------------------
 
@@ -707,7 +793,6 @@ void Simulation::UpdateAgents()
 		
 		// Update the agent.
 		agent->Update();
-		RenderAgentVision(agent);
 		
 		// Kill the agent if its energy drops below zero.
 		if (agent->GetEnergy() <= 0.0f || agent->GetAge() >= agent->GetLifeSpan())
@@ -914,7 +999,7 @@ void Simulation::Kill(Agent* agent)
 
 void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 {
-	Graphics g(GetWindow());
+	Graphics g(GetWindow(), m_renderer);
 	
 	g.EnableCull(false); // Dont cull.
 	g.EnableDepthTest(true);
@@ -946,6 +1031,7 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 	// Draw food.
 	
 	for (unsigned int i = 0; i < m_food.size(); i++)
+	//for (unsigned int i = 0; i < 0; i++)
 	{
 		Vector2f pos = m_food[i].GetPosition();
 		
@@ -964,6 +1050,7 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 	// Draw agents.
 
 	for (unsigned int i = 0; i < m_agents.size(); i++)
+	//for (unsigned int i = 0; i < 0; i++)
 	{
 		Agent* agent = m_agents[i];
 
@@ -1039,9 +1126,36 @@ void Simulation::RenderWorld(ICamera* camera, Agent* agentPOV)
 }
 
 // Render an agent's 1D vision.
-void Simulation::RenderAgentVision(Agent* agent)
+void Simulation::RenderAgentsVision()
 {
-	Graphics g(GetWindow());
+	Viewport vp(0, 0, Simulation::PARAMS.retinaResolution, 1);
+	Graphics g(GetWindow(), m_renderer);
+
+	g.SetViewport(vp, true, false);
+
+	// Render agent's vision.
+	for (unsigned int i = 0; i < m_agents.size(); i++)
+		RenderAgentVision(m_agents[i], i);
+
+	g.SetViewport(m_windowViewport, true);
+		
+	// Read the pixels that were rendered.
+	// FIXME: Undefined behavior when window is minimized.
+	vp = Viewport(0, 0, Simulation::PARAMS.retinaResolution, (int) m_agents.size());
+	glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, m_agentVisionPixels);
+	
+	// Update the agents' visions with the pixel data.
+	for (unsigned int i = 0; i < m_agents.size(); i++)
+	{
+		int offset = i * 3 * vp.width;
+		m_agents[i]->UpdateVision(m_agentVisionPixels + offset, vp.width);
+	}
+}
+
+// Render an agent's 1D vision.
+void Simulation::RenderAgentVision(Agent* agent, int index)
+{
+	Graphics g(GetWindow(), m_renderer);
 
 	float fovY = 0.01f;
 
@@ -1057,15 +1171,15 @@ void Simulation::RenderAgentVision(Agent* agent)
 	agentCam.rotation.Rotate(Vector3f::UNITZ, agent->GetDirection());
 
 	// Render the world from the agent's point-of-view.
-	Viewport vp(0, 0, Simulation::PARAMS.retinaResolution, 1);
+	Viewport vp(0, index, Simulation::PARAMS.retinaResolution, 1);
 	g.SetViewport(vp, true, false);
 		RenderWorld(&agentCam, agent);
-	g.SetViewport(m_windowViewport, true);
+	//g.SetViewport(m_windowViewport, true);
 
 	// Read the pixels that were rendered.
 	// FIXME: Undefined behavior when window is minimized.
-	glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, m_agentVisionPixels);
-	agent->UpdateVision(m_agentVisionPixels, vp.width);
+	//glReadPixels(vp.x, vp.y, vp.width, vp.height, GL_RGB, GL_FLOAT, m_agentVisionPixels);
+	//agent->UpdateVision(m_agentVisionPixels, vp.width);
 }
 
 
@@ -1075,7 +1189,10 @@ void Simulation::RenderAgentVision(Agent* agent)
 
 void Simulation::OnRender()
 {
-	Graphics g(GetWindow());
+	Graphics g(GetWindow(), m_renderer);
+
+	// Render the vision for all agents.
+	RenderAgentsVision();
 	
 	// Clear the background.
 	g.SetViewport(m_windowViewport, true);
@@ -1119,7 +1236,7 @@ void Simulation::OnRender()
 
 void Simulation::RenderPanelWorld()
 {
-	Graphics g(GetWindow());
+	Graphics g(GetWindow(), m_renderer);
 
 	g.SetViewport(m_panelWorld, true);
 	g.EnableCull(true);
@@ -1132,8 +1249,8 @@ void Simulation::RenderPanelWorld()
 
 void Simulation::RenderPanelPOV()
 {
-	Graphics g(GetWindow());
-
+	Graphics g(GetWindow(), m_renderer);
+		
 	g.SetViewport(m_panelPOV, true);
 
 	g.Clear(Color::BLACK);
@@ -1202,9 +1319,10 @@ void Simulation::RenderPanelPOV()
 
 void Simulation::RenderPanelGraphs()
 {
-	Graphics g(GetWindow());
+	Graphics g(GetWindow(), m_renderer);
 
 	g.SetViewport(m_panelGraphs, true);
+
 	g.EnableCull(false);
 	g.EnableDepthTest(false);
 	g.Clear(Color::BLACK);
@@ -1228,9 +1346,10 @@ void Simulation::RenderPanelGraphs()
 
 void Simulation::RenderPanelText()
 {
-	Graphics g(GetWindow());
+	Graphics g(GetWindow(), m_renderer);
 
 	g.SetViewport(m_panelText, true);
+
 	g.EnableCull(false);
 	g.EnableDepthTest(false);
 	g.Clear(Color::BLACK);
@@ -1328,8 +1447,6 @@ void Simulation::RenderPanelText()
 	//-----------------------------------------------------------------------------
 #undef DRAW_STRING
 	//-----------------------------------------------------------------------------
-
-	glLoadIdentity();
 }
 
 
