@@ -176,8 +176,8 @@ int main(int argc, char** argv)
 
 	//circle_fitting::CircleAIApp application;
 	//GraphicsTestApp application;
-	//Simulation application;
-	ReplayViewer application;
+	Simulation application;
+	//ReplayViewer application;
 	if (!application.Initialize(title, width, height))
 		return 1;
 

@@ -1,5 +1,7 @@
 build_vs2013/Debug/
 build_vs2013/Release/
+build_vs2013/*/Debug/
+build_vs2013/*/Release/
 build_vs2013/*.opensdf
 build_vs2013/*.sdf
 build_vs2013/*.suo

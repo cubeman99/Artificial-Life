@@ -680,9 +680,8 @@ void Simulation::UpdateStatistics()
 		genInfo.bestFitness = bestFit;
 		genInfo.generationIndex = (int) m_generationInfo.size();
 		m_generationInfo.push_back(genInfo);
+		m_graphFitness.SetData((float*) &m_generationInfo[0], (int) m_generationInfo.size() * 4);
 	}
-	
-	m_graphFitness.SetData((float*) &m_generationInfo[0], (int) m_generationInfo.size() * 4);
 }
 
 

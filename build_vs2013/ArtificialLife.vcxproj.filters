@@ -1,12 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="math">
-      <UniqueIdentifier>{25b85c12-1aae-4818-bc87-362b6e21c4b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3rd_party">
-      <UniqueIdentifier>{5281fc36-822f-4ecf-ba79-ef669501bfa0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="artificial_life">
       <UniqueIdentifier>{2abab901-a990-4c6c-a837-97c4286347c8}</UniqueIdentifier>
     </Filter>
@@ -15,9 +9,6 @@
     </Filter>
     <Filter Include="circle_fitting">
       <UniqueIdentifier>{ef87a455-beb0-4220-95e1-56e781ca028d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="application">
-      <UniqueIdentifier>{c7371620-a251-4d8c-b13e-8f59493d4e69}</UniqueIdentifier>
     </Filter>
     <Filter Include="artificial_life\ui">
       <UniqueIdentifier>{53fa4198-f969-4211-8467-6b2c71159d30}</UniqueIdentifier>
@@ -34,12 +25,6 @@
     <Filter Include="artificial_life\genome">
       <UniqueIdentifier>{a7ef11a2-9099-4e3c-88b9-1afea295fdfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="util">
-      <UniqueIdentifier>{0fc0105a-74cd-476a-b3aa-72147de5bd61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="application\graphics">
-      <UniqueIdentifier>{8c5cae46-403b-4e0c-9fbc-732af7850ef7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -55,29 +40,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\3rdParty\lodepng.cpp">
-      <Filter>3rd_party</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\MathLib.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\Matrix4f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\Quaternion.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\Vector2f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\Vector3f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\math\Vector4f.cpp">
-      <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="..\src\artificial_life\Camera.cpp">
       <Filter>artificial_life</Filter>
@@ -130,44 +94,8 @@
     <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp">
       <Filter>circle_fitting</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\util\Random.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\util\Timing.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Application.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Color.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Graphics.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Keyboard.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Mouse.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\SpriteFont.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Window.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Renderer.cpp">
-      <Filter>application\graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\RenderParams.cpp">
-      <Filter>application\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp">
       <Filter>graphics_tests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\application\Shader.cpp">
-      <Filter>application\graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp">
       <Filter>artificial_life\graphics</Filter>
@@ -180,27 +108,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\3rdParty\lodepng.h">
-      <Filter>3rd_party</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\MathLib.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\Matrix4f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\Quaternion.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\Vector2f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\Vector3f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\math\Vector4f.h">
-      <Filter>math</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\artificial_life\Camera.h">
       <Filter>artificial_life</Filter>
     </ClInclude>
@@ -255,47 +162,8 @@
     <ClInclude Include="..\src\circle_fitting\CircleGenome.h">
       <Filter>circle_fitting</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\Random.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\util\Timing.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Application.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Color.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Graphics.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Keyboard.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Mouse.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\SpriteFont.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Window.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Renderer.h">
-      <Filter>application\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\RenderParams.h">
-      <Filter>application\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\OpenGLIncludes.h">
-      <Filter>application\graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h">
       <Filter>graphics_tests</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\application\Shader.h">
-      <Filter>application\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\src\artificial_life\WorldRenderer.h">
       <Filter>artificial_life\graphics</Filter>

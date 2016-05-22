@@ -11,17 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\3rdParty\lodepng.cpp" />
-    <ClCompile Include="..\src\application\Application.cpp" />
-    <ClCompile Include="..\src\application\Color.cpp" />
-    <ClCompile Include="..\src\application\Graphics.cpp" />
-    <ClCompile Include="..\src\application\Keyboard.cpp" />
-    <ClCompile Include="..\src\application\Mouse.cpp" />
-    <ClCompile Include="..\src\application\Renderer.cpp" />
-    <ClCompile Include="..\src\application\RenderParams.cpp" />
-    <ClCompile Include="..\src\application\Shader.cpp" />
-    <ClCompile Include="..\src\application\SpriteFont.cpp" />
-    <ClCompile Include="..\src\application\Window.cpp" />
     <ClCompile Include="..\src\artificial_life\Agent.cpp" />
     <ClCompile Include="..\src\artificial_life\Brain.cpp" />
     <ClCompile Include="..\src\artificial_life\BrainGenome.cpp" />
@@ -44,28 +33,8 @@
     <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp" />
     <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\math\MathLib.cpp" />
-    <ClCompile Include="..\src\math\Matrix4f.cpp" />
-    <ClCompile Include="..\src\math\Quaternion.cpp" />
-    <ClCompile Include="..\src\math\Vector2f.cpp" />
-    <ClCompile Include="..\src\math\Vector3f.cpp" />
-    <ClCompile Include="..\src\math\Vector4f.cpp" />
-    <ClCompile Include="..\src\util\Random.cpp" />
-    <ClCompile Include="..\src\util\Timing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\3rdParty\lodepng.h" />
-    <ClInclude Include="..\src\application\Application.h" />
-    <ClInclude Include="..\src\application\Color.h" />
-    <ClInclude Include="..\src\application\Graphics.h" />
-    <ClInclude Include="..\src\application\Keyboard.h" />
-    <ClInclude Include="..\src\application\Mouse.h" />
-    <ClInclude Include="..\src\application\OpenGLIncludes.h" />
-    <ClInclude Include="..\src\application\Renderer.h" />
-    <ClInclude Include="..\src\application\RenderParams.h" />
-    <ClInclude Include="..\src\application\Shader.h" />
-    <ClInclude Include="..\src\application\SpriteFont.h" />
-    <ClInclude Include="..\src\application\Window.h" />
     <ClInclude Include="..\src\artificial_life\Agent.h" />
     <ClInclude Include="..\src\artificial_life\Brain.h" />
     <ClInclude Include="..\src\artificial_life\BrainGenome.h" />
@@ -88,19 +57,16 @@
     <ClInclude Include="..\src\circle_fitting\CircleAIApp.h" />
     <ClInclude Include="..\src\circle_fitting\CircleGenome.h" />
     <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h" />
-    <ClInclude Include="..\src\math\MathLib.h" />
-    <ClInclude Include="..\src\math\Matrix4f.h" />
-    <ClInclude Include="..\src\math\Quaternion.h" />
-    <ClInclude Include="..\src\math\Vector2f.h" />
-    <ClInclude Include="..\src\math\Vector3f.h" />
-    <ClInclude Include="..\src\math\Vector4f.h" />
-    <ClInclude Include="..\src\util\Random.h" />
-    <ClInclude Include="..\src\util\Timing.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="AppLib\AppLib.vcxproj">
+      <Project>{5b807317-1db7-42e9-96de-b417fe377175}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DB900E08-5331-46D6-B450-6775A2C7C856}</ProjectGuid>
     <RootNamespace>DeanLib</RootNamespace>
-    <ProjectName>FluidProgram</ProjectName>
+    <ProjectName>ArtificialLife</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -133,7 +99,6 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>../lib/SDL2/include;../lib/glew-1.12.0/include;../src</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
