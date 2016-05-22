@@ -50,6 +50,9 @@
     <Filter Include="artificial_life\graphics">
       <UniqueIdentifier>{ddae343a-36df-4451-a49b-379f0f2fb968}</UniqueIdentifier>
     </Filter>
+    <Filter Include="artificial_life\replays">
+      <UniqueIdentifier>{6d63cf44-b7ae-4258-983a-36f1660b60cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\3rdParty\lodepng.cpp">
@@ -168,6 +171,12 @@
     </ClCompile>
     <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp">
       <Filter>artificial_life\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp">
+      <Filter>artificial_life\replays</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\artificial_life\ReplayViewer.cpp">
+      <Filter>artificial_life\replays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +299,12 @@
     </ClInclude>
     <ClInclude Include="..\src\artificial_life\WorldRenderer.h">
       <Filter>artificial_life\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\ReplayRecorder.h">
+      <Filter>artificial_life\replays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\artificial_life\ReplayViewer.h">
+      <Filter>artificial_life\replays</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

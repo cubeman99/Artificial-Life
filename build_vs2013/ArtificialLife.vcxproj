@@ -34,6 +34,8 @@
     <ClCompile Include="..\src\artificial_life\Neuron.cpp" />
     <ClCompile Include="..\src\artificial_life\NeuronModel.cpp" />
     <ClCompile Include="..\src\artificial_life\OldGenome.cpp" />
+    <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp" />
+    <ClCompile Include="..\src\artificial_life\ReplayViewer.cpp" />
     <ClCompile Include="..\src\artificial_life\Retina.cpp" />
     <ClCompile Include="..\src\artificial_life\Simulation.cpp" />
     <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
@@ -77,6 +79,8 @@
     <ClInclude Include="..\src\artificial_life\NeuronModel.h" />
     <ClInclude Include="..\src\artificial_life\NeuronType.h" />
     <ClInclude Include="..\src\artificial_life\OldGenome.h" />
+    <ClInclude Include="..\src\artificial_life\ReplayRecorder.h" />
+    <ClInclude Include="..\src\artificial_life\ReplayViewer.h" />
     <ClInclude Include="..\src\artificial_life\Retina.h" />
     <ClInclude Include="..\src\artificial_life\Simulation.h" />
     <ClInclude Include="..\src\artificial_life\SimulationParams.h" />

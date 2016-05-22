@@ -14,6 +14,7 @@ Simulation::Simulation()
 	, m_agentVisionPixels(NULL)
 	, m_renderer(NULL)
 	, m_worldRenderer(this)
+	, m_replayRecorder(this)
 {
 }
 
@@ -401,11 +402,28 @@ void Simulation::UpdateControls(float timeDelta)
 	// Simulation controls.
 		
 	// Escape: Exit the program.
-	if (keyboard->IsKeyPressed(Keys::ESCAPE))
+	if (keyboard->IsKeyPressed(Keys::LCONTROL) && keyboard->IsKeyPressed(Keys::Q))
 	{
 		Quit();
 		return;
 	}
+
+	if (keyboard->IsKeyPressed(Keys::F5))
+	{
+		if (m_replayRecorder.IsRecording())
+		{
+			m_replayRecorder.StopRecording();
+			std::cout << " ****** RECORDING STOPPED ******" << std::endl;
+		}
+		else
+		{
+			m_replayRecorder.BeginRecording("../replays/replay.alrp");
+			std::cout << " ****** RECORDING STARTED ******" << std::endl;
+		}
+	}
+
+	if (m_replayRecorder.IsRecording())
+		m_replayRecorder.RecordStep();
 	
 	// Enter: Next generation.
 	if (keyboard->IsKeyPressed(Keys::ENTER))
@@ -999,6 +1017,12 @@ void Simulation::OnRender()
 	// Draw outlines around the panels.
 	g.DrawRect(m_panelSide, Color::WHITE);
 	g.DrawRect(m_panelPOV, Color::WHITE);
+
+	// Draw recording notification.
+	if (m_replayRecorder.IsRecording())
+	{
+		g.DrawString(m_font, "RECORDING", Vector2f(16, 16), Color::RED, 2.0f);
+	}
 		
 	// Draw the selected agent's brain's connectivity matrix.
 	if (m_selectedAgent != NULL && m_showBrain)

@@ -109,7 +109,7 @@ void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
 	// Draw the floor.
 
 	glBegin(GL_QUADS);
-	glColor4fv(&floorColor.x);
+	glColor4fv(floorColor.data());
 	float floorZ = -0.1f;
 	glVertex3f(0.0f, 0.0f, floorZ);
 	glVertex3f(Simulation::PARAMS.worldWidth, 0.0f, floorZ);
@@ -148,10 +148,8 @@ void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
 		if (agent == agentPOV)
 			continue;
 
-		Vector2f pos = agent->GetPosition();
-
 		g.ResetTransform();
-		g.Translate(pos);
+		g.Translate(agent->GetPosition());
 		g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
 		g.Scale(agent->GetSize());
 
@@ -167,4 +165,69 @@ void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
 			glVertex3fv(m_agentVertices[j].data());
 		glEnd();
 	}
+}
+
+void WorldRenderer::RenderAgent(Graphics* g, Agent* agent)
+{
+	g->ResetTransform();
+	g->Translate(agent->GetPosition());
+	g->Rotate(Vector3f::UNITZ, -agent->GetDirection());
+	g->Scale(agent->GetSize());
+
+	Vector3f agentColor;
+	agentColor.x = agent->GetFightAmount();
+	agentColor.y = agent->GetGenome()->GetGreenColoration();
+	agentColor.z = agent->GetMateAmount();
+
+	// Draw the agent's model.
+	glBegin(GL_TRIANGLES);
+	glColor3fv(agentColor.data());
+	for (unsigned int j = 0; j < m_foodVertices.size(); j++)
+		glVertex3fv(m_agentVertices[j].data());
+	glEnd();
+}
+
+void WorldRenderer::RenderFood(Graphics* g, Food* food)
+{
+	Color foodColor = Color::GREEN;
+
+	g->ResetTransform();
+	g->Translate(food->GetPosition());
+
+	glBegin(GL_QUADS);
+	glColor4ubv(foodColor.data());
+	for (unsigned int j = 0; j < m_foodVertices.size(); j++)
+		glVertex3fv(m_foodVertices[j].data());
+
+	glEnd();
+}
+
+void WorldRenderer::RenderAgent(Graphics* g, const Vector2f& pos, float direction, float size, const Color& color)
+{
+	g->ResetTransform();
+	g->Translate(pos);
+	g->Rotate(Vector3f::UNITZ, -direction);
+	g->Scale(size);
+
+	// Draw the agent's model.
+	glBegin(GL_TRIANGLES);
+	glColor4ubv(color.data());
+	for (unsigned int j = 0; j < m_foodVertices.size(); j++)
+		glVertex3fv(m_agentVertices[j].data());
+	glEnd();
+}
+
+void WorldRenderer::RenderFood(Graphics* g, const Vector2f& pos)
+{
+	Color foodColor = Color::GREEN;
+
+	g->ResetTransform();
+	g->Translate(pos);
+
+	glBegin(GL_QUADS);
+	glColor4ubv(foodColor.data());
+	for (unsigned int j = 0; j < m_foodVertices.size(); j++)
+		glVertex3fv(m_foodVertices[j].data());
+
+	glEnd();
 }

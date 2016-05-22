@@ -19,6 +19,7 @@
 #include "BrainRenderer.h"
 #include "SimulationParams.h"
 #include "WorldRenderer.h"
+#include "ReplayRecorder.h"
 #include <vector>
 
 
@@ -44,6 +45,10 @@ public:
 	Simulation();
 	~Simulation();
 	
+	int GetNumFood() const { return (int) m_food.size(); }
+	int GetNumAgents() const { return (int) m_agents.size(); }
+	int GetWorldAge() const { return m_worldAge; }
+
 	unsigned long GetNewAgentID()
 	{
 		return m_agentCounter++;
@@ -93,7 +98,6 @@ protected:
 	Agent* AgentRoulette();
 
 private:
-
 	unsigned long m_agentCounter;
 
 	// Resources.
@@ -155,7 +159,8 @@ private:
 	Viewport m_panelPOV;
 	Viewport m_panelSide;
 	Viewport m_windowViewport;
-
+	
+	ReplayRecorder	m_replayRecorder;
 	WorldRenderer	m_worldRenderer;
 	BrainRenderer	m_brainRenderer;
 	GraphPanel		m_graphFitness;

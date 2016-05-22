@@ -3,6 +3,8 @@
 
 #include "Camera.h"
 #include "Agent.h"
+#include "application/Graphics.h"
+#include "Food.h"
 #include <vector>
 
 class Simulation;
@@ -15,6 +17,12 @@ public:
 	
 	void LoadModels();
 	void RenderWorld(ICamera* camera, Agent* agentPOV);
+
+	void RenderAgent(Graphics* g, Agent* agent);
+	void RenderFood(Graphics* g, Food* food);
+	
+	void RenderAgent(Graphics* g, const Vector2f& pos, float direction, float size, const Color& color);
+	void RenderFood(Graphics* g, const Vector2f& pos);
 
 
 private:

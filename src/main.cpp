@@ -1,5 +1,6 @@
 
 #include "artificial_life/Simulation.h"
+#include "artificial_life/ReplayViewer.h"
 #include "circle_fitting/CircleAIApp.h"
 #include "artificial_life/NeuronModel.h"
 #include "artificial_life/Genome.h"
@@ -174,8 +175,9 @@ int main(int argc, char** argv)
 	int height = 800;
 
 	//circle_fitting::CircleAIApp application;
-	Simulation application;
 	//GraphicsTestApp application;
+	//Simulation application;
+	ReplayViewer application;
 	if (!application.Initialize(title, width, height))
 		return 1;
 
