@@ -2,9 +2,7 @@
 #include "application/Graphics.h"
 #include "math/MathLib.h"
 #include "math/Vector4f.h"
-#include "util/Timing.h" 
 #include "Brain.h"
-#include <algorithm> // for std::sort
 
 SimulationParams Simulation::PARAMS;
 
@@ -31,17 +29,12 @@ Simulation::~Simulation()
 	delete m_fittestList; m_fittestList = NULL;
 }
 
-
-
-void Simulation::Initialize()
+void Simulation::Initialize(const SimulationParams& params)
 {
-	Random::SeedTime();
-	
+	Simulation::PARAMS = params;
+
 	m_worldRenderer.LoadModels();
-
-	//-----------------------------------------------------------------------------
-	// Reset simulation variables.
-
+	
 	m_worldAge					= 0;
 	m_agentCounter				= 0;
 	m_numAgentsBorn				= 0;
@@ -52,123 +45,11 @@ void Simulation::Initialize()
 	m_numAgentsCreatedRandom	= 0;
 	m_numBirthsDenied			= 0;
 
-	//-----------------------------------------------------------------------------
-	// Simulation globals.
-	
-	PARAMS.worldWidth				= 1300;
-	PARAMS.worldHeight				= 1300;
-	PARAMS.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
-
-	PARAMS.minAgents				= 45;//35;
-	PARAMS.maxAgents				= 150;//120;
-	PARAMS.initialNumAgents			= 45;
-
-	PARAMS.minFood					= 220;
-	PARAMS.maxFood					= 300;
-	PARAMS.initialFoodCount			= 220;
-		
-	//-----------------------------------------------------------------------------
-	// Energy and fitness parameters.
-    
-	PARAMS.numFittest				= 10;
-	PARAMS.pairFrequency			= 100;
-	PARAMS.eliteFrequency			= 2;
-
-	// Parameters for measuring an agent's fitness.
-	PARAMS.eatFitnessParam			= 1.0f;
-	PARAMS.mateFitnessParam			= 10.0f;
-	PARAMS.moveFitnessParam			= 1.0f / 800.0f;
-	PARAMS.energyFitnessParam		= 2.0f;
-	PARAMS.ageFitnessParam			= 0.03f;
-	
-	// Energy costs.
-	PARAMS.energyCostEat			= 0.0f;
-	PARAMS.energyCostMate			= 0.002f;
-	PARAMS.energyCostFight			= 0.002f;
-	PARAMS.energyCostMove			= 0.0005f;//0.002f;
-	PARAMS.energyCostTurn			= 0.0005f; //0.002f;
-	PARAMS.energyCostNeuron			= 0.0f; // TODO: find a value for this.
-	PARAMS.energyCostSynapse		= 0.0f; // TODO: find a value for this.
-	PARAMS.energyCostExist			= 0.0005f;
-
-	//float maxsynapse2energy; // (amount if all synapses usable)
-	//float maxneuron2energy;
-
-	//-----------------------------------------------------------------------------
-	// Agent configuration.
-	
-	PARAMS.mateWait					= 120;
-	PARAMS.initialMateWait			= 120;
-	PARAMS.retinaResolution			= 16;
-	PARAMS.retinaVerticalFOV		= 0.01f;
-
-	//-----------------------------------------------------------------------------
-	// Agent gene ranges.
-
-	PARAMS.minFOV					= 20.0f * Math::DEG_TO_RAD;
-	PARAMS.maxFOV					= 130.0f * Math::DEG_TO_RAD;
-	PARAMS.minStrength				= 0.0f;
-	PARAMS.maxStrength				= 1.0f;
-	PARAMS.minSize					= 0.7f;
-	PARAMS.maxSize					= 1.6f;
-	PARAMS.minMaxSpeed				= 1.0f;
-	PARAMS.maxMaxSpeed				= 2.5f;
-	PARAMS.minMutationRate			= 0.01f;
-	PARAMS.maxMutationRate			= 0.1f;
-	PARAMS.minNumCrossoverPoints	= 2;
-	PARAMS.maxNumCrossoverPoints	= 6; // supposed to be 8
-	PARAMS.minLifeSpan				= 1500;
-	PARAMS.maxLifeSpan				= 2800;
-	PARAMS.minBirthEnergyFraction	= 0.1f;
-	PARAMS.maxBirthEnergyFraction	= 0.7f;
-	PARAMS.minVisNeuronsPerGroup	= 1;
-	PARAMS.maxVisNeuronsPerGroup	= 16;
-	PARAMS.minInternalNeuralGroups	= 1;
-	PARAMS.maxInternalNeuralGroups	= 5;
-
-	PARAMS.minENeuronsPerGroup		= 1;
-	PARAMS.maxENeuronsPerGroup		= 6;
-	PARAMS.minINeuronsPerGroup		= 1;
-	PARAMS.maxINeuronsPerGroup		= 6; // supposed to be 16
-
-	PARAMS.minConnectionDensity		= 0.0f;
-	PARAMS.maxConnectionDensity		= 1.0f;
-	PARAMS.minTopologicalDistortion	= 0.0f;
-	PARAMS.maxTopologicalDistortion	= 1.0f;
-	PARAMS.minSynapseLearningRate	= 0.0f;
-	PARAMS.maxSynapseLearningRate	= 0.1f;
-	
-	//-----------------------------------------------------------------------------
-	// Brain configuration.
-
-	PARAMS.numInputNeurGroups		= 5; // red, green, blue, energy, random
-	PARAMS.numOutputNeurGroups		= 5; // speed, turn, mate, fight, eat (MISSING focus and light).
-	PARAMS.numPrebirthCycles		= 10;
-	PARAMS.maxBias					= 1.0f;
-	PARAMS.minBiasLearningRate		= 0.0f; // unused
-	PARAMS.maxBiasLearningRate		= 0.1f; // unused
-	PARAMS.logisticSlope			= 1.0f;
-	PARAMS.maxWeight				= 1.0f;
-	PARAMS.initMaxWeight			= 0.5f;
-	PARAMS.decayRate				= 0.99f;
-	
-	//-----------------------------------------------------------------------------
-	
-	//PARAMS.minAgents				= 10;
-	//PARAMS.maxAgents				= 20;
-	//PARAMS.initialNumAgents			= 15;
-	
-	//PARAMS.minAgents				= 110;
-	//PARAMS.maxAgents				= 110;
-	//PARAMS.initialNumAgents			= 110;
-
-	m_worldDimensions.x = Simulation::PARAMS.worldWidth;
-	m_worldDimensions.y = Simulation::PARAMS.worldHeight;
-	m_fittestList = new FittestList(Simulation::PARAMS.numFittest);
+	m_worldDimensions.x	= Simulation::PARAMS.worldWidth;
+	m_worldDimensions.y	= Simulation::PARAMS.worldHeight;
+	m_fittestList		= new FittestList(Simulation::PARAMS.numFittest);
 	
 	m_agentVisionPixels = new float[PARAMS.retinaResolution * 3 * PARAMS.maxAgents]; // 3 channels.
-
-	//-----------------------------------------------------------------------------
 
 	// Setup OpenGL state.
 	glDepthMask(true);
@@ -176,6 +57,8 @@ void Simulation::Initialize()
 		
 	//-----------------------------------------------------------------------------
 	// Initialize world.
+	
+	Random::SeedTime();
 
 	// Create initial food.
 	m_food.resize(Simulation::PARAMS.initialFoodCount);
@@ -474,5 +357,18 @@ void Simulation::RenderAgentsVision(Graphics* g)
 		int offset = i * 3 * vp.width;
 		m_agents[i]->UpdateVision(m_agentVisionPixels + offset, vp.width);
 	}
+}
+
+
+
+Agent* Simulation::GetAgent(unsigned long agentID)
+{
+	for (auto it = agents_begin(); it != agents_end(); ++it)
+	{
+		Agent* agent = *it;
+		if (agent->GetID() == agentID)
+			return agent;
+	}
+	return NULL;
 }
 

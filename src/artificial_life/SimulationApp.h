@@ -63,59 +63,55 @@ protected:
 	void RenderPanelText();
 
 private:
-	// Resources.
-	SpriteFont* m_font;
+	SpriteFont*		m_font;
 
-	Simulation* m_simulation;
+	Simulation*		m_simulation;
+	ReplayRecorder*	m_replayRecorder;
+	BrainRenderer*	m_brainRenderer;
 	
-	Vector2f m_worldDimensions;
+	float			m_cameraFOV;
+	float			m_cameraAspect;
+	ArcBallCamera	m_camera; // The main camera.
+	bool			m_showFOVLines;
+	bool			m_showGraphs;
+	bool			m_showBrain;
+	bool			m_followAgent;
+	Vector2f		m_cursorPos;
+	Agent*			m_selectedAgent;
+	unsigned long	m_selectedAgentID;
+
+	float			m_agentSelectionRadius;
+
+	// Statistics.
 	
-	float m_totalAgentEnergy;
-
-	int m_numAgentsBorn;
-	int m_numAgentsDeadOldAge;
-	int m_numAgentsDeadEnergy;
-	int m_numAgentsCreatedElite;
-	int m_numAgentsCreatedMate;
-	int m_numAgentsCreatedRandom;
-	int m_numBirthsDenied;
-	
-	float m_cameraFOV;
-	float m_cameraAspect;
-	ArcBallCamera m_camera; // The main camera.
-
-	Vector2f m_cursorPos;
-
-	float m_agentSelectionRadius;
+	float	m_totalAgentEnergy;
+	int		m_numAgentsBorn;
+	int		m_numAgentsDeadOldAge;
+	int		m_numAgentsDeadEnergy;
+	int		m_numAgentsCreatedElite;
+	int		m_numAgentsCreatedMate;
+	int		m_numAgentsCreatedRandom;
+	int		m_numBirthsDenied;
 
 	std::vector<GenerationInfo> m_generationInfo;
 	std::vector<float> m_recentFitnesses;
+
+	// Scren layout.
+	Viewport		m_panelWorld;
+	Viewport		m_panelGraphs;
+	Viewport		m_panelText;
+	Viewport		m_panelPOV;
+	Viewport		m_panelSide;
+	Viewport		m_windowViewport;
 	
-	bool m_showFOVLines;
-	bool m_showGraphs;
-	bool m_showBrain;
-	bool m_followAgent;
-	Agent* m_selectedAgent;
+	GraphPanel		m_graphFitness;
+	GraphPanel		m_graphPopulation;
+	GraphPanel		m_graphEnergy;
 
 	struct Stats
 	{
 		float totalEnergy;
 	};
-
-	// Scren layout.
-	Viewport m_panelWorld;
-	Viewport m_panelGraphs;
-	Viewport m_panelText;
-	Viewport m_panelPOV;
-	Viewport m_panelSide;
-	Viewport m_windowViewport;
-	
-	ReplayRecorder*	m_replayRecorder;
-	BrainRenderer*	m_brainRenderer;
-
-	GraphPanel		m_graphFitness;
-	GraphPanel		m_graphPopulation;
-	GraphPanel		m_graphEnergy;
 
 	std::vector<Stats> m_simulationStats;
 	std::vector<float> m_populationData;

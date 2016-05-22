@@ -4,9 +4,6 @@
     <Filter Include="artificial_life">
       <UniqueIdentifier>{2abab901-a990-4c6c-a837-97c4286347c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="artificial_life\UNUSED">
-      <UniqueIdentifier>{75e3622e-2414-475b-b608-9aa16b13a4bf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="circle_fitting">
       <UniqueIdentifier>{ef87a455-beb0-4220-95e1-56e781ca028d}</UniqueIdentifier>
     </Filter>
@@ -25,10 +22,6 @@
     <Filter Include="artificial_life\genome">
       <UniqueIdentifier>{a7ef11a2-9099-4e3c-88b9-1afea295fdfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="graphics_tests">
       <UniqueIdentifier>{cf355036-1860-4aa3-ab60-aa79732a396c}</UniqueIdentifier>
     </Filter>
@@ -40,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\artificial_life\Camera.cpp">
       <Filter>artificial_life</Filter>
     </ClCompile>
@@ -76,9 +66,6 @@
     <ClCompile Include="..\src\artificial_life\Neuron.cpp">
       <Filter>artificial_life\brain</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\OldGenome.cpp">
-      <Filter>artificial_life\UNUSED</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\artificial_life\Retina.cpp">
       <Filter>artificial_life\agent</Filter>
     </ClCompile>
@@ -102,12 +89,6 @@
     </ClCompile>
     <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp">
       <Filter>artificial_life\replays</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\ReplayViewer.cpp">
-      <Filter>artificial_life\replays</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\SimulationApp.cpp">
-      <Filter>artificial_life</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -147,9 +128,6 @@
     <ClInclude Include="..\src\artificial_life\Neuron.h">
       <Filter>artificial_life\brain</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\OldGenome.h">
-      <Filter>artificial_life\UNUSED</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\artificial_life\Retina.h">
       <Filter>artificial_life\agent</Filter>
     </ClInclude>
@@ -173,12 +151,6 @@
     </ClInclude>
     <ClInclude Include="..\src\artificial_life\ReplayRecorder.h">
       <Filter>artificial_life\replays</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\ReplayViewer.h">
-      <Filter>artificial_life\replays</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\SimulationApp.h">
-      <Filter>artificial_life</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

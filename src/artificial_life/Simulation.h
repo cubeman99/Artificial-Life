@@ -45,10 +45,12 @@ public:
 	Simulation();
 	~Simulation();
 	
-	void Initialize();
+	void Initialize(const SimulationParams& params);
 	void Update();
 	void RenderAgentsVision(Graphics* g);
 	
+	Agent* GetAgent(unsigned long agentID);
+
 	int GetNumFood() const { return (int) m_food.size(); }
 	int GetNumAgents() const { return (int) m_agents.size(); }
 	int GetWorldAge() const { return m_worldAge; }

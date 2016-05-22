@@ -7,6 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArtificialLife", "Artificia
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppLib", "AppLib\AppLib.vcxproj", "{5B807317-1DB7-42E9-96DE-B417FE377175}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimulationApp", "SimulationApp\SimulationApp.vcxproj", "{BFE62B61-5F46-4296-A1E0-DDBC25282B52}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReplayViewer", "ReplayViewer\ReplayViewer.vcxproj", "{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +25,14 @@ Global
 		{5B807317-1DB7-42E9-96DE-B417FE377175}.Debug|Win32.Build.0 = Debug|Win32
 		{5B807317-1DB7-42E9-96DE-B417FE377175}.Release|Win32.ActiveCfg = Release|Win32
 		{5B807317-1DB7-42E9-96DE-B417FE377175}.Release|Win32.Build.0 = Release|Win32
+		{BFE62B61-5F46-4296-A1E0-DDBC25282B52}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFE62B61-5F46-4296-A1E0-DDBC25282B52}.Debug|Win32.Build.0 = Debug|Win32
+		{BFE62B61-5F46-4296-A1E0-DDBC25282B52}.Release|Win32.ActiveCfg = Release|Win32
+		{BFE62B61-5F46-4296-A1E0-DDBC25282B52}.Release|Win32.Build.0 = Release|Win32
+		{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}.Debug|Win32.Build.0 = Debug|Win32
+		{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}.Release|Win32.ActiveCfg = Release|Win32
+		{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

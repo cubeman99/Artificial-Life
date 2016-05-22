@@ -22,18 +22,14 @@
     <ClCompile Include="..\src\artificial_life\GraphPanel.cpp" />
     <ClCompile Include="..\src\artificial_life\Neuron.cpp" />
     <ClCompile Include="..\src\artificial_life\NeuronModel.cpp" />
-    <ClCompile Include="..\src\artificial_life\OldGenome.cpp" />
     <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp" />
-    <ClCompile Include="..\src\artificial_life\ReplayViewer.cpp" />
     <ClCompile Include="..\src\artificial_life\Retina.cpp" />
     <ClCompile Include="..\src\artificial_life\Simulation.cpp" />
-    <ClCompile Include="..\src\artificial_life\SimulationApp.cpp" />
     <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
     <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp" />
     <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp" />
     <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp" />
     <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp" />
-    <ClCompile Include="..\src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\artificial_life\Agent.h" />
@@ -48,12 +44,9 @@
     <ClInclude Include="..\src\artificial_life\Neuron.h" />
     <ClInclude Include="..\src\artificial_life\NeuronModel.h" />
     <ClInclude Include="..\src\artificial_life\NeuronType.h" />
-    <ClInclude Include="..\src\artificial_life\OldGenome.h" />
     <ClInclude Include="..\src\artificial_life\ReplayRecorder.h" />
-    <ClInclude Include="..\src\artificial_life\ReplayViewer.h" />
     <ClInclude Include="..\src\artificial_life\Retina.h" />
     <ClInclude Include="..\src\artificial_life\Simulation.h" />
-    <ClInclude Include="..\src\artificial_life\SimulationApp.h" />
     <ClInclude Include="..\src\artificial_life\SimulationParams.h" />
     <ClInclude Include="..\src\artificial_life\WorldRenderer.h" />
     <ClInclude Include="..\src\circle_fitting\CircleAIApp.h" />
@@ -72,13 +65,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -109,8 +102,10 @@
       <AdditionalDependencies>glew32.lib;SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>../lib/SDL2/lib/x86;../lib/glew/lib/x86;../lib/FreeType/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;SDL2_mixer.lib;SDL2_image.lib;SDL2.lib;SDL2main.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -131,8 +126,10 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32.lib;SDL2.lib;SDL2main.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib/SDL2/lib/x86;../lib/glew-1.12.0/lib/Release/Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

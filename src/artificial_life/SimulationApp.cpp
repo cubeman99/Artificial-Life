@@ -4,7 +4,10 @@
 #include "math/Vector4f.h"
 #include "util/Timing.h" 
 #include "Brain.h"
-#include <algorithm> // for std::sort
+
+const char* g_fontPath = "../../assets/font_console.png";
+const char* g_replayPath = "../../replays/replay.alrp";
+
 
 
 SimulationApp::SimulationApp()
@@ -31,14 +34,13 @@ void SimulationApp::OnInitialize()
 	//-----------------------------------------------------------------------------
 	// Load resources.
 
-	m_font = new SpriteFont("../assets/font_console.png", 16, 8, 12, 0);
+	m_font = new SpriteFont(g_fontPath, 16, 8, 12, 0);
 
 		
 	m_simulation		= new Simulation();
 	m_replayRecorder	= new ReplayRecorder(m_simulation);
 	m_brainRenderer		= new BrainRenderer();
 	
-	m_simulation->Initialize();
 
 	//-----------------------------------------------------------------------------
 	// Configure graphs.
@@ -82,49 +84,53 @@ void SimulationApp::OnInitialize()
 	m_showBrain				= false;
 	m_followAgent			= false;
 	m_selectedAgent			= NULL;
+	m_selectedAgentID		= 0;
 
 	m_totalAgentEnergy		= 0.0f;
 
 	m_cameraFOV				= 80.0f * Math::DEG_TO_RAD;
 
+
+	SimulationParams params;
+
 	//-----------------------------------------------------------------------------
 	// Simulation globals.
-	
-	Simulation::PARAMS.worldWidth				= 1300;
-	Simulation::PARAMS.worldHeight				= 1300;
-	Simulation::PARAMS.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
-	Simulation::PARAMS.minAgents				= 45;//35;
-	Simulation::PARAMS.maxAgents				= 150;//120;
-	Simulation::PARAMS.initialNumAgents			= 45;
+	params.worldWidth				= 1300;
+	params.worldHeight				= 1300;
+	params.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
-	Simulation::PARAMS.minFood					= 220;
-	Simulation::PARAMS.maxFood					= 300;
-	Simulation::PARAMS.initialFoodCount			= 220;
+	params.minAgents				= 45;//35;
+	params.maxAgents				= 150;//120;
+	params.initialNumAgents			= 45;
+
+	params.minFood					= 220;
+	params.maxFood					= 300;
+	params.initialFoodCount			= 220;
 		
 	//-----------------------------------------------------------------------------
 	// Energy and fitness parameters.
     
-	Simulation::PARAMS.numFittest				= 10;
-	Simulation::PARAMS.pairFrequency			= 100;
-	Simulation::PARAMS.eliteFrequency			= 2;
+	params.numFittest				= 10;
+	params.pairFrequency			= 100;
+	params.eliteFrequency			= 2;
 
 	// Parameters for measuring an agent's fitness.
-	Simulation::PARAMS.eatFitnessParam			= 1.0f;
-	Simulation::PARAMS.mateFitnessParam			= 10.0f;
-	Simulation::PARAMS.moveFitnessParam			= 1.0f / 800.0f;
-	Simulation::PARAMS.energyFitnessParam		= 2.0f;
-	Simulation::PARAMS.ageFitnessParam			= 0.03f;
+	params.eatFitnessParam			= 1.0f;
+	params.mateFitnessParam			= 10.0f;
+	params.moveFitnessParam			= 1.0f / 800.0f;
+	params.energyFitnessParam		= 2.0f;
+	params.ageFitnessParam			= 0.03f;
 	
 	// Energy costs.
-	Simulation::PARAMS.energyCostEat			= 0.0f;
-	Simulation::PARAMS.energyCostMate			= 0.002f;
-	Simulation::PARAMS.energyCostFight			= 0.002f;
-	Simulation::PARAMS.energyCostMove			= 0.0005f;//0.002f;
-	Simulation::PARAMS.energyCostTurn			= 0.0005f; //0.002f;
-	Simulation::PARAMS.energyCostNeuron			= 0.0f; // TODO: find a value for this.
-	Simulation::PARAMS.energyCostSynapse		= 0.0f; // TODO: find a value for this.
-	Simulation::PARAMS.energyCostExist			= 0.0005f;
+	params.energyCostEat			= 0.0f;
+	params.energyCostMate			= 0.002f;
+	params.energyCostFight			= 0.002f;
+	params.energyCostMove			= 0.0005f;//0.002f;
+	params.energyCostTurn			= 0.0005f; //0.002f;
+	params.energyCostNeuron			= 0.0f; // TODO: find a value for this.
+	params.energyCostSynapse		= 0.0f; // TODO: find a value for this.
+	params.energyCostExist			= 0.0005f;
 
 	//float maxsynapse2energy; // (amount if all synapses usable)
 	//float maxneuron2energy;
@@ -132,74 +138,71 @@ void SimulationApp::OnInitialize()
 	//-----------------------------------------------------------------------------
 	// Agent configuration.
 	
-	Simulation::PARAMS.mateWait					= 120;
-	Simulation::PARAMS.initialMateWait			= 120;
-	Simulation::PARAMS.retinaResolution			= 16;
-	Simulation::PARAMS.retinaVerticalFOV		= 0.01f;
+	params.mateWait					= 120;
+	params.initialMateWait			= 120;
+	params.retinaResolution			= 16;
+	params.retinaVerticalFOV		= 0.01f;
 
 	//-----------------------------------------------------------------------------
 	// Agent gene ranges.
 
-	Simulation::PARAMS.minFOV					= 20.0f * Math::DEG_TO_RAD;
-	Simulation::PARAMS.maxFOV					= 130.0f * Math::DEG_TO_RAD;
-	Simulation::PARAMS.minStrength				= 0.0f;
-	Simulation::PARAMS.maxStrength				= 1.0f;
-	Simulation::PARAMS.minSize					= 0.7f;
-	Simulation::PARAMS.maxSize					= 1.6f;
-	Simulation::PARAMS.minMaxSpeed				= 1.0f;
-	Simulation::PARAMS.maxMaxSpeed				= 2.5f;
-	Simulation::PARAMS.minMutationRate			= 0.01f;
-	Simulation::PARAMS.maxMutationRate			= 0.1f;
-	Simulation::PARAMS.minNumCrossoverPoints	= 2;
-	Simulation::PARAMS.maxNumCrossoverPoints	= 6; // supposed to be 8
-	Simulation::PARAMS.minLifeSpan				= 1500;
-	Simulation::PARAMS.maxLifeSpan				= 2800;
-	Simulation::PARAMS.minBirthEnergyFraction	= 0.1f;
-	Simulation::PARAMS.maxBirthEnergyFraction	= 0.7f;
-	Simulation::PARAMS.minVisNeuronsPerGroup	= 1;
-	Simulation::PARAMS.maxVisNeuronsPerGroup	= 16;
-	Simulation::PARAMS.minInternalNeuralGroups	= 1;
-	Simulation::PARAMS.maxInternalNeuralGroups	= 5;
+	params.minFOV					= 20.0f * Math::DEG_TO_RAD;
+	params.maxFOV					= 130.0f * Math::DEG_TO_RAD;
+	params.minStrength				= 0.0f;
+	params.maxStrength				= 1.0f;
+	params.minSize					= 0.7f;
+	params.maxSize					= 1.6f;
+	params.minMaxSpeed				= 1.0f;
+	params.maxMaxSpeed				= 2.5f;
+	params.minMutationRate			= 0.01f;
+	params.maxMutationRate			= 0.1f;
+	params.minNumCrossoverPoints	= 2;
+	params.maxNumCrossoverPoints	= 6; // supposed to be 8
+	params.minLifeSpan				= 1500;
+	params.maxLifeSpan				= 2800;
+	params.minBirthEnergyFraction	= 0.1f;
+	params.maxBirthEnergyFraction	= 0.7f;
+	params.minVisNeuronsPerGroup	= 1;
+	params.maxVisNeuronsPerGroup	= 16;
+	params.minInternalNeuralGroups	= 1;
+	params.maxInternalNeuralGroups	= 5;
 
-	Simulation::PARAMS.minENeuronsPerGroup		= 1;
-	Simulation::PARAMS.maxENeuronsPerGroup		= 6;
-	Simulation::PARAMS.minINeuronsPerGroup		= 1;
-	Simulation::PARAMS.maxINeuronsPerGroup		= 6; // supposed to be 16
+	params.minENeuronsPerGroup		= 1;
+	params.maxENeuronsPerGroup		= 6;
+	params.minINeuronsPerGroup		= 1;
+	params.maxINeuronsPerGroup		= 6; // supposed to be 16
 
-	Simulation::PARAMS.minConnectionDensity		= 0.0f;
-	Simulation::PARAMS.maxConnectionDensity		= 1.0f;
-	Simulation::PARAMS.minTopologicalDistortion	= 0.0f;
-	Simulation::PARAMS.maxTopologicalDistortion	= 1.0f;
-	Simulation::PARAMS.minSynapseLearningRate	= 0.0f;
-	Simulation::PARAMS.maxSynapseLearningRate	= 0.1f;
+	params.minConnectionDensity		= 0.0f;
+	params.maxConnectionDensity		= 1.0f;
+	params.minTopologicalDistortion	= 0.0f;
+	params.maxTopologicalDistortion	= 1.0f;
+	params.minSynapseLearningRate	= 0.0f;
+	params.maxSynapseLearningRate	= 0.1f;
 	
 	//-----------------------------------------------------------------------------
 	// Brain configuration.
 
-	Simulation::PARAMS.numInputNeurGroups		= 5; // red, green, blue, energy, random
-	Simulation::PARAMS.numOutputNeurGroups		= 5; // speed, turn, mate, fight, eat (MISSING focus and light).
-	Simulation::PARAMS.numPrebirthCycles		= 10;
-	Simulation::PARAMS.maxBias					= 1.0f;
-	Simulation::PARAMS.minBiasLearningRate		= 0.0f; // unused
-	Simulation::PARAMS.maxBiasLearningRate		= 0.1f; // unused
-	Simulation::PARAMS.logisticSlope			= 1.0f;
-	Simulation::PARAMS.maxWeight				= 1.0f;
-	Simulation::PARAMS.initMaxWeight			= 0.5f;
-	Simulation::PARAMS.decayRate				= 0.99f;
+	params.numInputNeurGroups		= 5; // red, green, blue, energy, random
+	params.numOutputNeurGroups		= 5; // speed, turn, mate, fight, eat (MISSING focus and light).
+	params.numPrebirthCycles		= 10;
+	params.maxBias					= 1.0f;
+	params.minBiasLearningRate		= 0.0f; // unused
+	params.maxBiasLearningRate		= 0.1f; // unused
+	params.logisticSlope			= 1.0f;
+	params.maxWeight				= 1.0f;
+	params.initMaxWeight			= 0.5f;
+	params.decayRate				= 0.99f;
 	
 	//-----------------------------------------------------------------------------
-	
+
 	//PARAMS.minAgents				= 10;
 	//PARAMS.maxAgents				= 20;
-	//PARAMS.initialNumAgents			= 15;
+	//PARAMS.initialNumAgents		= 15;
 	
 	//PARAMS.minAgents				= 110;
 	//PARAMS.maxAgents				= 110;
-	//PARAMS.initialNumAgents			= 110;
+	//PARAMS.initialNumAgents		= 110;
 
-	m_worldDimensions.x = Simulation::PARAMS.worldWidth;
-	m_worldDimensions.y = Simulation::PARAMS.worldHeight;
-	
 	m_graphPopulation.SetViewBounds(0, 120,
 		(float) (Simulation::PARAMS.minAgents / 2),
 		(float) ((int) (Simulation::PARAMS.maxAgents * 1.2f)));
@@ -210,14 +213,18 @@ void SimulationApp::OnInitialize()
 	glDepthMask(true);
     glEnable(GL_DEPTH_CLAMP);
 	
+
+	// Initialize the simulation.
+	m_simulation->Initialize(params);
+	
 	UpdateScreenLayout();
 	ResetCamera();
 }
 
 void SimulationApp::ResetCamera()
 {
-	m_camera.position.x = m_worldDimensions.x * 0.5f;
-	m_camera.position.y = m_worldDimensions.y * 0.5f;
+	m_camera.position.x = Simulation::PARAMS.worldWidth * 0.5f;
+	m_camera.position.y = Simulation::PARAMS.worldHeight * 0.5f;
 	m_camera.position.z = 0.0f;
 	m_camera.rotation.SetIdentity();
 	
@@ -235,7 +242,16 @@ void SimulationApp::ResetCamera()
 
 void SimulationApp::OnUpdate(float timeDelta)
 {
+	// Update the simulation.
 	m_simulation->Update();
+	
+	// Check if our selected agent has died.
+	// TODO: make an event queue for simultaion (for births and deaths)
+	if (m_selectedAgent != NULL && m_simulation->GetAgent(m_selectedAgentID) == NULL)
+	{
+		m_selectedAgent = NULL;
+		m_selectedAgentID = 0;
+	}
 
 	UpdateControls(timeDelta);
 	UpdateScreenLayout();
@@ -270,7 +286,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 		}
 		else
 		{
-			m_replayRecorder->BeginRecording("../replays/replay.alrp");
+			m_replayRecorder->BeginRecording(g_replayPath);
 			std::cout << " ****** RECORDING STARTED ******" << std::endl;
 		}
 	}
@@ -290,10 +306,6 @@ void SimulationApp::UpdateControls(float timeDelta)
 	// G: Follow selected agent.
 	if (keyboard->IsKeyPressed(Keys::F))
 		m_followAgent = !m_followAgent;
-
-	// Ctrl + D: Deselect.
-	if (keyboard->IsKeyPressed(Keys::D) && keyboard->IsKeyDown(Keys::LCONTROL))
-		m_selectedAgent = NULL;
 
 	//-----------------------------------------------------------------------------
 	// Camera controls.
@@ -343,6 +355,14 @@ void SimulationApp::UpdateControls(float timeDelta)
 	{
 		m_camera.rotation.Rotate(Vector3f::UNITZ, camRotateRadians * mouse->GetDeltaX());
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), camRotateRadians * mouse->GetDeltaY());
+		mouse->SetVisible(false);
+		mouse->SetPositionInWindow(
+			m_panelWorld.x + (m_panelWorld.width / 2),
+			m_panelWorld.y + (m_panelWorld.height / 2));
+	}
+	else
+	{
+		mouse->SetVisible(true);
 	}
 
 	// Scroll Wheel or Right Mouse: Zoom in/out.
@@ -402,6 +422,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 	if (mouse->IsButtonPressed(MouseButtons::LEFT))
 	{
 		m_selectedAgent = NULL;
+		m_selectedAgentID = 0;
 		float nearestAgentDist = 0.0f;
 		Agent* nearestAgent = NULL;
 
@@ -418,7 +439,10 @@ void SimulationApp::UpdateControls(float timeDelta)
 		}
 
 		if (nearestAgent != NULL && nearestAgentDist < m_agentSelectionRadius)
+		{
 			m_selectedAgent = nearestAgent;
+			m_selectedAgentID = nearestAgent->GetID();
+		}
 	}
 }
 
