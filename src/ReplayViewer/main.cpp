@@ -1,5 +1,4 @@
-
-#include "artificial_life/ReplayViewer.h"
+#include "ReplayViewer.h"
 #include <iostream>
 
 using namespace std;
@@ -7,7 +6,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	const char* title = "Artificial Life - David Jordan (2016)";
+	const char* title = "Artificial Life Replay Viewer";
 	int width  = 1100;
 	int height = 800;
 

@@ -11,43 +11,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\artificial_life\Agent.cpp" />
-    <ClCompile Include="..\src\artificial_life\Brain.cpp" />
-    <ClCompile Include="..\src\artificial_life\BrainGenome.cpp" />
-    <ClCompile Include="..\src\artificial_life\BrainRenderer.cpp" />
-    <ClCompile Include="..\src\artificial_life\Camera.cpp" />
-    <ClCompile Include="..\src\artificial_life\FittestList.cpp" />
-    <ClCompile Include="..\src\artificial_life\Food.cpp" />
-    <ClCompile Include="..\src\artificial_life\Genome.cpp" />
-    <ClCompile Include="..\src\artificial_life\GraphPanel.cpp" />
-    <ClCompile Include="..\src\artificial_life\Neuron.cpp" />
-    <ClCompile Include="..\src\artificial_life\NeuronModel.cpp" />
-    <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp" />
-    <ClCompile Include="..\src\artificial_life\Retina.cpp" />
-    <ClCompile Include="..\src\artificial_life\Simulation.cpp" />
-    <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
-    <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp" />
-    <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\agent\Agent.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\agent\Retina.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\brain\Brain.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\brain\NeuronModel.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\Camera.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\FittestList.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\food\Food.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\genome\BrainGenome.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\genome\Genome.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\ReplayRecorder.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\Simulation.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\SimulationParams.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\WorldRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\artificial_life\Agent.h" />
-    <ClInclude Include="..\src\artificial_life\Brain.h" />
-    <ClInclude Include="..\src\artificial_life\BrainGenome.h" />
-    <ClInclude Include="..\src\artificial_life\BrainRenderer.h" />
-    <ClInclude Include="..\src\artificial_life\Camera.h" />
-    <ClInclude Include="..\src\artificial_life\FittestList.h" />
-    <ClInclude Include="..\src\artificial_life\Food.h" />
-    <ClInclude Include="..\src\artificial_life\Genome.h" />
-    <ClInclude Include="..\src\artificial_life\GraphPanel.h" />
-    <ClInclude Include="..\src\artificial_life\Neuron.h" />
-    <ClInclude Include="..\src\artificial_life\NeuronModel.h" />
-    <ClInclude Include="..\src\artificial_life\NeuronType.h" />
-    <ClInclude Include="..\src\artificial_life\ReplayRecorder.h" />
-    <ClInclude Include="..\src\artificial_life\Retina.h" />
-    <ClInclude Include="..\src\artificial_life\Simulation.h" />
-    <ClInclude Include="..\src\artificial_life\SimulationParams.h" />
-    <ClInclude Include="..\src\artificial_life\WorldRenderer.h" />
-    <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h" />
+    <ClInclude Include="..\src\ArtificialLife\agent\Agent.h" />
+    <ClInclude Include="..\src\ArtificialLife\agent\Retina.h" />
+    <ClInclude Include="..\src\ArtificialLife\brain\Brain.h" />
+    <ClInclude Include="..\src\ArtificialLife\brain\NeuronModel.h" />
+    <ClInclude Include="..\src\ArtificialLife\brain\NeuronType.h" />
+    <ClInclude Include="..\src\ArtificialLife\Camera.h" />
+    <ClInclude Include="..\src\ArtificialLife\FittestList.h" />
+    <ClInclude Include="..\src\ArtificialLife\food\Food.h" />
+    <ClInclude Include="..\src\ArtificialLife\genome\BrainGenome.h" />
+    <ClInclude Include="..\src\ArtificialLife\genome\Genome.h" />
+    <ClInclude Include="..\src\ArtificialLife\ReplayRecorder.h" />
+    <ClInclude Include="..\src\ArtificialLife\Simulation.h" />
+    <ClInclude Include="..\src\ArtificialLife\SimulationParams.h" />
+    <ClInclude Include="..\src\ArtificialLife\WorldRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="AppLib\AppLib.vcxproj">

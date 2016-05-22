@@ -1,11 +1,11 @@
 
-#include "artificial_life/SimulationApp.h"
-#include "artificial_life/NeuronModel.h"
-#include "artificial_life/Genome.h"
-#include "artificial_life/BrainGenome.h"
-#include "artificial_life/Brain.h"
-#include "graphics_tests/GraphicsTestApp.h"
-#include "math/MathLib.h"
+#include "SimulationApp.h"
+
+#include "ArtificialLife/brain//Brain.h"
+#include "ArtificialLife/brain/NeuronModel.h"
+#include "ArtificialLife/genome/Genome.h"
+#include "ArtificialLife/genome/BrainGenome.h"
+#include <AppLib/math/MathLib.h>
 #include <iostream>
 
 using namespace std;
@@ -172,8 +172,6 @@ int main(int argc, char** argv)
 	int width  = 1100;
 	int height = 800;
 
-	//circle_fitting::CircleAIApp application;
-	//GraphicsTestApp application;
 	SimulationApp application;
 	if (!application.Initialize(title, width, height))
 		return 1;

@@ -19,11 +19,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\artificial_life\ReplayViewer.cpp" />
+    <ClCompile Include="..\..\src\ReplayViewer\GraphicsTestApp.cpp" />
     <ClCompile Include="..\..\src\ReplayViewer\main.cpp" />
+    <ClCompile Include="..\..\src\ReplayViewer\ReplayViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\artificial_life\ReplayViewer.h" />
+    <ClInclude Include="..\..\src\ReplayViewer\GraphicsTestApp.h" />
+    <ClInclude Include="..\..\src\ReplayViewer\ReplayViewer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4610239B-1ABB-471E-AB14-AD6D4FB9EC69}</ProjectGuid>

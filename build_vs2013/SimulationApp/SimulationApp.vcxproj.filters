@@ -7,15 +7,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\artificial_life\SimulationApp.cpp">
+    <ClCompile Include="..\..\src\SimulationApp\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SimulationApp\main.cpp">
+    <ClCompile Include="..\..\src\SimulationApp\BrainRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SimulationApp\GraphPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\SimulationApp\SimulationApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\artificial_life\SimulationApp.h">
+    <ClInclude Include="..\..\src\SimulationApp\BrainRenderer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SimulationApp\GraphPanel.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\SimulationApp\SimulationApp.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,13 +10,17 @@
     <ClCompile Include="..\..\src\ReplayViewer\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\artificial_life\ReplayViewer.cpp">
+    <ClCompile Include="..\..\src\ReplayViewer\ReplayViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ReplayViewer\GraphicsTestApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\artificial_life\ReplayViewer.h">
+    <ClInclude Include="..\..\src\ReplayViewer\ReplayViewer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\ReplayViewer\GraphicsTestApp.h" />
   </ItemGroup>
 </Project>

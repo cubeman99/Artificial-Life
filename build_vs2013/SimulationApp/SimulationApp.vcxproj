@@ -19,11 +19,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\artificial_life\SimulationApp.cpp" />
+    <ClCompile Include="..\..\src\SimulationApp\BrainRenderer.cpp" />
+    <ClCompile Include="..\..\src\SimulationApp\GraphPanel.cpp" />
     <ClCompile Include="..\..\src\SimulationApp\main.cpp" />
+    <ClCompile Include="..\..\src\SimulationApp\SimulationApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\artificial_life\SimulationApp.h" />
+    <ClInclude Include="..\..\src\SimulationApp\BrainRenderer.h" />
+    <ClInclude Include="..\..\src\SimulationApp\GraphPanel.h" />
+    <ClInclude Include="..\..\src\SimulationApp\SimulationApp.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BFE62B61-5F46-4296-A1E0-DDBC25282B52}</ProjectGuid>

@@ -4,9 +4,6 @@
     <Filter Include="artificial_life">
       <UniqueIdentifier>{2abab901-a990-4c6c-a837-97c4286347c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="artificial_life\ui">
-      <UniqueIdentifier>{53fa4198-f969-4211-8467-6b2c71159d30}</UniqueIdentifier>
-    </Filter>
     <Filter Include="artificial_life\agent">
       <UniqueIdentifier>{8fc63020-3ce5-400c-ad6b-0832e4f8470d}</UniqueIdentifier>
     </Filter>
@@ -19,122 +16,98 @@
     <Filter Include="artificial_life\genome">
       <UniqueIdentifier>{a7ef11a2-9099-4e3c-88b9-1afea295fdfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="graphics_tests">
-      <UniqueIdentifier>{cf355036-1860-4aa3-ab60-aa79732a396c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="artificial_life\graphics">
       <UniqueIdentifier>{ddae343a-36df-4451-a49b-379f0f2fb968}</UniqueIdentifier>
     </Filter>
     <Filter Include="artificial_life\replays">
       <UniqueIdentifier>{6d63cf44-b7ae-4258-983a-36f1660b60cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="artificial_life\Source Files">
+      <UniqueIdentifier>{a1c423af-6608-412e-aa5a-37f1517818d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\artificial_life\Camera.cpp">
-      <Filter>artificial_life</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\FittestList.cpp">
-      <Filter>artificial_life</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Simulation.cpp">
-      <Filter>artificial_life</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\SimulationParams.cpp">
-      <Filter>artificial_life</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Agent.cpp">
+    <ClCompile Include="..\src\ArtificialLife\agent\Agent.cpp">
       <Filter>artificial_life\agent</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Brain.cpp">
+    <ClCompile Include="..\src\ArtificialLife\agent\Retina.cpp">
+      <Filter>artificial_life\agent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\brain\Brain.cpp">
       <Filter>artificial_life\brain</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\BrainRenderer.cpp">
+    <ClCompile Include="..\src\ArtificialLife\brain\NeuronModel.cpp">
       <Filter>artificial_life\brain</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\GraphPanel.cpp">
-      <Filter>artificial_life\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Food.cpp">
+    <ClCompile Include="..\src\ArtificialLife\food\Food.cpp">
       <Filter>artificial_life\food</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\NeuronModel.cpp">
-      <Filter>artificial_life\brain</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Neuron.cpp">
-      <Filter>artificial_life\brain</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Retina.cpp">
-      <Filter>artificial_life\agent</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\artificial_life\BrainGenome.cpp">
+    <ClCompile Include="..\src\ArtificialLife\genome\BrainGenome.cpp">
       <Filter>artificial_life\genome</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\Genome.cpp">
+    <ClCompile Include="..\src\ArtificialLife\genome\Genome.cpp">
       <Filter>artificial_life\genome</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp">
-      <Filter>graphics_tests</Filter>
+    <ClCompile Include="..\src\ArtificialLife\Camera.cpp">
+      <Filter>artificial_life\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp">
+    <ClCompile Include="..\src\ArtificialLife\FittestList.cpp">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\Simulation.cpp">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\SimulationParams.cpp">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\WorldRenderer.cpp">
       <Filter>artificial_life\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\artificial_life\ReplayRecorder.cpp">
+    <ClCompile Include="..\src\ArtificialLife\ReplayRecorder.cpp">
       <Filter>artificial_life\replays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\artificial_life\Camera.h">
-      <Filter>artificial_life</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\FittestList.h">
-      <Filter>artificial_life</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Simulation.h">
-      <Filter>artificial_life</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\SimulationParams.h">
-      <Filter>artificial_life</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Agent.h">
+    <ClInclude Include="..\src\ArtificialLife\agent\Agent.h">
       <Filter>artificial_life\agent</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Brain.h">
+    <ClInclude Include="..\src\ArtificialLife\agent\Retina.h">
+      <Filter>artificial_life\agent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\brain\Brain.h">
       <Filter>artificial_life\brain</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\BrainRenderer.h">
+    <ClInclude Include="..\src\ArtificialLife\brain\NeuronModel.h">
       <Filter>artificial_life\brain</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\GraphPanel.h">
-      <Filter>artificial_life\ui</Filter>
+    <ClInclude Include="..\src\ArtificialLife\brain\NeuronType.h">
+      <Filter>artificial_life\brain</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Food.h">
+    <ClInclude Include="..\src\ArtificialLife\food\Food.h">
       <Filter>artificial_life\food</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\NeuronModel.h">
-      <Filter>artificial_life\brain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\NeuronType.h">
-      <Filter>artificial_life\brain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Neuron.h">
-      <Filter>artificial_life\brain</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Retina.h">
-      <Filter>artificial_life\agent</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\artificial_life\BrainGenome.h">
+    <ClInclude Include="..\src\ArtificialLife\genome\BrainGenome.h">
       <Filter>artificial_life\genome</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\Genome.h">
+    <ClInclude Include="..\src\ArtificialLife\genome\Genome.h">
       <Filter>artificial_life\genome</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h">
-      <Filter>graphics_tests</Filter>
+    <ClInclude Include="..\src\ArtificialLife\Camera.h">
+      <Filter>artificial_life\Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\WorldRenderer.h">
+    <ClInclude Include="..\src\ArtificialLife\FittestList.h">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\Simulation.h">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\SimulationParams.h">
+      <Filter>artificial_life\Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\WorldRenderer.h">
       <Filter>artificial_life\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\artificial_life\ReplayRecorder.h">
+    <ClInclude Include="..\src\ArtificialLife\ReplayRecorder.h">
       <Filter>artificial_life\replays</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="application">
-      <UniqueIdentifier>{3888428b-5de4-4901-b79b-41d8278567d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{7cc4a52b-4972-4688-b424-0185be95e0d0}</UniqueIdentifier>
     </Filter>
@@ -16,126 +13,135 @@
     <Filter Include="3rd_party">
       <UniqueIdentifier>{1f5ef0ab-e51d-486b-8010-ee8cd7bfb9a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3888428b-5de4-4901-b79b-41d8278567d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{e4b9e6cf-0cc8-4f02-8f59-1f0a4e9e8873}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\application\Application.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Keyboard.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Mouse.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\SpriteFont.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Window.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Renderer.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\RenderParams.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Shader.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\MathLib.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\Matrix4f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\Quaternion.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\Vector2f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\Vector3f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\math\Vector4f.cpp">
-      <Filter>math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\util\Random.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\util\Timing.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Color.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\application\Graphics.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\3rdParty\lodepng.cpp">
       <Filter>3rd_party</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\util\Random.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\util\Timing.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\input\Keyboard.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\input\Mouse.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\MathLib.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\Matrix4f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\Quaternion.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\Vector2f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\Vector3f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\math\Vector4f.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\Color.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\Graphics.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\Renderer.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\RenderParams.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\Shader.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\SpriteFont.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\AppLib\graphics\Window.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\application\Application.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Keyboard.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Mouse.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\SpriteFont.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Window.h">
-      <Filter>application</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Renderer.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\RenderParams.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\OpenGLIncludes.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Shader.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\MathLib.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\Matrix4f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\Quaternion.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\Vector2f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\Vector3f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\math\Vector4f.h">
-      <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\util\Random.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\util\Timing.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Color.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\application\Graphics.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\3rdParty\lodepng.h">
       <Filter>3rd_party</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\util\Random.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\util\Timing.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\applib.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\Application.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\input\Keyboard.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\input\Mouse.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\MathLib.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\Matrix4f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\Quaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\Vector2f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\Vector3f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\math\Vector4f.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\Color.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\Graphics.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\OpenGLIncludes.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\Renderer.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\RenderParams.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\Shader.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\SpriteFont.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\AppLib\graphics\Window.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

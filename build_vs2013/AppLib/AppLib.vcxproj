@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../lib/SDL2/include;../../lib/glew-1.12.0/include;../../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../lib/SDL2/include;../../lib/glew-1.12.0/include;../../src;../../src/AppLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,7 +64,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../lib/SDL2/include;../../lib/glew-1.12.0/include;../../src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../lib/SDL2/include;../../lib/glew-1.12.0/include;../../src;../../src/AppLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -82,46 +82,47 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\3rdParty\lodepng.cpp" />
-    <ClCompile Include="..\..\src\application\Application.cpp" />
-    <ClCompile Include="..\..\src\application\Color.cpp" />
-    <ClCompile Include="..\..\src\application\Graphics.cpp" />
-    <ClCompile Include="..\..\src\application\Keyboard.cpp" />
-    <ClCompile Include="..\..\src\application\Mouse.cpp" />
-    <ClCompile Include="..\..\src\application\Renderer.cpp" />
-    <ClCompile Include="..\..\src\application\RenderParams.cpp" />
-    <ClCompile Include="..\..\src\application\Shader.cpp" />
-    <ClCompile Include="..\..\src\application\SpriteFont.cpp" />
-    <ClCompile Include="..\..\src\application\Window.cpp" />
-    <ClCompile Include="..\..\src\math\MathLib.cpp" />
-    <ClCompile Include="..\..\src\math\Matrix4f.cpp" />
-    <ClCompile Include="..\..\src\math\Quaternion.cpp" />
-    <ClCompile Include="..\..\src\math\Vector2f.cpp" />
-    <ClCompile Include="..\..\src\math\Vector3f.cpp" />
-    <ClCompile Include="..\..\src\math\Vector4f.cpp" />
-    <ClCompile Include="..\..\src\util\Random.cpp" />
-    <ClCompile Include="..\..\src\util\Timing.cpp" />
+    <ClCompile Include="..\..\src\AppLib\Application.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\Color.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\Graphics.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\Renderer.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\RenderParams.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\Shader.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\SpriteFont.cpp" />
+    <ClCompile Include="..\..\src\AppLib\graphics\Window.cpp" />
+    <ClCompile Include="..\..\src\AppLib\input\Keyboard.cpp" />
+    <ClCompile Include="..\..\src\AppLib\input\Mouse.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\MathLib.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\Matrix4f.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\Quaternion.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\Vector2f.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\Vector3f.cpp" />
+    <ClCompile Include="..\..\src\AppLib\math\Vector4f.cpp" />
+    <ClCompile Include="..\..\src\AppLib\util\Random.cpp" />
+    <ClCompile Include="..\..\src\AppLib\util\Timing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\3rdParty\lodepng.h" />
-    <ClInclude Include="..\..\src\application\Application.h" />
-    <ClInclude Include="..\..\src\application\Color.h" />
-    <ClInclude Include="..\..\src\application\Graphics.h" />
-    <ClInclude Include="..\..\src\application\Keyboard.h" />
-    <ClInclude Include="..\..\src\application\Mouse.h" />
-    <ClInclude Include="..\..\src\application\OpenGLIncludes.h" />
-    <ClInclude Include="..\..\src\application\Renderer.h" />
-    <ClInclude Include="..\..\src\application\RenderParams.h" />
-    <ClInclude Include="..\..\src\application\Shader.h" />
-    <ClInclude Include="..\..\src\application\SpriteFont.h" />
-    <ClInclude Include="..\..\src\application\Window.h" />
-    <ClInclude Include="..\..\src\math\MathLib.h" />
-    <ClInclude Include="..\..\src\math\Matrix4f.h" />
-    <ClInclude Include="..\..\src\math\Quaternion.h" />
-    <ClInclude Include="..\..\src\math\Vector2f.h" />
-    <ClInclude Include="..\..\src\math\Vector3f.h" />
-    <ClInclude Include="..\..\src\math\Vector4f.h" />
-    <ClInclude Include="..\..\src\util\Random.h" />
-    <ClInclude Include="..\..\src\util\Timing.h" />
+    <ClInclude Include="..\..\src\AppLib\applib.h" />
+    <ClInclude Include="..\..\src\AppLib\Application.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\Color.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\Graphics.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\OpenGLIncludes.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\Renderer.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\RenderParams.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\Shader.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\SpriteFont.h" />
+    <ClInclude Include="..\..\src\AppLib\graphics\Window.h" />
+    <ClInclude Include="..\..\src\AppLib\input\Keyboard.h" />
+    <ClInclude Include="..\..\src\AppLib\input\Mouse.h" />
+    <ClInclude Include="..\..\src\AppLib\math\MathLib.h" />
+    <ClInclude Include="..\..\src\AppLib\math\Matrix4f.h" />
+    <ClInclude Include="..\..\src\AppLib\math\Quaternion.h" />
+    <ClInclude Include="..\..\src\AppLib\math\Vector2f.h" />
+    <ClInclude Include="..\..\src\AppLib\math\Vector3f.h" />
+    <ClInclude Include="..\..\src\AppLib\math\Vector4f.h" />
+    <ClInclude Include="..\..\src\AppLib\util\Random.h" />
+    <ClInclude Include="..\..\src\AppLib\util\Timing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
