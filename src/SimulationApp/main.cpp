@@ -1,6 +1,5 @@
 
 #include "artificial_life/SimulationApp.h"
-#include "circle_fitting/CircleAIApp.h"
 #include "artificial_life/NeuronModel.h"
 #include "artificial_life/Genome.h"
 #include "artificial_life/BrainGenome.h"

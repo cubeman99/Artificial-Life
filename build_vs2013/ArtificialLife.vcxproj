@@ -27,8 +27,6 @@
     <ClCompile Include="..\src\artificial_life\Simulation.cpp" />
     <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
     <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp" />
-    <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp" />
-    <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp" />
     <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -49,8 +47,6 @@
     <ClInclude Include="..\src\artificial_life\Simulation.h" />
     <ClInclude Include="..\src\artificial_life\SimulationParams.h" />
     <ClInclude Include="..\src\artificial_life\WorldRenderer.h" />
-    <ClInclude Include="..\src\circle_fitting\CircleAIApp.h" />
-    <ClInclude Include="..\src\circle_fitting\CircleGenome.h" />
     <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h" />
   </ItemGroup>
   <ItemGroup>

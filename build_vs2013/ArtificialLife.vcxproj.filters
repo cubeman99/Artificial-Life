@@ -4,9 +4,6 @@
     <Filter Include="artificial_life">
       <UniqueIdentifier>{2abab901-a990-4c6c-a837-97c4286347c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="circle_fitting">
-      <UniqueIdentifier>{ef87a455-beb0-4220-95e1-56e781ca028d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="artificial_life\ui">
       <UniqueIdentifier>{53fa4198-f969-4211-8467-6b2c71159d30}</UniqueIdentifier>
     </Filter>
@@ -75,12 +72,6 @@
     <ClCompile Include="..\src\artificial_life\Genome.cpp">
       <Filter>artificial_life\genome</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp">
-      <Filter>circle_fitting</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\circle_fitting\CircleGenome.cpp">
-      <Filter>circle_fitting</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\graphics_tests\GraphicsTestApp.cpp">
       <Filter>graphics_tests</Filter>
     </ClCompile>
@@ -136,12 +127,6 @@
     </ClInclude>
     <ClInclude Include="..\src\artificial_life\Genome.h">
       <Filter>artificial_life\genome</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\circle_fitting\CircleAIApp.h">
-      <Filter>circle_fitting</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\circle_fitting\CircleGenome.h">
-      <Filter>circle_fitting</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graphics_tests\GraphicsTestApp.h">
       <Filter>graphics_tests</Filter>
