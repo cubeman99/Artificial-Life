@@ -16,7 +16,7 @@ public:
 	WorldRenderer(Simulation* simulation);
 	
 	void LoadModels();
-	void RenderWorld(ICamera* camera, Agent* agentPOV);
+	void RenderWorld(Graphics* g, ICamera* camera, Agent* agentPOV);
 
 	void RenderAgent(Graphics* g, Agent* agent);
 	void RenderFood(Graphics* g, Food* food);

@@ -91,16 +91,14 @@ void WorldRenderer::LoadModels()
 	}
 }
 
-void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
+void WorldRenderer::RenderWorld(Graphics* g, ICamera* camera, Agent* agentPOV)
 {
-	Graphics g(m_simulation->GetWindow());
-	
-	g.EnableCull(false); // Dont cull.
-	g.EnableDepthTest(true);
-	g.Clear(Color::BLACK);
+	g->EnableCull(false); // Dont cull.
+	g->EnableDepthTest(true);
+	g->Clear(Color::BLACK);
 
-	g.SetProjection(camera->GetViewProjection());
-	g.ResetTransform();
+	g->SetProjection(camera->GetViewProjection());
+	g->ResetTransform();
 
 	Vector4f foodColor(0.0f, 1.0f, 0.0f, 1.0f); // green
 	Vector4f floorColor(0.0f, 0.15f, 0.0f, 1.0f); // dark green
@@ -124,10 +122,8 @@ void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
 	{
 		Food food = *it;
 
-		Vector2f pos = food.GetPosition();
-		
-		g.ResetTransform();
-		g.Translate(pos);
+		g->ResetTransform();
+		g->Translate(food.GetPosition());
 
 		glBegin(GL_QUADS);
 		glColor4fv(&foodColor.x);
@@ -148,10 +144,10 @@ void WorldRenderer::RenderWorld(ICamera* camera, Agent* agentPOV)
 		if (agent == agentPOV)
 			continue;
 
-		g.ResetTransform();
-		g.Translate(agent->GetPosition());
-		g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
-		g.Scale(agent->GetSize());
+		g->ResetTransform();
+		g->Translate(agent->GetPosition());
+		g->Rotate(Vector3f::UNITZ, -agent->GetDirection());
+		g->Scale(agent->GetSize());
 
 		Vector3f agentColor;
 		agentColor.x = agent->GetFightAmount();

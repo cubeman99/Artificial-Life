@@ -27,6 +27,7 @@
     <ClCompile Include="..\src\artificial_life\ReplayViewer.cpp" />
     <ClCompile Include="..\src\artificial_life\Retina.cpp" />
     <ClCompile Include="..\src\artificial_life\Simulation.cpp" />
+    <ClCompile Include="..\src\artificial_life\SimulationApp.cpp" />
     <ClCompile Include="..\src\artificial_life\SimulationParams.cpp" />
     <ClCompile Include="..\src\artificial_life\WorldRenderer.cpp" />
     <ClCompile Include="..\src\circle_fitting\CircleAIApp.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="..\src\artificial_life\ReplayViewer.h" />
     <ClInclude Include="..\src\artificial_life\Retina.h" />
     <ClInclude Include="..\src\artificial_life\Simulation.h" />
+    <ClInclude Include="..\src\artificial_life\SimulationApp.h" />
     <ClInclude Include="..\src\artificial_life\SimulationParams.h" />
     <ClInclude Include="..\src\artificial_life\WorldRenderer.h" />
     <ClInclude Include="..\src\circle_fitting\CircleAIApp.h" />

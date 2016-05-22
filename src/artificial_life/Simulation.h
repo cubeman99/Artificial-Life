@@ -35,7 +35,7 @@ struct GenerationInfo
 
 //-----------------------------------------------------------------------------
 
-class Simulation : public Application
+class Simulation
 {
 public:
 	typedef std::vector<Food> food_list;
@@ -45,9 +45,21 @@ public:
 	Simulation();
 	~Simulation();
 	
+	void Initialize();
+	void Update();
+	void RenderAgentsVision(Graphics* g);
+	
 	int GetNumFood() const { return (int) m_food.size(); }
 	int GetNumAgents() const { return (int) m_agents.size(); }
 	int GetWorldAge() const { return m_worldAge; }
+
+	WorldRenderer* GetWorldRenderer() { return &m_worldRenderer; }
+
+	food_list::iterator		food_begin()	{ return m_food.begin(); }
+	food_list::iterator		food_end()		{ return m_food.end(); }
+	agent_list::iterator	agents_begin()	{ return m_agents.begin(); }
+	agent_list::iterator	agents_end()	{ return m_agents.end(); }
+
 
 	unsigned long GetNewAgentID()
 	{
@@ -61,41 +73,15 @@ public:
 		return (m_agents.size() - 45.0f) / 35.0f;
 	}
 
-	food_list::iterator		food_begin()	{ return m_food.begin(); }
-	food_list::iterator		food_end()		{ return m_food.end(); }
-	agent_list::iterator	agents_begin()	{ return m_agents.begin(); }
-	agent_list::iterator	agents_end()	{ return m_agents.end(); }
-
 protected:
-	void OnInitialize() override;
-	
-	void ResetCamera();
-
-	void OnUpdate(float timeDelta) override;
-	void UpdateControls(float timeDelta);
-	void UpdateScreenLayout();
-	void UpdateStatistics();
-
-	void UpdateWorld();
 	void UpdateAgents();
-	void RenderAgentsVision();
-	void RenderAgentVision(Agent* agent, int index);
 	void UpdateFood();
 	void UpdateSteadyStateGA();
-
-	void OnRender() override;
-	void RenderPanelWorld();
-	void RenderPanelGraphs();
-	void RenderPanelPOV();
-	void RenderPanelText();
 
 	Agent* Mate(Agent* mommy, Agent* daddy);
 	void Kill(Agent* agent);
 	void PickParentsUsingTournament(int numInPool, int* iParent, int* jParent);
 	
-	// UNUSED:
-	void NextGeneration();
-	Agent* AgentRoulette();
 
 private:
 	unsigned long m_agentCounter;
@@ -108,12 +94,7 @@ private:
 	std::vector<Food> m_food;
 	
 	Vector2f m_worldDimensions;
-	
-	float m_totalAgentEnergy;
 
-	int m_generationTickCounter;
-	int m_generationTickDuration;
-	int m_generation;
 	int m_worldAge;
 	int m_numAgentsBorn;
 	int m_numAgentsDeadOldAge;
@@ -122,61 +103,13 @@ private:
 	int m_numAgentsCreatedMate;
 	int m_numAgentsCreatedRandom;
 	int m_numBirthsDenied;
-
-	int m_numAgents;
-	int m_numElites;
-	int m_numEliteCopies;
-	
-	float m_cameraFOV;
-	float m_cameraAspect;
-	ArcBallCamera m_camera; // The main camera.
-
-	Vector2f m_cursorPos;
-
-	float m_agentSelectionRadius;
-
+		
 	float* m_agentVisionPixels;
 
-	std::vector<GenerationInfo> m_generationInfo;
 	FittestList* m_fittestList;
-	std::vector<float> m_recentFitnesses;
-	
-	bool m_showFOVLines;
-	bool m_showGraphs;
-	bool m_showBrain;
-	bool m_followAgent;
-	Agent* m_selectedAgent;
-
-	struct Stats
-	{
-		float totalEnergy;
-	};
-
-	// Scren layout.
-	Viewport m_panelWorld;
-	Viewport m_panelGraphs;
-	Viewport m_panelText;
-	Viewport m_panelPOV;
-	Viewport m_panelSide;
-	Viewport m_windowViewport;
 	
 	ReplayRecorder	m_replayRecorder;
 	WorldRenderer	m_worldRenderer;
-	BrainRenderer	m_brainRenderer;
-	GraphPanel		m_graphFitness;
-	GraphPanel		m_graphPopulation;
-	GraphPanel		m_graphEnergy;
-
-	std::vector<Stats> m_simulationStats;
-	std::vector<float> m_populationData;
-	
-	
-
-	Renderer*		m_renderer;
-	Shader*			m_shader;
-	RenderParams	m_renderParams3D;
-	RenderParams	m_renderParams2D;
-
 	
 public:
 	static SimulationParams PARAMS;
