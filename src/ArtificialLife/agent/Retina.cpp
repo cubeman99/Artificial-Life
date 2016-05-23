@@ -107,18 +107,43 @@ void Retina::Channel::Init(int channelIndex, int numNeurons)
 }
 
 void Retina::Channel::Update(const float* pixels, int width, int numChannels)
-{
+{			
+	int neuronIndex, nextNeuronIndex;
+	float remainder;
+
+	float numNeuronsPerPixel = (float) m_numNeurons / (float) width;
+	float numPixelsPerNeuron = (float) width / (float) m_numNeurons;
+	const float* pixel = pixels + m_channelIndex;
+	
+	// First, zero the neurons.
 	for (int i = 0; i < m_numNeurons; i++)
 		m_buffer[i] = 0.0f;
-			
-	float numNeuronsPerPixel = (float) m_numNeurons / (float) width;
-	const float* pixel = pixels + m_channelIndex;
-	int neuronIndex;
-
+	
+	// Then, add the average pixel colors for each neuron.
 	for (int i = 0; i < width; i++)
 	{
 		neuronIndex = (int) (i * numNeuronsPerPixel);
-		m_buffer[neuronIndex] += (*pixel) * numNeuronsPerPixel;
+		nextNeuronIndex = (int) (Math::Min(i + 1, width - 1) * numNeuronsPerPixel);
+
+		if (nextNeuronIndex > neuronIndex)
+		{
+			// A division between two neurons happens at this pixel!
+			// Divide this pixel's color accordingly between the two neurons.
+
+			// Neurons: [  N0  ][  N1  ][  N2  ] n = 3
+			// Pixels:  [0][1][2][3][4][5][6][7] w = 8
+			//                 ^^
+			// division between N0 and N1 at pixel 2.
+
+			remainder = (numPixelsPerNeuron * nextNeuronIndex) - i;
+			m_buffer[neuronIndex]     += (*pixel) * remainder * numNeuronsPerPixel;
+			m_buffer[nextNeuronIndex] += (*pixel) * (1.0f - remainder) * numNeuronsPerPixel;
+		}
+		else
+		{
+			m_buffer[neuronIndex] += (*pixel) * numNeuronsPerPixel;
+		}
+
 		pixel += numChannels;
 	}
 }
