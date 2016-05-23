@@ -42,6 +42,7 @@ struct ReplayFood
 {
 	float x;
 	float y;
+	float size;
 };
 
 

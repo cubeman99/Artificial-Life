@@ -215,12 +215,13 @@ void WorldRenderer::RenderAgent(Graphics* g, const Vector2f& pos, float directio
 	glEnd();
 }
 
-void WorldRenderer::RenderFood(Graphics* g, const Vector2f& pos)
+void WorldRenderer::RenderFood(Graphics* g, const Vector2f& pos, float size)
 {
 	Color foodColor = Color::GREEN;
 
 	g->ResetTransform();
 	g->Translate(pos);
+	g->Scale(Vector3f(size, size, 1.0f));
 	//g->Scale(food->GetSize());
 
 	glBegin(GL_QUADS);

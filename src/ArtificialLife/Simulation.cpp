@@ -80,8 +80,8 @@ void Simulation::Update()
 {
 	m_worldAge++;
 
-	PARAMS.worldWidth  = 1100 + Math::Min(m_worldAge / 50000.0f, 1.0f) * 1600;
-	PARAMS.worldHeight = 1100 + Math::Min(m_worldAge / 50000.0f, 1.0f) * 1600;
+	PARAMS.worldWidth  = 1100 + Math::Min(m_worldAge / 400000.0f, 1.0f) * 1500;
+	PARAMS.worldHeight = 1100 + Math::Min(m_worldAge / 400000.0f, 1.0f) * 1500;
 
 	UpdateAgents();
 	UpdateSteadyStateGA();

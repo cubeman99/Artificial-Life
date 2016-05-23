@@ -1,4 +1,4 @@
-#include "SimulationApp.h"
+ #include "SimulationApp.h"
 #include <AppLib/graphics/Graphics.h>
 #include <AppLib/math/MathLib.h>
 #include <AppLib/math/Vector4f.h>

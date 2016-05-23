@@ -490,7 +490,7 @@ void ReplayViewer::OnRender()
 	{
 		ReplayFood& food = m_food[i];
 		m_worldRenderer.RenderFood(&g,
-			Vector2f(food.x, food.y));
+			Vector2f(food.x, food.y), food.size);
 	}
 
 	

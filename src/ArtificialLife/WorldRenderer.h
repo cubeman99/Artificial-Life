@@ -22,7 +22,7 @@ public:
 	void RenderFood(Graphics* g, Food* food);
 	
 	void RenderAgent(Graphics* g, const Vector2f& pos, float direction, float size, const Color& color);
-	void RenderFood(Graphics* g, const Vector2f& pos);
+	void RenderFood(Graphics* g, const Vector2f& pos, float size);
 
 
 private:

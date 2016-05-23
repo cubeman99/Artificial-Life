@@ -67,8 +67,9 @@ void ReplayRecorder::RecordStep()
 	for (auto it = m_simulation->food_begin(); it < m_simulation->food_end(); ++it)
 	{
 		ReplayFood replayFood;
-		replayFood.x = it->GetPosition().x;
-		replayFood.y = it->GetPosition().y;
+		replayFood.x	= it->GetPosition().x;
+		replayFood.y	= it->GetPosition().y;
+		replayFood.size	= it->GetSize();
 		m_file.write((char*) &replayFood, sizeof(ReplayFood));
 	}
 
