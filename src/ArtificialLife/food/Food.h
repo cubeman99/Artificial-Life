@@ -7,20 +7,31 @@
 class Food
 {
 public:
-	Food()
-		: m_position(0.0f, 0.0f)
-		, m_energyValue(1.0f)
-	{}
-	
-	void SetPosition(const Vector2f& pos) { m_position = pos; }
-	Vector2f GetPosition() const { return m_position; }
+	Food();
 
-	float GetEnergyValue() const { return m_energyValue; }
-	void SetEnergyValue(float energyValue) { m_energyValue = energyValue; }
+	void Randomize();
+
+	Vector2f	GetPosition()		const { return m_position; }
+	float		GetEnergyValue()	const { return m_energyValue; }
+	float		GetSize()			const { return m_size; }
+
+	bool IsDepleted() const;
+
+	void SetPosition(const Vector2f& pos)	{ m_position = pos; }
+	void SetEnergyValue(float energyValue)	{ m_energyValue = energyValue; }
+	void SetSize(float size)				{ m_size = size; }
+
+	float Eat(float amount);
+
+
+	float GetRadius() const;
 
 private:
 	Vector2f	m_position;
 	float		m_energyValue;
+	float		m_size;
+	float		m_maxSize;
+	float		m_minSize;
 };
 
 

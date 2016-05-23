@@ -212,6 +212,15 @@ void Agent::UpdateVision(const float* pixels, int width)
 }
 
 
+float Agent::GetEatRadius() const
+{
+	return (m_size * 13.0f);
+}
+
+float Agent::GetMateRadius() const
+{
+	return (m_size * 28.0f);
+}
 
 bool Agent::CanMate() const
 {
@@ -231,9 +240,10 @@ void Agent::MateDelay()
 	m_mateTimer = m_mateDelay;
 }
 
-void Agent::OnEat()
+void Agent::OnEat(float foodEnergy)
 {
 	m_numFoodEaten++;
-	m_heuristicFitness += Simulation::PARAMS.eatFitnessParam;
+	m_energy = Math::Min(m_energy + foodEnergy, m_maxEnergy);
+	m_heuristicFitness += Simulation::PARAMS.eatFitnessParam * foodEnergy;
 }
 

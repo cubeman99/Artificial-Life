@@ -64,6 +64,7 @@ private:
 	float			m_cameraAspect;
 	ArcBallCamera	m_camera; // The main camera.
 	bool			m_showFOVLines;
+	bool			m_showInteractionRadii;
 	bool			m_showGraphs;
 	bool			m_showBrain;
 	bool			m_followAgent;
@@ -74,15 +75,7 @@ private:
 	float			m_agentSelectionRadius;
 
 	// Statistics.
-	
-	float	m_totalAgentEnergy;
-	int		m_numAgentsBorn;
-	int		m_numAgentsDeadOldAge;
-	int		m_numAgentsDeadEnergy;
-	int		m_numAgentsCreatedElite;
-	int		m_numAgentsCreatedMate;
-	int		m_numAgentsCreatedRandom;
-	int		m_numBirthsDenied;
+	float m_totalAgentEnergy;
 
 	std::vector<GenerationInfo> m_generationInfo;
 	std::vector<float> m_recentFitnesses;

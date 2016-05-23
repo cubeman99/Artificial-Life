@@ -34,6 +34,8 @@ public:
 	void AddGraph(const GraphInfo& graph);
 	void AddGraph(const Color& color, int dataOffset, int dataStride);
 
+	void SetDynamicRange(bool dynamicRange, float dynamicRangePadding = 0.1f);
+
 	void SetViewport(const Viewport& viewport);
 
 	void SetData(float* data, int dataSize);

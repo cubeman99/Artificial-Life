@@ -41,46 +41,14 @@ void SimulationApp::OnInitialize()
 	m_simulation		= new Simulation();
 	m_replayRecorder	= new ReplayRecorder(m_simulation);
 	m_brainRenderer		= new BrainRenderer();
-	
-
-	//-----------------------------------------------------------------------------
-	// Configure graphs.
-
-	Color colorBestFitness		= Color::GREEN;
-	Color colorAverageFitness	= Color::YELLOW;
-	Color colorWorstFitness		= Color::RED;
-	
-	m_graphEnergy.SetTitle("energy");
-	m_graphEnergy.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
-	m_graphEnergy.AddGraph(Color::YELLOW, 0, 1);
-
-	m_graphPopulation.SetTitle("population");
-	m_graphPopulation.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
-	m_graphPopulation.AddGraph(Color::CYAN, 0, 1);
-	
-	m_graphFitness.SetTitle("fitness");
-	m_graphFitness.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 10, 0, 25);
-	m_graphFitness.AddGraph(Color::GREEN, 1, 4); // best
-	m_graphFitness.AddGraph(Color::RED, 2, 4); // worst
-	m_graphFitness.AddGraph(Color::YELLOW, 3, 4); // average
 
 	//-----------------------------------------------------------------------------
 	// Reset simulation variables.
 
 	m_agentSelectionRadius = 20;
 
-	m_numAgentsBorn				= 0;
-	m_numAgentsDeadOldAge		= 0;
-	m_numAgentsDeadEnergy		= 0;
-	m_numAgentsCreatedElite		= 0;
-	m_numAgentsCreatedMate		= 0;
-	m_numAgentsCreatedRandom	= 0;
-	m_numBirthsDenied			= 0;
-
 	m_showFOVLines			= false;
+	m_showInteractionRadii	= false;
 	m_showGraphs			= false;
 	m_showBrain				= false;
 	m_followAgent			= false;
@@ -97,17 +65,17 @@ void SimulationApp::OnInitialize()
 	//-----------------------------------------------------------------------------
 	// Simulation globals.
 
-	params.worldWidth				= 1300;
-	params.worldHeight				= 1300;
+	params.worldWidth				= 1000;
+	params.worldHeight				= 1000;
 	params.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
 	params.minAgents				= 45;//35;
 	params.maxAgents				= 150;//120;
 	params.initialNumAgents			= 45;
 
-	params.minFood					= 220;
-	params.maxFood					= 300;
-	params.initialFoodCount			= 220;
+	params.minFood					= 120;//220;
+	params.maxFood					= 120;//300;
+	params.initialFoodCount			= 120;//220;
 		
 	//-----------------------------------------------------------------------------
 	// Energy and fitness parameters.
@@ -195,18 +163,35 @@ void SimulationApp::OnInitialize()
 	params.decayRate				= 0.99f;
 	
 	//-----------------------------------------------------------------------------
+	// Configure graphs.
 
-	//PARAMS.minAgents				= 10;
-	//PARAMS.maxAgents				= 20;
-	//PARAMS.initialNumAgents		= 15;
+	Color colorBestFitness		= Color::GREEN;
+	Color colorAverageFitness	= Color::YELLOW;
+	Color colorWorstFitness		= Color::RED;
 	
-	//PARAMS.minAgents				= 110;
-	//PARAMS.maxAgents				= 110;
-	//PARAMS.initialNumAgents		= 110;
+	m_graphEnergy.SetTitle("energy");
+	m_graphEnergy.SetFont(m_font);
+	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
+	m_graphEnergy.AddGraph(Color::YELLOW, 0, 1);
+
+	m_graphPopulation.SetTitle("population");
+	m_graphPopulation.SetFont(m_font);
+	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
+	m_graphPopulation.AddGraph(Color::CYAN, 0, 1);
+	
+	m_graphFitness.SetTitle("fitness");
+	m_graphFitness.SetFont(m_font);
+	m_graphFitness.SetViewBounds(0, 10, 0, 25);
+	m_graphFitness.AddGraph(Color::GREEN, 1, 4); // best
+	m_graphFitness.AddGraph(Color::RED, 2, 4); // worst
+	m_graphFitness.AddGraph(Color::YELLOW, 3, 4); // average
 
 	m_graphPopulation.SetViewBounds(0, 120,
-		(float) (Simulation::PARAMS.minAgents / 2),
-		(float) ((int) (Simulation::PARAMS.maxAgents * 1.2f)));
+		//(float) (params.minAgents / 2),
+		//(float) ((int) (params.maxAgents * 1.2f)));
+		(float) params.minAgents,
+		(float) params.maxAgents);
+	m_graphPopulation.SetDynamicRange(false);
 
 	//-----------------------------------------------------------------------------
 
@@ -304,6 +289,10 @@ void SimulationApp::UpdateControls(float timeDelta)
 	if (keyboard->IsKeyPressed(Keys::O))
 		m_showFOVLines = !m_showFOVLines;
 	
+	// B: Show/hide agent FOV/vision lines.
+	if (keyboard->IsKeyPressed(Keys::I))
+		m_showInteractionRadii = !m_showInteractionRadii;
+	
 	// G: Follow selected agent.
 	if (keyboard->IsKeyPressed(Keys::F))
 		m_followAgent = !m_followAgent;
@@ -318,9 +307,9 @@ void SimulationApp::UpdateControls(float timeDelta)
 
 	// TODO: magic numbers.
 	float minCamMoveSpeed	= 100.0f;
-	float maxCamMoveSpeed	= 2500.0f;
+	float maxCamMoveSpeed	= 4000.0f;
 	float minCamDist		= 20.0f;
-	float maxCamDist		= 1500.0f;
+	float maxCamDist		= 2500.0f;
 	float camRotateSpeed	= 2.0f;
 	float camRotateRadians	= 0.006f;
 
@@ -640,55 +629,79 @@ void SimulationApp::RenderPanelWorld()
 		g.Scale(m_selectedAgent->GetSize());
 		g.DrawCircle(Vector2f::ZERO, m_agentSelectionRadius, Color::GREEN);
 	}
+	
+	// Draw circles around food.
+	if (m_showInteractionRadii)
+	{
+		for (auto it = m_simulation->food_begin(); it != m_simulation->food_end(); ++it)
+		{
+			g.ResetTransform();
+			g.Translate(it->GetPosition());
+			g.DrawCircle(Vector2f::ZERO, it->GetRadius(), Color::GREEN);
+		}
+	}
 
 	// Draw lines for FOV and vision.
-	if (m_showFOVLines)
+	if (m_showFOVLines || m_showInteractionRadii)
 	{
 		for (auto it = m_simulation->agents_begin(); it != m_simulation->agents_end(); ++it)
 		{
 			Agent* agent = *it;
 
-			g.ResetTransform();
-			g.Translate(agent->GetPosition());
-			g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
-			g.Scale(agent->GetSize());
-				
-			// Draw FOV lines.
-			Vector3f v1(0.0f, 0.0f, 3.0f);
-			Vector3f v2(40.0f, 0.0f, 3.0f);
-			Vector3f v3(40.0f, 0.0f, 3.0f);
-			v2.Rotate(Vector3f::UNITZ, agent->GetFOV() * 0.5f);
-			v3.Rotate(Vector3f::UNITZ, -agent->GetFOV() * 0.5f);
-			glBegin(GL_LINE_STRIP);
-			glColor3ub(0, 255, 255);
-			glVertex3fv(v3.data());
-			glVertex3fv(v1.data());
-			glVertex3fv(v2.data());
-			glEnd();
-
-			// Draw vision strip between FOV lines.
-			int numVisionNeurons = agent->GetRetina().GetNumNeurons(0);
-			glLineWidth(3.0f);
-			glBegin(GL_LINES);
-
-			int visionWidth = 32;
-			for (int j = 0; j < visionWidth; j++)
+			if (m_showInteractionRadii)
 			{
-				Vector3f color;
-				for (int c = 0; c < agent->GetRetina().GetNumChannels(); c++)
-				{
-					int neuronIndex = (int) ((j / (float) visionWidth) * agent->GetRetina().GetNumNeurons(c));
-					color[c] = agent->GetRetina().GetSightValue(c, neuronIndex);
-				}
-				
-				Vector3f vv1 = Vector3f::Lerp(v3, v2, (float) j / (float) visionWidth);
-				Vector3f vv2 = Vector3f::Lerp(v3, v2, (float) (j + 1) / (float) visionWidth);
-				glColor3fv(color.data());
-				glVertex3fv(vv1.data());
-				glVertex3fv(vv2.data());
+				g.ResetTransform();
+				g.Translate(agent->GetPosition());
+				g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
+			
+				g.DrawCircle(Vector2f::ZERO, agent->GetEatRadius(), Color::YELLOW);
+				g.DrawCircle(Vector2f::ZERO, agent->GetMateRadius(), Color::CYAN);
 			}
-			glEnd();
-			glLineWidth(1.0f);
+
+			if (m_showFOVLines)
+			{
+				g.ResetTransform();
+				g.Translate(agent->GetPosition());
+				g.Rotate(Vector3f::UNITZ, -agent->GetDirection());
+				g.Scale(agent->GetSize());
+				
+				// Draw FOV lines.
+				Vector3f v1(0.0f, 0.0f, 3.0f);
+				Vector3f v2(40.0f, 0.0f, 3.0f);
+				Vector3f v3(40.0f, 0.0f, 3.0f);
+				v2.Rotate(Vector3f::UNITZ, agent->GetFOV() * 0.5f);
+				v3.Rotate(Vector3f::UNITZ, -agent->GetFOV() * 0.5f);
+				glBegin(GL_LINE_STRIP);
+				glColor3ub(0, 255, 255);
+				glVertex3fv(v3.data());
+				glVertex3fv(v1.data());
+				glVertex3fv(v2.data());
+				glEnd();
+
+				// Draw vision strip between FOV lines.
+				int numVisionNeurons = agent->GetRetina().GetNumNeurons(0);
+				glLineWidth(3.0f);
+				glBegin(GL_LINES);
+
+				int visionWidth = 32;
+				for (int j = 0; j < visionWidth; j++)
+				{
+					Vector3f color;
+					for (int c = 0; c < agent->GetRetina().GetNumChannels(); c++)
+					{
+						int neuronIndex = (int) ((j / (float) visionWidth) * agent->GetRetina().GetNumNeurons(c));
+						color[c] = agent->GetRetina().GetSightValue(c, neuronIndex);
+					}
+				
+					Vector3f vv1 = Vector3f::Lerp(v3, v2, (float) j / (float) visionWidth);
+					Vector3f vv2 = Vector3f::Lerp(v3, v2, (float) (j + 1) / (float) visionWidth);
+					glColor3fv(color.data());
+					glVertex3fv(vv1.data());
+					glVertex3fv(vv2.data());
+				}
+				glEnd();
+				glLineWidth(1.0f);
+			}
 		}
 	}
 }
@@ -829,23 +842,26 @@ void SimulationApp::RenderPanelText()
 	
 	if (m_selectedAgent == NULL)
 	{
+		SimulationStats stats = m_simulation->GetStatistics();
+
 		DRAW_STRING("SIMULATION");
 		DRAW_STRING("--------------------------------");
 		DRAW_STRING("age            = %d", m_simulation->GetWorldAge());
+		DRAW_STRING("size           = %.0fx%.0f", Simulation::PARAMS.worldWidth, Simulation::PARAMS.worldHeight);
 		DRAW_STRING("energy         = %.1f", m_totalAgentEnergy);
 		DRAW_STRING("energy/agent   = %.2f", m_totalAgentEnergy / (float) m_simulation->GetNumAgents());
 		DRAW_STRING("population     = %d", (int) m_simulation->GetNumAgents());
 		DRAW_STRING("food           = %d", (int) m_simulation->GetNumFood());
 		DRAW_STRING("");
-		DRAW_STRING("agents born    = %d", m_numAgentsBorn);
-		DRAW_STRING("agents dead    = %d", m_numAgentsDeadOldAge + m_numAgentsDeadEnergy);
-		DRAW_STRING("  - old age    = %d", m_numAgentsDeadOldAge);
-		DRAW_STRING("  - hunger     = %d", m_numAgentsDeadEnergy);
-		DRAW_STRING("agents created = %d", m_numAgentsCreatedElite + m_numAgentsCreatedMate + m_numAgentsCreatedRandom);
-		DRAW_STRING("  - elite      = %d", m_numAgentsCreatedElite);
-		DRAW_STRING("  - mate       = %d", m_numAgentsCreatedMate);
-		DRAW_STRING("  - random     = %d", m_numAgentsCreatedRandom);
-		DRAW_STRING("births denied  = %d", m_numBirthsDenied);
+		DRAW_STRING("agents born    = %d", stats.numAgentsBorn);
+		DRAW_STRING("agents dead    = %d", stats.numAgentsDeadOldAge + stats.numAgentsDeadEnergy);
+		DRAW_STRING("  - old age    = %d", stats.numAgentsDeadOldAge);
+		DRAW_STRING("  - hunger     = %d", stats.numAgentsDeadEnergy);
+		DRAW_STRING("agents created = %d", stats.numAgentsCreatedElite + stats.numAgentsCreatedMate + stats.numAgentsCreatedRandom);
+		DRAW_STRING("  - elite      = %d", stats.numAgentsCreatedElite);
+		DRAW_STRING("  - mate       = %d", stats.numAgentsCreatedMate);
+		DRAW_STRING("  - random     = %d", stats.numAgentsCreatedRandom);
+		DRAW_STRING("births denied  = %d", stats.numBirthsDenied);
 		DRAW_STRING("");
 		DRAW_STRING("FPS = %.1f", GetCurrentFPS());
 	}

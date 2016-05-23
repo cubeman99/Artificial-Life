@@ -18,9 +18,7 @@ Simulation::Simulation()
 Simulation::~Simulation()
 {
 	delete m_agentVisionPixels; m_agentVisionPixels = NULL;
-
-	delete m_font; m_font = NULL;
-
+	
 	// Delete all agents.
 	for (unsigned int i = 0; i < m_agents.size(); i++)
 		delete m_agents[i];
@@ -35,20 +33,10 @@ void Simulation::Initialize(const SimulationParams& params)
 
 	m_worldRenderer.LoadModels();
 	
-	m_worldAge					= 0;
-	m_agentCounter				= 0;
-	m_numAgentsBorn				= 0;
-	m_numAgentsDeadOldAge		= 0;
-	m_numAgentsDeadEnergy		= 0;
-	m_numAgentsCreatedElite		= 0;
-	m_numAgentsCreatedMate		= 0;
-	m_numAgentsCreatedRandom	= 0;
-	m_numBirthsDenied			= 0;
-
-	m_worldDimensions.x	= Simulation::PARAMS.worldWidth;
-	m_worldDimensions.y	= Simulation::PARAMS.worldHeight;
+	m_worldAge			= 0;
+	m_agentCounter		= 0;
+	m_statistics		= SimulationStats();
 	m_fittestList		= new FittestList(Simulation::PARAMS.numFittest);
-	
 	m_agentVisionPixels = new float[PARAMS.retinaResolution * 3 * PARAMS.maxAgents]; // 3 channels.
 
 	// Setup OpenGL state.
@@ -64,9 +52,10 @@ void Simulation::Initialize(const SimulationParams& params)
 	m_food.resize(Simulation::PARAMS.initialFoodCount);
 	for (int i = 0; i < Simulation::PARAMS.initialFoodCount; i++)
 	{
+		m_food[i].Randomize();
 		m_food[i].SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
+			Random::NextFloat() * PARAMS.worldWidth,
+			Random::NextFloat() * PARAMS.worldHeight));
 	}
 	
 	// Create initial agents with random genomes.
@@ -76,8 +65,8 @@ void Simulation::Initialize(const SimulationParams& params)
 		agent->GetGenome()->Randomize();
 		agent->Grow();
 		agent->SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
+			Random::NextFloat() * PARAMS.worldWidth,
+			Random::NextFloat() * PARAMS.worldHeight));
 		m_agents.push_back(agent);
 	}
 }
@@ -90,6 +79,9 @@ void Simulation::Initialize(const SimulationParams& params)
 void Simulation::Update()
 {
 	m_worldAge++;
+
+	PARAMS.worldWidth  = 1100 + Math::Min(m_worldAge / 50000.0f, 1.0f) * 1600;
+	PARAMS.worldHeight = 1100 + Math::Min(m_worldAge / 50000.0f, 1.0f) * 1600;
 
 	UpdateAgents();
 	UpdateSteadyStateGA();
@@ -104,19 +96,19 @@ void Simulation::UpdateAgents()
 		Agent* agent = m_agents[i];
 		Vector2f agentPos = agent->GetPosition();
 		
-		// Find food near the agent.
+		// Find nearby food to eat.
 		for (unsigned int j = 0; j < m_food.size(); j++)
 		{
 			float distToFood = Vector2f::Dist(agentPos, m_food[j].GetPosition());
-			if (distToFood < 15.0f)
+			if (distToFood < agent->GetEatRadius() + m_food[j].GetRadius() && agent->GetEatAmount() > 0.3f)
 			{
-				m_food[j].SetPosition(Vector2f(
-					Random::NextFloat() * m_worldDimensions.x,
-					Random::NextFloat() * m_worldDimensions.y));
-				agent->AddEnergy(m_food[j].GetEnergyValue());
-				agent->OnEat();
-				m_food.erase(m_food.begin() + j);
-				j--;
+				agent->OnEat(m_food[j].Eat(0.04f) * agent->GetEatAmount());
+
+				if (m_food[j].IsDepleted())
+				{
+					m_food.erase(m_food.begin() + j);
+					j--;
+				}
 			}
 		}
 		
@@ -127,9 +119,9 @@ void Simulation::UpdateAgents()
 		if (agent->GetEnergy() <= 0.0f || agent->GetAge() >= agent->GetLifeSpan())
 		{
 			if (agent->GetAge() >= agent->GetLifeSpan())
-				m_numAgentsDeadOldAge++;
+				m_statistics.numAgentsDeadOldAge++;
 			else if (agent->GetEnergy() <= 0.0f)
-				m_numAgentsDeadEnergy++;
+				m_statistics.numAgentsDeadEnergy++;
 
 			Kill(agent);
 			m_agents.erase(m_agents.begin() + i);
@@ -153,7 +145,7 @@ void Simulation::UpdateAgents()
 			Agent* daddy = m_agents[j];
 			float dist = Vector2f::Dist(mommy->GetPosition(), daddy->GetPosition());
 				
-			if (dist < 60 &&
+			if (dist < mommy->GetMateRadius() + daddy->GetMateRadius() &&
 				mommy->CanMate() &&
 				daddy->CanMate() &&
 				mommy->GetMateAmount() > mateThreshhold &&
@@ -181,8 +173,8 @@ void Simulation::UpdateFood()
 	{
 		Food food;
 		food.SetPosition(Vector2f(
-			Random::NextFloat() * m_worldDimensions.x,
-			Random::NextFloat() * m_worldDimensions.y));
+			Random::NextFloat() * PARAMS.worldWidth,
+			Random::NextFloat() * PARAMS.worldHeight));
 		m_food.push_back(food);
 	}
 }
@@ -196,7 +188,9 @@ void Simulation::UpdateSteadyStateGA()
 		{
 			Agent* child = new  Agent(this);
 			
-			int numAgentsCreated = m_numAgentsCreatedElite + m_numAgentsCreatedMate + m_numAgentsCreatedRandom;
+			int numAgentsCreated = m_statistics.numAgentsCreatedElite +
+								   m_statistics.numAgentsCreatedMate +
+								   m_statistics.numAgentsCreatedRandom;
 			
 			if (Random::NextFloat() < 0.5f) // TODO: magic number
 			{
@@ -207,13 +201,13 @@ void Simulation::UpdateSteadyStateGA()
 					m_fittestList->GetByRank(iParent)->genome,
 					m_fittestList->GetByRank(jParent)->genome);
 				child->GetGenome()->Mutate();
-				m_numAgentsCreatedMate++;
+				m_statistics.numAgentsCreatedMate++;
 			}
 			else
 			{
 				// Create a random agent.
 				child->GetGenome()->Randomize();
-				m_numAgentsCreatedRandom++;
+				m_statistics.numAgentsCreatedRandom++;
 			}
 			
 			// TODO: Revive a fittest agent.
@@ -221,8 +215,8 @@ void Simulation::UpdateSteadyStateGA()
 
 			child->Grow();
 			child->SetPosition(Vector2f(
-				Random::NextFloat() * m_worldDimensions.x,
-				Random::NextFloat() * m_worldDimensions.y));
+				Random::NextFloat() * PARAMS.worldWidth,
+				Random::NextFloat() * PARAMS.worldHeight));
 			
 			m_agents.push_back(child);
 		}
@@ -262,7 +256,7 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 {
 	if ((int) m_agents.size() + 1 > Simulation::PARAMS.maxAgents)
 	{
-		m_numBirthsDenied++;
+		m_statistics.numBirthsDenied++;
 		std::cout << "Birth denied!" << std::endl;
 		mommy->MateDelay();
 		daddy->MateDelay();
@@ -296,7 +290,7 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 
 	std::cout << "An agent was born!" << std::endl;
 	
-	m_numAgentsBorn++;
+	m_statistics.numAgentsBorn++;
 
 	return child;
 }

@@ -17,6 +17,27 @@
 #include <ArtificialLife/ReplayRecorder.h>
 #include <vector>
 
+struct SimulationStats
+{
+	int numAgentsBorn;
+	int numAgentsDeadOldAge;
+	int numAgentsDeadEnergy;
+	int numAgentsCreatedElite;
+	int numAgentsCreatedMate;
+	int numAgentsCreatedRandom;
+	int numBirthsDenied;
+
+	SimulationStats()
+		: numAgentsBorn(0)
+		, numAgentsDeadOldAge(0)
+		, numAgentsDeadEnergy(0)
+		, numAgentsCreatedElite(0)
+		, numAgentsCreatedMate(0)
+		, numAgentsCreatedRandom(0)
+		, numBirthsDenied(0)
+	{}
+};
+
 
 class Simulation
 {
@@ -34,9 +55,11 @@ public:
 	
 	Agent* GetAgent(unsigned long agentID);
 
-	int GetNumFood() const { return (int) m_food.size(); }
-	int GetNumAgents() const { return (int) m_agents.size(); }
-	int GetWorldAge() const { return m_worldAge; }
+	int GetNumFood()	const { return (int) m_food.size(); }
+	int GetNumAgents()	const { return (int) m_agents.size(); }
+	int GetWorldAge()	const { return m_worldAge; }
+
+	const SimulationStats& GetStatistics() const { return m_statistics; }
 
 	WorldRenderer* GetWorldRenderer() { return &m_worldRenderer; }
 
@@ -69,32 +92,17 @@ protected:
 	
 
 private:
-	unsigned long m_agentCounter;
-
-	// Resources.
-	SpriteFont* m_font;
-
-	// World objects.
 	std::vector<Agent*> m_agents;
-	std::vector<Food> m_food;
+	std::vector<Food>	m_food;
+	int					m_worldAge;
 	
-	Vector2f m_worldDimensions;
+	unsigned long		m_agentCounter;
+	float*				m_agentVisionPixels;
+	FittestList*		m_fittestList;
+	ReplayRecorder		m_replayRecorder;
+	WorldRenderer		m_worldRenderer;
 
-	int m_worldAge;
-	int m_numAgentsBorn;
-	int m_numAgentsDeadOldAge;
-	int m_numAgentsDeadEnergy;
-	int m_numAgentsCreatedElite;
-	int m_numAgentsCreatedMate;
-	int m_numAgentsCreatedRandom;
-	int m_numBirthsDenied;
-		
-	float* m_agentVisionPixels;
-
-	FittestList* m_fittestList;
-	
-	ReplayRecorder	m_replayRecorder;
-	WorldRenderer	m_worldRenderer;
+	SimulationStats		m_statistics;
 	
 public:
 	static SimulationParams PARAMS;

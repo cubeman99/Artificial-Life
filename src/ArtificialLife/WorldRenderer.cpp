@@ -12,10 +12,10 @@ void WorldRenderer::LoadModels()
 	// Create agent model.
 	{
 		float ah = 5.0f; // agent height.
-		Vector3f v1( 10.0f,  0.0f, 0.0f);
+		Vector3f v1( 12.0f,  0.0f, 0.0f);
 		Vector3f v2(-10.0f, -9.0f, 0.0f);
 		Vector3f v3(-10.0f,  9.0f, 0.0f);
-		Vector3f v4( 10.0f,  0.0f, ah);
+		Vector3f v4( 12.0f,  0.0f, ah);
 		Vector3f v5(-10.0f, -9.0f, ah);
 		Vector3f v6(-10.0f,  9.0f, ah);
 
@@ -48,7 +48,7 @@ void WorldRenderer::LoadModels()
 	// Create food model.
 	{
 		float fw = 4.0f; // food width.
-		float fh = 5.0f; // food height.
+		float fh = 7.0f; // food height.
 
 		Vector3f v1(-fw, -fw, 0.0f);
 		Vector3f v2(-fw,  fw, 0.0f);
@@ -124,6 +124,7 @@ void WorldRenderer::RenderWorld(Graphics* g, ICamera* camera, Agent* agentPOV)
 
 		g->ResetTransform();
 		g->Translate(food.GetPosition());
+		g->Scale(Vector3f(food.GetSize(), food.GetSize(), 1.0f));
 
 		glBegin(GL_QUADS);
 		glColor4fv(&foodColor.x);
@@ -189,6 +190,7 @@ void WorldRenderer::RenderFood(Graphics* g, Food* food)
 
 	g->ResetTransform();
 	g->Translate(food->GetPosition());
+	g->Scale(food->GetSize());
 
 	glBegin(GL_QUADS);
 	glColor4ubv(foodColor.data());
@@ -219,6 +221,7 @@ void WorldRenderer::RenderFood(Graphics* g, const Vector2f& pos)
 
 	g->ResetTransform();
 	g->Translate(pos);
+	//g->Scale(food->GetSize());
 
 	glBegin(GL_QUADS);
 	glColor4ubv(foodColor.data());

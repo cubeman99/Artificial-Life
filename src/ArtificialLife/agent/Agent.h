@@ -28,7 +28,7 @@ public:
 	void UpdateVision(const float* pixels, int width);
 	void OnMate();
 	void MateDelay();
-	void OnEat();
+	void OnEat(float foodEnergy);
 
 
 	//-----------------------------------------------------------------------------
@@ -61,11 +61,13 @@ public:
 	
 	bool		IsElite()					const { return m_isElite; }
 	
-
 	Retina&			GetRetina()		{ return m_retina; }
 	Brain*			GetBrain()		{ return m_brain; }
 	BrainGenome*	GetGenome()		{ return m_brainGenome; }
 	
+	float		GetEatRadius() const;
+	float		GetMateRadius() const;
+
 	bool CanMate() const;
 
 

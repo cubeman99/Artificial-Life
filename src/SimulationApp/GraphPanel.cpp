@@ -29,6 +29,12 @@ void GraphPanel::AddGraph(const Color& color, int dataOffset, int dataStride)
 	m_graphs.push_back(graph);
 }
 
+void GraphPanel::SetDynamicRange(bool dynamicRange, float dynamicRangePadding)
+{
+	m_dynamicRange = dynamicRange;
+	m_dynamicRangePadding = dynamicRangePadding;
+}
+
 void GraphPanel::SetData(float* data, int dataSize)
 {
 	m_data = data;
@@ -58,22 +64,30 @@ void GraphPanel::Draw(Graphics* g)
 	m_viewBounds.mins.y = (float) m_minY;
 	m_viewBounds.maxs.y = (float) m_maxY;
 	
+	ViewBounds dynamicBounds = m_viewBounds;
+
+	// Calculate the domain and range of the data.
+	for (unsigned int i = 0; i < m_graphs.size(); i++)
+	{
+		GetGraphRange(m_graphs[i],
+			dynamicBounds.mins.y, dynamicBounds.maxs.y,
+			dynamicBounds.mins.x, dynamicBounds.maxs.x);
+	}
+	
 	// Fit the view to the data's range.
 	if (m_dynamicRange)
 	{
-		// Calculate the range.
-		for (unsigned int i = 0; i < m_graphs.size(); i++)
-		{
-			GetGraphRange(m_graphs[i],
-				m_viewBounds.mins.y, m_viewBounds.maxs.y,
-				m_viewBounds.mins.x, m_viewBounds.maxs.x);
-		}
-
 		// Add in some padding so the graph doesn't touch the edges.
-		float range = m_viewBounds.maxs.y - m_viewBounds.mins.y;
-		m_viewBounds.mins.y -= range * m_dynamicRangePadding * 0.5f;
-		m_viewBounds.maxs.y += range * m_dynamicRangePadding * 0.5f;
+		float range = dynamicBounds.maxs.y - dynamicBounds.mins.y;
+		dynamicBounds.mins.y -= range * m_dynamicRangePadding * 0.5f;
+		dynamicBounds.maxs.y += range * m_dynamicRangePadding * 0.5f;
+		m_viewBounds.mins.y = dynamicBounds.mins.y;
+		m_viewBounds.maxs.y = dynamicBounds.maxs.y;
 	}
+		
+	// Fit the view to the data's domain.
+	m_viewBounds.mins.x = dynamicBounds.mins.x;
+	m_viewBounds.maxs.x = dynamicBounds.maxs.x;
 
 	//-----------------------------------------------------------------------------
 
