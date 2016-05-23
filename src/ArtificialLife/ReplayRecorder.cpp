@@ -66,10 +66,12 @@ void ReplayRecorder::RecordStep()
 	// Write food states.
 	for (auto it = m_simulation->food_begin(); it < m_simulation->food_end(); ++it)
 	{
+		Food* food = *it;
+
 		ReplayFood replayFood;
-		replayFood.x	= it->GetPosition().x;
-		replayFood.y	= it->GetPosition().y;
-		replayFood.size	= it->GetSize();
+		replayFood.x	= food->GetPosition().x;
+		replayFood.y	= food->GetPosition().y;
+		replayFood.size	= food->GetSize();
 		m_file.write((char*) &replayFood, sizeof(ReplayFood));
 	}
 

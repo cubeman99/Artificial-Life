@@ -3,42 +3,66 @@
 #include <AppLib/math/MathLib.h>
 
 
+//-----------------------------------------------------------------------------
+// Constructor & destructor.
+//-----------------------------------------------------------------------------
+
 Agent::Agent(Simulation* simulation)
 	: m_velocity(Vector2f::ZERO)
 	, m_position(Vector2f::ZERO)
 	, m_direction(0.0f)
 	, m_speed(0.0f)
 	, m_energy(0)
-	, m_isElite(false)
 	, m_id(0)
 	, m_simulation(simulation)
 {
-	m_brainGenome = new BrainGenome();
-
-	m_brain = new Brain(m_brainGenome);
-
 	m_id = m_simulation->GetNewAgentID();
+	
+	m_creationType	= AgentCreation::UNKNOWN;
+	m_parents[0]	= Agent::NULL_ID;
+	m_parents[1]	= Agent::NULL_ID;
+
+	m_brainGenome = new BrainGenome();
+	m_cns = new NervousSystem();
 }
 
 Agent::~Agent()
 {
-	delete m_brain; m_brain = NULL;
+	delete m_cns; m_cns = NULL;
 	delete m_brainGenome; m_brainGenome = NULL;
 }
 
+
+//-----------------------------------------------------------------------------
+// Agent Creation.
+//-----------------------------------------------------------------------------
+	
+void Agent::Birth(AgentCreation creationType, unsigned long parent1, unsigned long parent2)
+{
+	m_creationType	= creationType;
+	m_parents[0]	= parent1;
+	m_parents[1]	= parent2;
+}
 
 // Grow an agent from its genome.
 void Agent::Grow()
 {
 	// Grow the brain and some random signals to it.
-	m_brain->Grow();
-	m_brain->PreBirth();
-
-	// Configure the retina.
+	m_cns->Grow(m_brainGenome);
+	m_cns->PreBirth();
+	
+	// Configure the nerves and retina.
 	m_retina.SetFOV(m_brainGenome->GetFOV());
-	m_retina.SetNumNeurons(0, m_brainGenome->GetNumRedNeurons());
-	m_retina.SetNumNeurons(1, m_brainGenome->GetNumGreenNeurons());
-	m_retina.SetNumNeurons(2, m_brainGenome->GetNumBlueNeurons());
+	m_retina.ConfigureChannel(0, m_cns->GetNerve(0));
+	m_retina.ConfigureChannel(1, m_cns->GetNerve(1));
+	m_retina.ConfigureChannel(2, m_cns->GetNerve(2));
+	m_nerves.energy		= m_cns->GetNerve(3);
+	m_nerves.random		= m_cns->GetNerve(4);
+	m_nerves.moveSpeed	= m_cns->GetNerve(5);
+	m_nerves.turnSpeed	= m_cns->GetNerve(6);
+	m_nerves.eat		= m_cns->GetNerve(7);
+	m_nerves.mate		= m_cns->GetNerve(8);
+	m_nerves.fight		= m_cns->GetNerve(9);
 
 	// Physiological genes.
 	m_lifeSpan				= m_brainGenome->GetLifespan();
@@ -53,78 +77,78 @@ void Agent::Grow()
 
 	// Misc.
 	m_mateDelay				= Simulation::PARAMS.mateWait;
-
-	Reset();
-}
-
-void Agent::Reset()
-{
+	
 	m_age				= 0;
-
-	m_numFoodEaten		= 0;
-	m_numChildren		= 0;
-
-	m_energy			= 0.0f;
+	m_mateTimer			= Simulation::PARAMS.initialMateWait;
+	m_energy			= m_maxEnergy; // Starting energy for generated agents (not born).
 	m_heuristicFitness	= 0.0f;
 	m_velocity			= Vector2f::ZERO;
 	m_direction			= Random::NextFloat() * Math::TWO_PI;
+	m_numFoodEaten		= 0;
+	m_numChildren		= 0;
 
 	m_speed				= 0.0f;
 	m_turnSpeed			= 0.0f;
 	m_mateAmount		= 0.0f;
 	m_fightAmount		= 0.0f;
 	m_eatAmount			= 0.0f;
-
-	m_mateTimer			= Simulation::PARAMS.initialMateWait;
-	
-	m_energy			= 10.0f; // Starting energy for generated agents (not born).
-
-
-	m_energy			= m_maxEnergy;
 }
+
+
+//-----------------------------------------------------------------------------
+// Getters.
+//-----------------------------------------------------------------------------
+
+float Agent::GetEatRadius() const
+{
+	return (m_size * 13.0f);
+}
+
+float Agent::GetMateRadius() const
+{
+	return (m_size * 28.0f);
+}
+
+float Agent::GetFightRadius() const
+{
+	return (m_size * 15.0f);
+}
+
+bool Agent::CanMate() const
+{
+	return (m_mateTimer <= 0);
+}
+
+int Agent::GetNumParents() const
+{
+	if (m_creationType == AgentCreation::CREATED_MATE || m_creationType == AgentCreation::BORN)
+		return 2;
+	if (m_creationType == AgentCreation::CREATED_ELITE)
+		return 1;
+	return 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// Update.
+//-----------------------------------------------------------------------------
 
 void Agent::UpdateBrain()
 {
-	NeuronModel* neuralNet = m_brain->GetNeuralNet();
-	
-	//-----------------------------------------------------------------------------
 	// Set the inputs.
-
-	// Set vision input-neuron activations.
-	int neuronIndex = 0;
-	for (int channel = 0; channel < m_retina.GetNumChannels(); channel++)
-	{
-		for (int i = 0; i < m_retina.GetNumNeurons(channel); i++)
-		{
-			neuralNet->SetNeuronActivation(neuronIndex,
-				m_retina.GetSightValue(channel, i));
-			neuronIndex++;
-		}
-	}
-
-	neuralNet->SetNeuronActivation(neuronIndex++, Math::Clamp(m_energy / m_maxEnergy, 0.0f, 1.0f)); // Energy
-	neuralNet->SetNeuronActivation(neuronIndex++, Random::NextFloat()); // Random
-		
-	//-----------------------------------------------------------------------------
-	// Update the brain's neural network.
-
-	neuralNet->Update();
+	m_retina.UpdateNerves();
+	m_nerves.energy->Set(Math::Clamp(m_energy / m_maxEnergy, 0.0f, 1.0f));
+	m_nerves.random->Set(Random::NextFloat());
 	
-	//-----------------------------------------------------------------------------
-	// Gather the outputs.
-
-	float neuralNetOutputs[10];
-	for (int i = 0; i < m_brain->GetNeuralNet()->GetDimensions().numOutputNeurons; i++)
-	{
-		neuralNetOutputs[i] = neuralNet->GetNeuronActivation(
-			neuralNet->GetDimensions().GetOutputNeuronsBegin() + i);
-	}
-
-	m_speed			= neuralNetOutputs[0] * m_brainGenome->GetMaxSpeed();
-	m_turnSpeed		= ((neuralNetOutputs[1] * 2.0f) - 1.0f) * m_maxTurnRate;
-	m_mateAmount	= neuralNetOutputs[2];
-	m_fightAmount	= neuralNetOutputs[3];
-	m_eatAmount		= neuralNetOutputs[4];
+	// Update the brain's neural network.
+	GetNeuralNet()->Update();
+	
+	// Get the outputs.
+	m_speed			= m_nerves.moveSpeed->Get() * m_brainGenome->GetMaxSpeed();
+	m_turnSpeed		= ((m_nerves.turnSpeed->Get() * 2.0f) - 1.0f) * m_maxTurnRate;
+	m_eatAmount		= m_nerves.eat->Get();
+	m_mateAmount	= m_nerves.mate->Get();
+	m_fightAmount	= m_nerves.fight->Get();
 }
 
 void Agent::Update()
@@ -197,8 +221,8 @@ void Agent::Update()
 		(Simulation::PARAMS.energyCostFight   * m_fightAmount) +
 		(Simulation::PARAMS.energyCostMove    * (m_speed / m_maxSpeed)) +
 		(Simulation::PARAMS.energyCostTurn    * (Math::Abs(m_turnSpeed) / m_maxTurnRate)) +
-		(Simulation::PARAMS.energyCostNeuron  * m_brain->GetNeuralNet()->GetDimensions().numNeurons) +
-		(Simulation::PARAMS.energyCostSynapse * m_brain->GetNeuralNet()->GetDimensions().numSynapses);
+		(Simulation::PARAMS.energyCostNeuron  * GetNeuralNet()->GetDimensions().numNeurons) +
+		(Simulation::PARAMS.energyCostSynapse * GetNeuralNet()->GetDimensions().numSynapses);
 
 	m_energy -= energyCost;// * m_simulation->GetEnergyScale();
 
@@ -212,20 +236,9 @@ void Agent::UpdateVision(const float* pixels, int width)
 }
 
 
-float Agent::GetEatRadius() const
-{
-	return (m_size * 13.0f);
-}
-
-float Agent::GetMateRadius() const
-{
-	return (m_size * 28.0f);
-}
-
-bool Agent::CanMate() const
-{
-	return (m_mateTimer <= 0);
-}
+//-----------------------------------------------------------------------------
+// Events.
+//-----------------------------------------------------------------------------
 
 void Agent::OnMate()
 {

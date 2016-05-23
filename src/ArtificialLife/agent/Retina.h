@@ -3,6 +3,7 @@
 
 #include <AppLib/math/Vector3f.h>
 #include <AppLib/math/Matrix4f.h>
+#include <ArtificialLife/brain/Nerve.h>
 #include <vector>
 
 class Retina
@@ -15,12 +16,14 @@ public:
 	void SetFOV(float fov) { m_fov = fov; }
 
 	void Update(const float* pixels, int width);
+	void UpdateNerves();
 
 	Matrix4f GetProjection() const;
 
+	void ConfigureChannel(int channel, Nerve* nerve);
+
 	int GetNumChannels() const { return m_numChannels; }
 	int GetNumNeurons(int channel) const;
-	void SetNumNeurons(int channel, int numNeurons);
 	float GetSightValue(int channel, int neuron) const;
 	float GetInterpolatedSightValue(int channel, float x) const;
 		
@@ -33,13 +36,15 @@ private:
 		Channel();
 		~Channel();
 
-		void Init(int channelIndex, int numNeurons);
+		void Configure(int channelIndex, Nerve* nerve);
 		void Update(const float* pixels, int width, int numChannels);
-			
+		void UpdateNerve();
+
 	private:
-		int m_channelIndex;
-		int m_numNeurons;
-		float* m_buffer;
+		Nerve*	m_nerve;
+		int		m_channelIndex;
+		int		m_numNeurons;
+		float*	m_buffer;
 	};
 
 	int				m_numChannels;
@@ -47,7 +52,6 @@ private:
 
 	int				m_resolution;	// Width of 1-dimensional vision in pixels.
 	float			m_fov;			// Field of view in radians.
-	unsigned char*	m_buffer;		// Pixel buffer for vision.
 };
 
 #endif // _RETINA_H_

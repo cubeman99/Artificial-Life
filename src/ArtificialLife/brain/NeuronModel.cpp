@@ -3,12 +3,7 @@
 #include <AppLib/math/MathLib.h>
 
 
-	
-float Sigmoid(float x, float slope)
-{
-    return (1.0f / (1.0f + expf(-x * slope)));
-}
-
+NeuronModel::Configuration NeuronModel::CONFIG;
 
 
 NeuronModel::NeuronModel()
@@ -17,36 +12,14 @@ NeuronModel::NeuronModel()
 	, m_currNeuronActivations(NULL)
 	, m_synapses(NULL)
 {
-	m_config.sigmoidSlope = 1.0f;
-	m_config.maxWeight = 1.0f;
-	m_config.decayRate = 0.1f;
+	CONFIG.sigmoidSlope	= 1.0f;
+	CONFIG.maxWeight	= 1.0f;
+	CONFIG.decayRate	= 0.99f;
 }
 
-NeuronModel::NeuronModel(const NeuronModel& copy)
-	: m_config(copy.m_config)
-	, m_dimensions(copy.m_dimensions)
+void NeuronModel::CopyFrom(const NeuronModel& copy)
 {
-	m_neurons				= new Neuron[m_dimensions.numNeurons];
-	m_prevNeuronActivations	= new float[m_dimensions.numNeurons];
-	m_currNeuronActivations	= new float[m_dimensions.numNeurons];
-	m_synapses				= new Synapse[m_dimensions.numSynapses];
-		
-	for (int i = 0; i < m_dimensions.numNeurons; i++)
-	{
-		m_currNeuronActivations[i] = copy.m_currNeuronActivations[i];
-		m_prevNeuronActivations[i] = copy.m_prevNeuronActivations[i];
-		m_neurons[i]  = copy.m_neurons[i];
-	}
-	
-	for (long i = 0; i < m_dimensions.numSynapses; i++)
-	{
-		m_synapses[i] = copy.m_synapses[i];
-	}
-}
-
-
-void NeuronModel::operator =(const NeuronModel& copy)
-{
+	// Delete previously allocated buffers.
 	if (m_neurons)
 		delete [] m_neurons;
 	if (m_prevNeuronActivations)
@@ -56,21 +29,21 @@ void NeuronModel::operator =(const NeuronModel& copy)
 	if (m_synapses)
 		delete [] m_synapses;
 
-	m_config = copy.m_config;
-	m_dimensions = copy.m_dimensions;
-
+	m_dimensions			= copy.m_dimensions;
 	m_neurons				= new Neuron[m_dimensions.numNeurons];
 	m_prevNeuronActivations	= new float[m_dimensions.numNeurons];
 	m_currNeuronActivations	= new float[m_dimensions.numNeurons];
 	m_synapses				= new Synapse[m_dimensions.numSynapses];
 		
+	// Copy neurons and activations.
 	for (int i = 0; i < m_dimensions.numNeurons; i++)
 	{
-		m_currNeuronActivations[i] = copy.m_currNeuronActivations[i];
-		m_prevNeuronActivations[i] = copy.m_prevNeuronActivations[i];
-		m_neurons[i]  = copy.m_neurons[i];
+		m_currNeuronActivations[i]	= copy.m_currNeuronActivations[i];
+		m_prevNeuronActivations[i]	= copy.m_prevNeuronActivations[i];
+		m_neurons[i]				= copy.m_neurons[i];
 	}
 	
+	// Copy synapses.
 	for (long i = 0; i < m_dimensions.numSynapses; i++)
 	{
 		m_synapses[i] = copy.m_synapses[i];
@@ -87,8 +60,6 @@ NeuronModel::~NeuronModel()
 
 void NeuronModel::Init(const Dimensions& dimensions, float initialActivation)
 {
-	m_dimensions = dimensions;
-	
 	if (m_neurons)
 		delete [] m_neurons;
 	if (m_prevNeuronActivations)
@@ -98,6 +69,7 @@ void NeuronModel::Init(const Dimensions& dimensions, float initialActivation)
 	if (m_synapses)
 		delete [] m_synapses;
 
+	m_dimensions			= dimensions;
 	m_neurons				= new Neuron[m_dimensions.numNeurons];
 	m_prevNeuronActivations	= new float[m_dimensions.numNeurons];
 	m_currNeuronActivations	= new float[m_dimensions.numNeurons];
@@ -130,12 +102,16 @@ void NeuronModel::Update()
 {
 	long k;
 
+	//-----------------------------------------------------------------------------
 	// Swap the prev and curr activation arrays.
+
 	float* tempActivations = m_currNeuronActivations;
 	m_currNeuronActivations = m_prevNeuronActivations;
 	m_prevNeuronActivations = tempActivations;
 
+	//-----------------------------------------------------------------------------
 	// Update output neurons.
+
 	for (int i = m_dimensions.GetOutputNeuronsBegin(); i < m_dimensions.GetOutputNeuronsEnd(); i++)
 	{
 		// Add in the bias term.
@@ -149,10 +125,12 @@ void NeuronModel::Update()
 		}
 
 		// Apply the sigmoid function to the resulting activation.
-		m_currNeuronActivations[i] = Sigmoid(activation, m_config.sigmoidSlope);
+		m_currNeuronActivations[i] = Sigmoid(activation, CONFIG.sigmoidSlope);
 	}
 	
+	//-----------------------------------------------------------------------------
 	// Update internal neurons.
+
 	for (int i = m_dimensions.GetInternalNeuronsBegin(); i < m_dimensions.GetInternalNeuronsEnd(); i++)
 	{
 		// Add in the bias term.
@@ -166,16 +144,15 @@ void NeuronModel::Update()
 		}
 
 		// Apply the sigmoid function to the resulting activation.
-		m_currNeuronActivations[i] = Sigmoid(activation, m_config.sigmoidSlope);
+		m_currNeuronActivations[i] = Sigmoid(activation, CONFIG.sigmoidSlope);
 	}
 	
+	//-----------------------------------------------------------------------------
 	// Update learning for all synapses.
+
 	for (k = 0; k < m_dimensions.numSynapses; k++)
 	{
 		Synapse& synapse = m_synapses[k];
-
-		//synapse.learningRate = 0.05f;
-		m_config.decayRate = 0.99f;
 
 		// Hebbian learning.
 		float efficacy = synapse.efficacy + synapse.learningRate
@@ -183,14 +160,14 @@ void NeuronModel::Update()
 			* (m_prevNeuronActivations[synapse.fromNeuron] - 0.5f);
 				
 		// Gradually decay synapse efficacy.
-        if (fabs(efficacy) > (0.5f * m_config.maxWeight))
+        if (fabs(efficacy) > (0.5f * CONFIG.maxWeight))
         {
-            efficacy *= 1.0f - (1.0f - m_config.decayRate) *
-                (fabs(efficacy) - 0.5f * m_config.maxWeight) / (0.5f * m_config.maxWeight);
-            if (efficacy > m_config.maxWeight)
-                efficacy = m_config.maxWeight;
-            else if (efficacy < -m_config.maxWeight)
-                efficacy = -m_config.maxWeight;
+            efficacy *= 1.0f - (1.0f - CONFIG.decayRate) *
+                (fabs(efficacy) - 0.5f * CONFIG.maxWeight) / (0.5f * CONFIG.maxWeight);
+            if (efficacy > CONFIG.maxWeight)
+                efficacy = CONFIG.maxWeight;
+            else if (efficacy < -CONFIG.maxWeight)
+                efficacy = -CONFIG.maxWeight;
         }
         else
         {
@@ -208,152 +185,7 @@ void NeuronModel::Update()
 	}
 }
 
-
-
-void NeuronModel::CreateNet()
+float NeuronModel::Sigmoid(float x, float slope)
 {
-	int numInputs					= 4; //7 + 8;
-	int numOutputs					= 2;
-	int numHiddenLayers				= 1 + 1;
-	int numNeuronsPerHiddenLayer	= 6;
-
-	NeuronModel::Dimensions dim;
-	dim.numInputNeurons  = numInputs;
-	dim.numOutputNeurons = numOutputs;
-	dim.numNeurons       = numInputs + numOutputs + (numHiddenLayers * numNeuronsPerHiddenLayer);
-
-	dim.numSynapses =
-		(numInputs  * numNeuronsPerHiddenLayer) +
-		(numOutputs * numNeuronsPerHiddenLayer) +
-		((numNeuronsPerHiddenLayer * numNeuronsPerHiddenLayer) * (numHiddenLayers - 1));
-	
-	Init(dim);
-	
-	int synapseIndex = 0;
-
-	// Create the layers of the network.
-	if (numHiddenLayers > 0)
-	{
-		int neuronIndex  = dim.GetInternalNeuronsBegin();
-
-		// Setup input layer.
-		for (int j = 0; j < numInputs; j++)
-		{
-			SetNeuron(dim.GetInputNeuronsBegin() + j,
-				NeuronAttrs(0.0f), -1, -1);
-		}
-
-		// Create first hidden layer.
-		for (int j = 0; j < numNeuronsPerHiddenLayer; j++)
-		{
-			SetNeuron(neuronIndex,
-				NeuronAttrs(Random::NextFloatClamped()),
-				synapseIndex, synapseIndex + numInputs);
-
-			for (int k = 0; k < numInputs; k++)
-			{
-				SetSynapse(synapseIndex++, dim.GetInputNeuronsBegin() + k,
-					neuronIndex, Random::NextFloatClamped(), 0.0f);
-			}
-
-			neuronIndex++;
-		}
-
-		// Create other hidden layers.
-		for (int i = 1; i < numHiddenLayers; ++i)
-		{
-			for (int j = 0; j < numNeuronsPerHiddenLayer; j++)
-			{
-				SetNeuron(neuronIndex,
-					NeuronAttrs(Random::NextFloatClamped()),
-					synapseIndex, synapseIndex + numNeuronsPerHiddenLayer);
-				
-				for (int k = 0; k < numNeuronsPerHiddenLayer; k++)
-				{
-					SetSynapse(synapseIndex++, dim.GetInternalNeuronsBegin() +
-						((i - 1) * numNeuronsPerHiddenLayer) + k,
-						neuronIndex, Random::NextFloatClamped(), 0.0f);
-				}
-
-				neuronIndex++;
-			}
-		}
-
-		// Create output layer.
-		for (int j = 0; j < numOutputs; j++)
-		{
-			neuronIndex = dim.GetOutputNeuronsBegin() + j;
-
-			SetNeuron(neuronIndex,
-				NeuronAttrs(Random::NextFloatClamped()),
-				synapseIndex, synapseIndex + numNeuronsPerHiddenLayer);
-
-			for (int k = 0; k < numNeuronsPerHiddenLayer; k++)
-			{
-				SetSynapse(synapseIndex++, dim.GetInternalNeuronsBegin() +
-					((numHiddenLayers - 1) * numNeuronsPerHiddenLayer) + k,
-					neuronIndex, Random::NextFloatClamped(), 0.0f);
-			}
-		}
-
-		for (int i = 0; i < m_dimensions.numSynapses; i++)
-		{
-			m_synapses[i].learningRate = Random::NextFloatClamped() * 0.1f;
-		}
-	}
-}
-
-int NeuronModel::GetNumWeights() const
-{
-	int numWeights = 0;
-	for (int i = m_dimensions.GetNonInputNeuronsBegin(); i < m_dimensions.GetNonInputNeuronsEnd(); i++)
-		numWeights += (m_neurons[i].endSynapse - m_neurons[i].startSynapse) + 1;
-	return numWeights;
-}
-
-std::vector<float> NeuronModel::GetWeights() const
-{
-	std::vector<float> weights;
-	
-	for (int i = m_dimensions.GetNonInputNeuronsBegin(); i < m_dimensions.GetNonInputNeuronsEnd(); i++)
-	{
-		for (int k = m_neurons[i].startSynapse; k < m_neurons[i].endSynapse; k++)
-			weights.push_back(m_synapses[k].efficacy);
-		weights.push_back(m_neurons[i].bias);
-	}
-
-	return weights;
-}
-
-void NeuronModel::SetWeights(const std::vector<float>& weights)
-{
-	int weightIndex = 0;
-	
-	for (int i = m_dimensions.GetNonInputNeuronsBegin(); i < m_dimensions.GetNonInputNeuronsEnd(); i++)
-	{
-		for (int k = m_neurons[i].startSynapse; k < m_neurons[i].endSynapse; k++)
-			m_synapses[k].efficacy = weights[weightIndex++];
-		m_neurons[i].bias = weights[weightIndex++];
-	}
-}
-
-std::vector<float> NeuronModel::Update(const std::vector<float>& inputs)
-{
-	// Set the inputs.
-	for (int i = 0; i < m_dimensions.numInputNeurons; i++)
-	{
-		int neuronIndex = m_dimensions.GetInputNeuronsBegin() + i;
-		m_currNeuronActivations[neuronIndex] = inputs[i];
-		m_prevNeuronActivations[neuronIndex] = inputs[i];
-	}
-
-	// Update the network.
-	Update();
-
-	// Gather the outputs.
-	std::vector<float> outputs;
-	for (int i = m_dimensions.GetOutputNeuronsBegin(); i < m_dimensions.GetOutputNeuronsEnd(); i++)
-		outputs.push_back(m_currNeuronActivations[i]);
-
-	return outputs;
+    return (1.0f / (1.0f + expf(-x * slope)));
 }

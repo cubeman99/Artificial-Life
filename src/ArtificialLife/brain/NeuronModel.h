@@ -66,12 +66,6 @@ struct Synapse
 class NeuronModel
 {
 public:
-	NeuronModel();
-	NeuronModel(const NeuronModel& copy);
-	~NeuronModel();
-
-	void operator =(const NeuronModel& copy);
-
 	struct Configuration
 	{
 		float maxBias;
@@ -105,9 +99,9 @@ public:
 		// Neuron's are stored in the following order:
 		// Input, output, internal
 
-		int numInputNeurons;
-		int numOutputNeurons;
-		int numNeurons;
+		int  numInputNeurons;
+		int  numOutputNeurons;
+		int  numNeurons;
 		long numSynapses;
 
 		inline int GetInputNeuronsBegin()		const { return 0; }
@@ -123,39 +117,40 @@ public:
 
 		inline int GetNumNonInputNeurons()		const { return numNeurons - numInputNeurons; }
 	};
+	
+public:
+	NeuronModel();
+	~NeuronModel();
 
+	void CopyFrom(const NeuronModel& copy);
 
 	void Init(const Dimensions& dimensions, float initialActivation = 0.0f);
 	void SetNeuron(int index, const NeuronAttrs& attributes, int startSynapses, int endSynapses);
 	void SetSynapse(int index, int fromNeuron, int toNeuron, float efficacy, float learningRate);
 	void Update();
 
-	void SetNeuronActivation(int neuronIndex, float activation) { m_currNeuronActivations[neuronIndex] = activation; }
-	float GetNeuronActivation(int neuronIndex) const { return m_currNeuronActivations[neuronIndex]; }
+	float GetNeuronActivation(int neuronIndex)			const { return m_currNeuronActivations[neuronIndex]; }
+	float GetNeuronActivationPrev(int neuronIndex)		const { return m_prevNeuronActivations[neuronIndex]; }
+	const Neuron&		GetNeuron(int neuronIndex)		const { return m_neurons[neuronIndex]; }
+	const Synapse&		GetSynapse(int synapseIndex)	const { return m_synapses[synapseIndex]; }
+	const Dimensions&	GetDimensions()					const { return m_dimensions; }
+
+	void SetDimensions(const Dimensions& dims)						{ m_dimensions = dims; }
+	void SetNeuronActivation(int neuronIndex, float activation)		{ m_currNeuronActivations[neuronIndex] = activation; }
+	void SetNeuronActivationPrev(int neuronIndex, float activation)	{ m_prevNeuronActivations[neuronIndex] = activation; }
 	
-	float GetNeuronActivationPrev(int neuronIndex) const { return m_prevNeuronActivations[neuronIndex]; }
-
-
-	const Neuron& GetNeuron(int neuronIndex) { return m_neurons[neuronIndex]; }
-	const Synapse& GetSynapse(int synapseIndex) { return m_synapses[synapseIndex]; }
-	
-	void CreateNet();
-	int GetNumWeights() const;
-	std::vector<float> GetWeights() const;
-	void SetWeights(const std::vector<float>& weights);
-	std::vector<float> Update(const std::vector<float>& inputs);
-
-	const Dimensions& GetDimensions() const { return m_dimensions; }
-	void SetDimensions(const Dimensions& dims) { m_dimensions = dims; }
+	float** GetActivationsBuffer() { return &m_currNeuronActivations; }
 
 private:
-	Configuration	m_config;
-	Dimensions		m_dimensions;
+	float Sigmoid(float x, float slope);
 
-	Neuron*		m_neurons;
-	float*		m_prevNeuronActivations;
-	float*		m_currNeuronActivations;
-	Synapse*	m_synapses;
+	static Configuration CONFIG;
+
+	Dimensions		m_dimensions;
+	Neuron*			m_neurons;
+	float*			m_prevNeuronActivations;
+	float*			m_currNeuronActivations;
+	Synapse*		m_synapses;
 };
 
 

@@ -17,6 +17,8 @@
 #include <ArtificialLife/ReplayRecorder.h>
 #include <vector>
 
+
+
 struct SimulationStats
 {
 	int numAgentsBorn;
@@ -42,7 +44,7 @@ struct SimulationStats
 class Simulation
 {
 public:
-	typedef std::vector<Food> food_list;
+	typedef std::vector<Food*> food_list;
 	typedef std::vector<Agent*> agent_list;
 
 public:
@@ -92,8 +94,8 @@ protected:
 	
 
 private:
-	std::vector<Agent*> m_agents;
-	std::vector<Food>	m_food;
+	agent_list			m_agents;
+	food_list			m_food;
 	int					m_worldAge;
 	
 	unsigned long		m_agentCounter;

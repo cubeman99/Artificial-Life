@@ -120,11 +120,11 @@ void WorldRenderer::RenderWorld(Graphics* g, ICamera* camera, Agent* agentPOV)
 	
 	for (auto it = m_simulation->food_begin(); it < m_simulation->food_end(); ++it)
 	{
-		Food food = *it;
+		Food* food = *it;
 
 		g->ResetTransform();
-		g->Translate(food.GetPosition());
-		g->Scale(Vector3f(food.GetSize(), food.GetSize(), 1.0f));
+		g->Translate(food->GetPosition());
+		g->Scale(Vector3f(food->GetSize(), food->GetSize(), 1.0f));
 
 		glBegin(GL_QUADS);
 		glColor4fv(&foodColor.x);

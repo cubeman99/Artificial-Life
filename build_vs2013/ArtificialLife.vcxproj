@@ -14,6 +14,8 @@
     <ClCompile Include="..\src\ArtificialLife\agent\Agent.cpp" />
     <ClCompile Include="..\src\ArtificialLife\agent\Retina.cpp" />
     <ClCompile Include="..\src\ArtificialLife\brain\Brain.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\brain\Nerve.cpp" />
+    <ClCompile Include="..\src\ArtificialLife\brain\NervousSystem.cpp" />
     <ClCompile Include="..\src\ArtificialLife\brain\NeuronModel.cpp" />
     <ClCompile Include="..\src\ArtificialLife\Camera.cpp" />
     <ClCompile Include="..\src\ArtificialLife\FittestList.cpp" />
@@ -29,6 +31,8 @@
     <ClInclude Include="..\src\ArtificialLife\agent\Agent.h" />
     <ClInclude Include="..\src\ArtificialLife\agent\Retina.h" />
     <ClInclude Include="..\src\ArtificialLife\brain\Brain.h" />
+    <ClInclude Include="..\src\ArtificialLife\brain\Nerve.h" />
+    <ClInclude Include="..\src\ArtificialLife\brain\NervousSystem.h" />
     <ClInclude Include="..\src\ArtificialLife\brain\NeuronModel.h" />
     <ClInclude Include="..\src\ArtificialLife\brain\NeuronType.h" />
     <ClInclude Include="..\src\ArtificialLife\Camera.h" />

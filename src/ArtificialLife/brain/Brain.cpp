@@ -5,9 +5,10 @@
 #include <assert.h>
 
 
-Brain::Brain(BrainGenome* genome)
-	: m_genome(genome)
+Brain::Brain(NervousSystem* cns)
+	: m_genome(NULL)
 	, m_numGroups(1)
+	, m_cns(cns)
 {
 	m_neuronModel = new NeuronModel();
 }
@@ -19,8 +20,10 @@ Brain::~Brain()
 
 
 // Grow the brain from its genome.
-void Brain::Grow()
+void Brain::Grow(BrainGenome* genome)
 {
+	m_genome = genome;
+
 	//Random::Seed(0);
 	m_rng.SetSeed(10);
 	//m_rng.SeedTime();
@@ -73,6 +76,10 @@ void Brain::Grow()
 	for (int group = 0; group < numInOutGroups; group++)
 	{
 		int numNeurons = m_genome->GetNeuronCount(NEURON_TYPE_EXCITATORY, group);
+
+		m_cns->CreateNerve(
+			(group < Simulation::PARAMS.numInputNeurGroups ? NerveType::INPUT : NerveType::OUTPUT),
+			neuronIndex, numNeurons);
 		
 		firstENeuron[group] = neuronIndex; // In/out neuron groups don't distinguish inhibitory from excitatory.
 		firstINeuron[group] = neuronIndex;
@@ -121,6 +128,12 @@ void Brain::Grow()
 	// Now that we have counted the number of neurons and
 	// synapses, we can allocate space for our network.
 	m_neuronModel->Init(dim);
+
+	// Configure the nerves with the neural-net's neuron activations buffer.
+	for (auto it = m_cns->nerves_begin(); it != m_cns->nerves_end(); ++it)
+	{
+		(*it)->Configure(m_neuronModel->GetActivationsBuffer());
+	}
 
 	//-----------------------------------------------------------------------------
 	// Initialize input neuron activations.

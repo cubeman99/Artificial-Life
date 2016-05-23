@@ -11,16 +11,11 @@ Retina::Retina()
 	, m_numChannels(3)
 	, m_fov(0.8f)
 {
-	m_channels	= new Channel[m_numChannels];
-	m_buffer	= new unsigned char[m_resolution * m_numChannels];
-
-	for (int i = 0; i < m_numChannels; i++)
-		m_channels[i].Init(i, 3);
+	m_channels = new Channel[m_numChannels];
 }
 
 Retina::~Retina()
 {
-	delete [] m_buffer; m_buffer = NULL;
 	delete [] m_channels; m_channels = NULL;
 }
 
@@ -66,15 +61,21 @@ float Retina::GetInterpolatedSightValue(int channel, float x) const
 	}
 }
 
-void Retina::SetNumNeurons(int channel, int numNeurons)
+void Retina::ConfigureChannel(int channel, Nerve* nerve)
 {
-	m_channels[channel].Init(channel, numNeurons);
+	m_channels[channel].Configure(channel, nerve);
 }
 
 void Retina::Update(const float* pixels, int width)
 {
 	for (int i = 0; i < m_numChannels; i++)
 		m_channels[i].Update(pixels, width, m_numChannels);
+}
+
+void Retina::UpdateNerves()
+{
+	for (int i = 0; i < m_numChannels; i++)
+		m_channels[i].UpdateNerve();
 }
 
 
@@ -87,6 +88,7 @@ Retina::Channel::Channel()
 	: m_channelIndex(-1)
 	, m_numNeurons(0)
 	, m_buffer(NULL)
+	, m_nerve(NULL)
 {
 }
 
@@ -96,13 +98,14 @@ Retina::Channel::~Channel()
 	m_buffer = NULL;
 }
 
-void Retina::Channel::Init(int channelIndex, int numNeurons)
+void Retina::Channel::Configure(int channelIndex, Nerve* nerve)
 {
 	if (m_buffer)
 		delete [] m_buffer;
 
+	m_nerve			= nerve;
 	m_channelIndex	= channelIndex;
-	m_numNeurons	= numNeurons;
+	m_numNeurons	= nerve->GetNumNeurons();
 	m_buffer		= new float[m_numNeurons];
 }
 
@@ -146,5 +149,11 @@ void Retina::Channel::Update(const float* pixels, int width, int numChannels)
 
 		pixel += numChannels;
 	}
+}
+
+void Retina::Channel::UpdateNerve()
+{
+	for (int i = 0; i < m_numNeurons; i++)
+		m_nerve->Set(i, m_buffer[i]);
 }
 

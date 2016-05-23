@@ -70,7 +70,7 @@ void SimulationApp::OnInitialize()
 	params.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
 
 	params.minAgents				= 45;//35;
-	params.maxAgents				= 150;//120;
+	params.maxAgents				= 200;//150;//120;
 	params.initialNumAgents			= 45;
 
 	params.minFood					= 120;//220;
@@ -635,9 +635,10 @@ void SimulationApp::RenderPanelWorld()
 	{
 		for (auto it = m_simulation->food_begin(); it != m_simulation->food_end(); ++it)
 		{
+			Food* food = *it;
 			g.ResetTransform();
-			g.Translate(it->GetPosition());
-			g.DrawCircle(Vector2f::ZERO, it->GetRadius(), Color::GREEN);
+			g.Translate(food->GetPosition());
+			g.DrawCircle(Vector2f::ZERO, food->GetRadius(), Color::GREEN);
 		}
 	}
 
@@ -656,6 +657,7 @@ void SimulationApp::RenderPanelWorld()
 			
 				g.DrawCircle(Vector2f::ZERO, agent->GetEatRadius(), Color::YELLOW);
 				g.DrawCircle(Vector2f::ZERO, agent->GetMateRadius(), Color::CYAN);
+				g.DrawCircle(Vector2f::ZERO, agent->GetFightRadius(), Color::RED);
 			}
 
 			if (m_showFOVLines)

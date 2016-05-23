@@ -9,9 +9,9 @@ class Agent;
 
 struct Fittest
 {
-	int		agentID;
-	float	fitness;
-	BrainGenome* genome;
+	unsigned long	agentID;
+	float			fitness;
+	BrainGenome*	genome;
 
 	Fittest()
 		: fitness(0.0f)

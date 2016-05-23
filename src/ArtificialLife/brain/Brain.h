@@ -5,11 +5,13 @@
 #include <ArtificialLife/genome/BrainGenome.h>
 #include <AppLib/util/Random.h>
 
+class NervousSystem;
+
 
 class Brain
 {
 public:
-	static struct Configuration
+	/*static struct Configuration
 	{
 		int numInputNeuralGroups;
 		int numOutputNeuralGroups;
@@ -68,13 +70,13 @@ public:
 			minSynapseLearningRate = 0.0f;
 			minSynapseLearningRate = 0.1f;
 		}
-	};
+	};*/
 	
 public:
-	Brain(BrainGenome* genome);
+	Brain(NervousSystem* cns);
 	~Brain();
 
-	void Grow();
+	void Grow(BrainGenome* genome);
 	void PreBirth();
 	
 	void GrowSynapses(int groupIndex_to,
@@ -95,6 +97,7 @@ public:
 private:
 	static int NearestFreeNeuron(int iin, bool* used, int num, int exclude);
 
+	NervousSystem*	m_cns;
 	NeuronModel*	m_neuronModel;
 	int				m_numGroups;
 	BrainGenome*	m_genome;

@@ -66,6 +66,12 @@
     <ClCompile Include="..\src\ArtificialLife\ReplayRecorder.cpp">
       <Filter>artificial_life\replays</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\brain\Nerve.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ArtificialLife\brain\NervousSystem.cpp">
+      <Filter>artificial_life\brain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ArtificialLife\agent\Agent.h">
@@ -109,6 +115,12 @@
     </ClInclude>
     <ClInclude Include="..\src\ArtificialLife\ReplayRecorder.h">
       <Filter>artificial_life\replays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\brain\Nerve.h">
+      <Filter>artificial_life\brain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ArtificialLife\brain\NervousSystem.h">
+      <Filter>artificial_life\brain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
