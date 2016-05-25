@@ -82,6 +82,7 @@ public:
 	unsigned long	GetParentID(int parentIndex)	const { return m_parents[parentIndex]; }
 	int				GetNumChildren()				const { return m_numChildren; }
 	int				GetNumFoodEaten()				const { return m_numFoodEaten; }
+	float			GetEnergyUsage()				const { return m_energyUsage; }
 
 	Retina&			GetRetina()		{ return m_retina; }
 	Brain*			GetBrain()		{ return m_cns->GetBrain(); }
@@ -143,7 +144,8 @@ private:
 	unsigned long	m_parents[2];		// The IDs of parents (if created elite, parent ID #1 will be the elite's ID).
 	int				m_numChildren;
 	int				m_numFoodEaten;
-	
+	float			m_energyUsage;		// Energy usage per step (not scaled).
+
 	// Outputs.
 	float		m_speed;
 	float		m_turnSpeed;

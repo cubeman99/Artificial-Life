@@ -86,6 +86,7 @@ void Agent::Grow()
 	m_direction			= Random::NextFloat() * Math::TWO_PI;
 	m_numFoodEaten		= 0;
 	m_numChildren		= 0;
+	m_energyUsage		= 0.0f;
 
 	m_speed				= 0.0f;
 	m_turnSpeed			= 0.0f;
@@ -192,12 +193,12 @@ void Agent::Update()
 		}
 		if (m_position.x >= Simulation::PARAMS.worldWidth)
 		{
-			m_velocity.x = 0.0f;
+			m_velocity.x = Math::Min(m_velocity.x, 0.0f);
 			m_position.x = Simulation::PARAMS.worldWidth;
 		}
 		if (m_position.y >= Simulation::PARAMS.worldHeight)
 		{
-			m_velocity.y = 0.0f;
+			m_velocity.y = Math::Min(m_velocity.y, 0.0f);
 			m_position.y = Simulation::PARAMS.worldHeight;
 		}
 	}
@@ -215,7 +216,7 @@ void Agent::Update()
 	//m_energy -= 0.003f * m_eatAmount;
 	//m_energy -= 0.001f; // Energy cost for existing.
 
-	float energyCost = Simulation::PARAMS.energyCostExist +
+	m_energyUsage = Simulation::PARAMS.energyCostExist +
 		(Simulation::PARAMS.energyCostEat     * m_eatAmount) +
 		(Simulation::PARAMS.energyCostMate    * m_mateAmount) +
 		(Simulation::PARAMS.energyCostFight   * m_fightAmount) +
@@ -224,7 +225,7 @@ void Agent::Update()
 		(Simulation::PARAMS.energyCostNeuron  * GetNeuralNet()->GetDimensions().numNeurons) +
 		(Simulation::PARAMS.energyCostSynapse * GetNeuralNet()->GetDimensions().numSynapses);
 
-	m_energy -= energyCost;// * m_simulation->GetEnergyScale();
+	m_energy -= m_energyUsage * m_simulation->GetEnergyScale();
 
 	// Award fitness for moving.
 	m_heuristicFitness += m_speed * Simulation::PARAMS.moveFitnessParam;

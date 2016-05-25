@@ -29,6 +29,34 @@ struct SimulationStats
 	int numAgentsCreatedRandom;
 	int numBirthsDenied;
 
+	// Genes.
+	float avgSize;
+	float avgStrength;
+	float avgFOV;
+	float avgMaxSpeed;
+	float avgGreenColor;
+	float avgMutationRate;
+	float avgNumCrossoverPoints;
+	float avgLifeSpan;
+	float avgBirthEnergyFraction;
+	float avgNumRedNeurons;
+	float avgNumGreenNeurons;
+	float avgNumBlueNeurons;
+	float avgNumInternalNeurGroups;
+	float avgNumNeurons;
+	float avgNumSynapses;
+	float avgEatAmount;
+	float avgMateAmount;
+	float avgFightAmount;
+
+	float worstFitness;
+	float avgFitness;
+	float bestFitness;
+
+	float totalEnergy;
+	float avgEnergy;
+	float avgEnergyUsage;
+
 	SimulationStats()
 		: numAgentsBorn(0)
 		, numAgentsDeadOldAge(0)
@@ -78,9 +106,13 @@ public:
 
 	float GetEnergyScale() 
 	{
-		if (m_agents.size() > 80)
-			return 1.0f;
-		return (m_agents.size() - 45.0f) / 35.0f;
+		int start = (PARAMS.minAgents + PARAMS.maxAgents) / 2;
+		int end = PARAMS.maxAgents;
+		float percent = Math::Clamp(((float) m_agents.size() - start) / (float) end, 0.0f, 1.0f);
+		return 1.0f + (percent * 3);
+		//if (m_agents.size() > 80)
+			//return 1.0f;
+		//return (m_agents.size() - 45.0f) / 35.0f;
 	}
 
 protected:
@@ -89,7 +121,7 @@ protected:
 	void UpdateSteadyStateGA();
 
 	Agent* Mate(Agent* mommy, Agent* daddy);
-	void Kill(Agent* agent);
+	void Kill(Agent*& agent);
 	void PickParentsUsingTournament(int numInPool, int* iParent, int* jParent);
 	
 

@@ -21,12 +21,38 @@ SimulationApp::SimulationApp()
 
 SimulationApp::~SimulationApp()
 {
+	for (unsigned int i = 0; i < m_graphList.size(); i++)
+		delete m_graphList[i];
 	delete m_replayRecorder; m_replayRecorder = NULL;
 	delete m_brainRenderer; m_brainRenderer = NULL;
 	delete m_simulation; m_simulation = NULL;
 	delete m_font; m_font = NULL;
 }
 
+GraphPanel* SimulationApp::CreateGraph(const std::string& title, const Color& color, float minY, float maxY, bool dynamicRange, float dynamicRangePadding)
+{
+	GraphPanel* graph = CreateGraph(title, minY, maxY, dynamicRange, dynamicRangePadding);
+	graph->AddGraph(title, color);
+	return graph;
+}
+
+GraphPanel* SimulationApp::CreateGraph(const std::string& title, float minY, float maxY, bool dynamicRange, float dynamicRangePadding)
+{
+	GraphPanel* graph = new GraphPanel();
+	graph->SetTitle(title);
+	graph->SetFont(m_font);
+	graph->SetXBounds(0, 600);
+	graph->SetYBounds(minY, maxY);
+	graph->SetDynamicRange(dynamicRange, dynamicRangePadding);
+	m_graphMap[title] = graph;
+	m_graphList.push_back(graph);
+	return graph;
+}
+
+GraphPanel* SimulationApp::GetGraph(const std::string& title)
+{
+	return m_graphMap[title];
+}
 
 void SimulationApp::OnInitialize()
 {
@@ -55,8 +81,6 @@ void SimulationApp::OnInitialize()
 	m_selectedAgent			= NULL;
 	m_selectedAgentID		= 0;
 
-	m_totalAgentEnergy		= 0.0f;
-
 	m_cameraFOV				= 80.0f * Math::DEG_TO_RAD;
 
 
@@ -65,9 +89,9 @@ void SimulationApp::OnInitialize()
 	//-----------------------------------------------------------------------------
 	// Simulation globals.
 
-	params.worldWidth				= 1000;
-	params.worldHeight				= 1000;
-	params.boundaryType				= BoundaryType::BOUNDARY_TYPE_WRAP;
+	params.worldWidth				= 1300;
+	params.worldHeight				= 1300;
+	params.boundaryType				= BoundaryType::BOUNDARY_TYPE_SOLID;//BoundaryType::BOUNDARY_TYPE_WRAP;
 
 	params.minAgents				= 45;//35;
 	params.maxAgents				= 200;//150;//120;
@@ -163,36 +187,41 @@ void SimulationApp::OnInitialize()
 	params.decayRate				= 0.99f;
 	
 	//-----------------------------------------------------------------------------
-	// Configure graphs.
+	// Create graphs.
 
-	Color colorBestFitness		= Color::GREEN;
-	Color colorAverageFitness	= Color::YELLOW;
-	Color colorWorstFitness		= Color::RED;
+	m_graphPopulation		= CreateGraph("population", Color::CYAN, (float) params.minAgents, (float) params.maxAgents, false);
+	m_graphEnergy			= CreateGraph("energy", Color::YELLOW, 0, 30, true, 0.0f);
+	m_graphEnergyUsage		= CreateGraph("energy usage", Color::YELLOW, 0.0f, 0.005f, true, 0.0f);
+	m_graphFitness			= CreateGraph("fitness", 0, 50, true, 0.0f);
+		m_graphFitness->AddGraph("best", Color::GREEN);
+		m_graphFitness->AddGraph("worst", Color::RED);
+		m_graphFitness->AddGraph("average", Color::YELLOW);
+	m_graphVisionNeurons	= CreateGraph("vision neurons", 0, (float) params.maxVisNeuronsPerGroup, true, 0.0f);
+		m_graphVisionNeurons->AddGraph("red", Color::RED);
+		m_graphVisionNeurons->AddGraph("green", Color::GREEN);
+		m_graphVisionNeurons->AddGraph("blue", Color(100, 100, 255));
+	m_graphSize				= CreateGraph("size", Color::CYAN, params.minSize, params.maxSize, false);
+	m_graphStrength			= CreateGraph("strength", Color::RED, params.minStrength, params.maxStrength, false);
+	m_graphFOV				= CreateGraph("fov", Color::MAGENTA, params.minFOV, params.maxFOV, false);
+	m_graphGreenColor		= CreateGraph("green color", Color::GREEN, 0.0f, 1.0f, false);
+	m_graphMaxSpeed			= CreateGraph("max speed", Color::GREEN, params.minMaxSpeed, params.maxMaxSpeed, false);
+	m_graphMutationRate		= CreateGraph("mutation rate", Color::MAGENTA, params.minMutationRate, params.maxMutationRate, false);
+	m_graphCrossoverPoints	= CreateGraph("crossover points", Color::GREEN, (float) params.minNumCrossoverPoints, (float) params.maxNumCrossoverPoints, false);
+	m_graphNeuronGroups		= CreateGraph("internal neural groups", Color::RED, (float) params.minInternalNeuralGroups, (float) params.maxInternalNeuralGroups, false);
+	m_graphNeurons			= CreateGraph("neurons", Color::CYAN, 0.0f, 200.0f, false);
+	m_graphSynapses			= CreateGraph("synapses", Color::YELLOW, 0.0f, 10000.0f, false);
+	m_graphLifeSpan			= CreateGraph("lifespan", Color::GREEN, (float) params.minLifeSpan, (float) params.maxLifeSpan, false);
+	m_graphBirthEnergyFraction	= CreateGraph("birth energy %", Color::MAGENTA, params.minBirthEnergyFraction, params.maxBirthEnergyFraction, false);
+	m_graphBehavior			= CreateGraph("behaviors", 0.0f, 1.0f, false);
+		m_graphBehavior->AddGraph("eat", Color::GREEN);
+		m_graphBehavior->AddGraph("mate", Color(100, 100, 255));
+		m_graphBehavior->AddGraph("fight", Color::RED);
+
+	m_graph1Index = 1;
+	m_graph2Index = 0;
+	m_graph1 = m_graphList[m_graph1Index];
+	m_graph2 = m_graphList[m_graph2Index];
 	
-	m_graphEnergy.SetTitle("energy");
-	m_graphEnergy.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
-	m_graphEnergy.AddGraph(Color::YELLOW, 0, 1);
-
-	m_graphPopulation.SetTitle("population");
-	m_graphPopulation.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 1000, 0, 30);
-	m_graphPopulation.AddGraph(Color::CYAN, 0, 1);
-	
-	m_graphFitness.SetTitle("fitness");
-	m_graphFitness.SetFont(m_font);
-	m_graphFitness.SetViewBounds(0, 10, 0, 25);
-	m_graphFitness.AddGraph(Color::GREEN, 1, 4); // best
-	m_graphFitness.AddGraph(Color::RED, 2, 4); // worst
-	m_graphFitness.AddGraph(Color::YELLOW, 3, 4); // average
-
-	m_graphPopulation.SetViewBounds(0, 120,
-		//(float) (params.minAgents / 2),
-		//(float) ((int) (params.maxAgents * 1.2f)));
-		(float) params.minAgents,
-		(float) params.maxAgents);
-	m_graphPopulation.SetDynamicRange(false);
-
 	//-----------------------------------------------------------------------------
 
 	// Setup OpenGL state.
@@ -326,7 +355,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 		m_camera.position += cameraRightMove * camMoveSpeed * timeDelta;
 	if (keyboard->IsKeyDown(Keys::A))
 		m_camera.position -= cameraRightMove * camMoveSpeed * timeDelta;
-	if (mouse->IsButtonDown(MouseButtons::MIDDLE))
+	if (mouse->IsButtonDown(MouseButtons::MIDDLE) && m_panelWorld.Contains(mouse->GetX(), mouse->GetY()))
 	{
 		m_camera.position -= cameraRightMove   * camMousePanAmount * (float) mouse->GetDeltaX();
 		m_camera.position += cameraForwardMove * camMousePanAmount * (float) mouse->GetDeltaY();
@@ -341,7 +370,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), -camRotateSpeed * timeDelta);
 	if (keyboard->IsKeyDown(Keys::NUMPAD_5)) // down
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), camRotateSpeed * timeDelta);
-	if (mouse->IsButtonDown(MouseButtons::RIGHT))
+	if (mouse->IsButtonDown(MouseButtons::RIGHT) && m_panelWorld.Contains(mouse->GetX(), mouse->GetY()))
 	{
 		m_camera.rotation.Rotate(Vector3f::UNITZ, camRotateRadians * mouse->GetDeltaX());
 		m_camera.rotation.Rotate(m_camera.rotation.GetRight(), camRotateRadians * mouse->GetDeltaY());
@@ -409,7 +438,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 	//-------------------------------------------------------
 	// Left click: select agents.
 
-	if (mouse->IsButtonPressed(MouseButtons::LEFT))
+	if (mouse->IsButtonPressed(MouseButtons::LEFT) && m_panelWorld.Contains(mouse->GetX(), mouse->GetY()))
 	{
 		m_selectedAgent = NULL;
 		m_selectedAgentID = 0;
@@ -428,7 +457,7 @@ void SimulationApp::UpdateControls(float timeDelta)
 			}
 		}
 
-		if (nearestAgent != NULL && nearestAgentDist < m_agentSelectionRadius)
+		if (nearestAgent != NULL && nearestAgentDist < m_agentSelectionRadius * nearestAgent->GetSize())
 		{
 			m_selectedAgent = nearestAgent;
 			m_selectedAgentID = nearestAgent->GetID();
@@ -478,56 +507,92 @@ void SimulationApp::UpdateScreenLayout()
 	m_windowViewport.width	= screenWidth;
 	m_windowViewport.height	= screenHeight;
 		
-	Viewport graphViewport1(
+	m_graph1Viewport = Viewport(
 		m_panelGraphs.x,
 		m_panelGraphs.y,
 		m_panelGraphs.width / 2,
 		m_panelGraphs.height);
-	Viewport graphViewport2(
+	m_graph2Viewport = Viewport(
 		m_panelGraphs.x + (m_panelGraphs.width / 2),
 		m_panelGraphs.y,
 		m_panelGraphs.width / 2,
 		m_panelGraphs.height);
-	graphViewport1.Inset(8);
-	graphViewport2.Inset(8);
-
-	m_graphEnergy.SetViewport(graphViewport1);
-	m_graphPopulation.SetViewport(graphViewport2);
-	m_graphFitness.SetViewport(graphViewport2);
+	m_graph1Viewport.Inset(8, 8, 4, 8);
+	m_graph2Viewport.Inset(4, 8, 8, 8);
+	m_graph1->SetViewport(m_graph1Viewport);
+	m_graph2->SetViewport(m_graph2Viewport);
 
 	// Update the camera's projection.
 	m_cameraAspect		= m_panelWorld.GetAspectRatio();
 	m_camera.projection	= Matrix4f::CreatePerspective(m_cameraFOV, m_cameraAspect, 4.0f, 3000.0f);
+
+	Mouse* mouse = GetMouse();
+			
+	if (m_graph1Viewport.Contains(mouse->GetX(), mouse->GetY()))
+	{
+		if (mouse->IsButtonPressed(MouseButtons::LEFT))
+		{
+			m_graph1Index = (m_graph1Index + 1) % (int) m_graphList.size();
+			m_graph1 = m_graphList[m_graph1Index];
+		}
+		else if (mouse->IsButtonPressed(MouseButtons::RIGHT))
+		{
+			m_graph1Index--;
+			if (m_graph1Index < 0)
+				m_graph1Index = (int) m_graphList.size() - 1;
+			m_graph1 = m_graphList[m_graph1Index];
+		}
+	}
+	else if (m_graph2Viewport.Contains(mouse->GetX(), mouse->GetY()))
+	{
+		if (mouse->IsButtonPressed(MouseButtons::LEFT))
+		{
+			m_graph2Index = (m_graph2Index + 1) % (int) m_graphList.size();
+			m_graph2 = m_graphList[m_graph2Index];
+		}
+		else if (mouse->IsButtonPressed(MouseButtons::RIGHT))
+		{
+			m_graph2Index--;
+			if (m_graph2Index < 0)
+				m_graph2Index = (int) m_graphList.size() - 1;
+			m_graph2 = m_graphList[m_graph2Index];
+		}
+	}
 }
 
 void SimulationApp::UpdateStatistics()
 {
-	// Total energy.
-	m_totalAgentEnergy = 0.0f;
-	for (auto it = m_simulation->agents_begin(); it != m_simulation->agents_end(); ++it)
-	{
-		Agent* agent = *it;
-		m_totalAgentEnergy  += (*it)->GetEnergy();
-	}
-
 	// Update world statistics.
-	if (m_simulation->GetWorldAge() % 60 == 0)
+	if (m_simulation->GetWorldAge() % 20 == 0)
 	{
-		float totalEnergy = 0.0f;
-		for (auto it = m_simulation->agents_begin(); it != m_simulation->agents_end(); ++it)
-			totalEnergy += (*it)->GetEnergy();
+		SimulationStats simStats = m_simulation->GetStatistics();
 		
-		Stats stats;
-		stats.totalEnergy = totalEnergy;
-		m_simulationStats.push_back(stats);
-		m_populationData.push_back((float) m_simulation->GetNumAgents());
-		m_graphEnergy.SetData((float*) &m_simulationStats[0], (int) m_simulationStats.size());
-		m_graphPopulation.SetData((float*) &m_populationData[0], (int) m_populationData.size());
+		m_graphPopulation->GetGraph()->AddData((float) m_simulation->GetNumAgents());
+		m_graphEnergy->GetGraph()->AddData(simStats.totalEnergy);
+		m_graphEnergyUsage->GetGraph()->AddData(simStats.avgEnergyUsage);
+		m_graphVisionNeurons->GetGraph("red")->AddData(simStats.avgNumRedNeurons);
+		m_graphVisionNeurons->GetGraph("green")->AddData(simStats.avgNumGreenNeurons);
+		m_graphVisionNeurons->GetGraph("blue")->AddData(simStats.avgNumBlueNeurons);
+		m_graphSize->GetGraph()->AddData(simStats.avgSize);
+		m_graphStrength->GetGraph()->AddData(simStats.avgStrength);
+		m_graphFOV->GetGraph()->AddData(simStats.avgFOV);
+		m_graphGreenColor->GetGraph()->AddData(simStats.avgGreenColor);
+		m_graphMaxSpeed->GetGraph()->AddData(simStats.avgMaxSpeed);
+		m_graphMutationRate->GetGraph()->AddData(simStats.avgMutationRate);
+		m_graphCrossoverPoints->GetGraph()->AddData(simStats.avgNumCrossoverPoints);
+		m_graphLifeSpan->GetGraph()->AddData(simStats.avgLifeSpan);
+		m_graphBirthEnergyFraction->GetGraph()->AddData(simStats.avgBirthEnergyFraction);
+		m_graphNeuronGroups->GetGraph()->AddData(simStats.avgNumInternalNeurGroups);
+		m_graphNeurons->GetGraph()->AddData(simStats.avgNumNeurons);
+		m_graphSynapses->GetGraph()->AddData(simStats.avgNumSynapses);
+		m_graphBehavior->GetGraph("eat")->AddData(simStats.avgEatAmount);
+		m_graphBehavior->GetGraph("mate")->AddData(simStats.avgMateAmount);
+		m_graphBehavior->GetGraph("fight")->AddData(simStats.avgFightAmount);
 
 		float totalfit = 0.0f;
-		float avgFit = 0.0f;
+		float avgFit   = 0.0f;
 		float worstFit = 0.0f;
-		float bestFit = 0.0f;
+		float bestFit  = 0.0f;
 		if (m_recentFitnesses.size() > 0)
 		{
 			for (unsigned int i = 0; i < m_recentFitnesses.size(); i++)
@@ -540,13 +605,9 @@ void SimulationApp::UpdateStatistics()
 			}
 			avgFit = totalfit / (float) m_recentFitnesses.size();
 		}
-		GenerationInfo genInfo;
-		genInfo.averageFitness = avgFit;
-		genInfo.worstFitness = worstFit;
-		genInfo.bestFitness = bestFit;
-		genInfo.generationIndex = (int) m_generationInfo.size();
-		m_generationInfo.push_back(genInfo);
-		m_graphFitness.SetData((float*) &m_generationInfo[0], (int) m_generationInfo.size() * 4);
+		m_graphFitness->GetGraph("worst")->AddData(worstFit);
+		m_graphFitness->GetGraph("best")->AddData(bestFit);
+		m_graphFitness->GetGraph("average")->AddData(avgFit);
 	}
 }
 
@@ -776,6 +837,37 @@ void SimulationApp::RenderPanelPOV()
 			(float) m_panelPOV.width, (float) visionStripheight,
 			Color::WHITE);
 	}
+	else
+	{
+		/*
+		ArcBallCamera camera;
+		camera.position.x = Simulation::PARAMS.worldWidth * 0.5f;
+		camera.position.y = Simulation::PARAMS.worldHeight * 0.5f;
+		camera.position.z = 0.0f;
+		camera.rotation.SetIdentity();
+		camera.distance = (float) (Simulation::PARAMS.worldHeight * 1.05f) / (2.0f * Math::Tan(m_cameraFOV * 0.5f));
+		camera.projection = Matrix4f::CreatePerspective(
+			m_cameraFOV, m_panelPOV.GetAspectRatio(), 4.0f, 3000.0f);
+		*/
+		Camera camera;
+		camera.position.x = 0.0f;
+		camera.position.y = 0.0f;
+		camera.position.z = 0.0f;
+		camera.rotation.SetIdentity();
+		
+		float padding = 0.1f;
+		float p2 = padding * 0.5f;
+		float w = Simulation::PARAMS.worldWidth;
+		float h = Simulation::PARAMS.worldHeight;
+		float x1 = 0.0f - (w * p2);
+		float y1 = 0.0f - (h * p2);
+		float x2 = w + (w * p2);
+		float y2 = h + (h * p2);
+		camera.projection = Matrix4f::CreateOrthographic(
+			x1, x2, y1, y2, 100.0f, -100.0f);
+
+		m_simulation->GetWorldRenderer()->RenderWorld(&g, &camera, NULL);
+	}
 }
 
 void SimulationApp::RenderPanelGraphs()
@@ -798,8 +890,13 @@ void SimulationApp::RenderPanelGraphs()
 	g.ResetTransform();
 	g.Translate(Vector2f((float) m_panelGraphs.x, (float) m_panelGraphs.y));
 
-	m_graphEnergy.Draw(&g);
-	m_graphPopulation.Draw(&g);
+	m_graph1->SetViewport(m_graph1Viewport);
+	m_graph1->Draw(&g);
+	m_graph2->SetViewport(m_graph2Viewport);
+	m_graph2->Draw(&g);
+
+	//m_graphEnergy.Draw(&g);
+	//m_graphPopulation.Draw(&g);
 	//m_graphFitness.Draw(&g);
 	
 	glLoadIdentity();
@@ -850,8 +947,8 @@ void SimulationApp::RenderPanelText()
 		DRAW_STRING("--------------------------------");
 		DRAW_STRING("age            = %d", m_simulation->GetWorldAge());
 		DRAW_STRING("size           = %.0fx%.0f", Simulation::PARAMS.worldWidth, Simulation::PARAMS.worldHeight);
-		DRAW_STRING("energy         = %.1f", m_totalAgentEnergy);
-		DRAW_STRING("energy/agent   = %.2f", m_totalAgentEnergy / (float) m_simulation->GetNumAgents());
+		DRAW_STRING("energy         = %.1f", stats.totalEnergy);
+		DRAW_STRING("energy/agent   = %.2f", stats.avgEnergy);
 		DRAW_STRING("population     = %d", (int) m_simulation->GetNumAgents());
 		DRAW_STRING("food           = %d", (int) m_simulation->GetNumFood());
 		DRAW_STRING("");
@@ -889,10 +986,10 @@ void SimulationApp::RenderPanelText()
 		DRAW_STRING("children         = %d",	agent->GetNumChildren());
 		DRAW_STRING("");
 		DRAW_STRING("--- Genome ---------------------");
-		DRAW_STRING("size             = %.2f",	agent->GetSize());
-		DRAW_STRING("strength         = %.2f",	agent->GetStrength());
+		DRAW_STRING("size             = %.2f",		agent->GetSize());
+		DRAW_STRING("strength         = %.2f",		agent->GetStrength());
 		DRAW_STRING("fov              = %.1f%c",	agent->GetFOV() * Math::RAD_TO_DEG, degreesSymbol);
-		DRAW_STRING("max speed        = %.2f",	agent->GetMaxSpeed());
+		DRAW_STRING("max speed        = %.2f",		agent->GetGenome()->GetMaxSpeed());
 		DRAW_STRING("green color      = %d",		(int) (agent->GetGenome()->GetGreenColoration() * 255.0f));
 		DRAW_STRING("mutation rate    = %.2f%%",	agent->GetGenome()->GetMutationRate() * 100.0f);
 		DRAW_STRING("# crossover pts  = %d",		agent->GetGenome()->GetNumCrossoverPoints());

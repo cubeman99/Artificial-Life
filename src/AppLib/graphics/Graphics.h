@@ -39,6 +39,21 @@ struct Viewport
 		width  -= amount * 2;
 		height -= amount * 2;
 	}
+
+	void Inset(int left, int top, int right, int bottom)
+	{
+		x += left;
+		y += top;
+		width -= left + right;
+		height -= top + bottom;
+	}
+
+	bool Contains(int x, int y)
+	{
+		return (x >= this->x && y >= this->y &&
+				x < this->x + this->width &&
+				y < this->y + this->height);
+	}
 };
 
 

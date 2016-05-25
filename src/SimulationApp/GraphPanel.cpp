@@ -1,32 +1,71 @@
 #include "GraphPanel.h"
 #include <AppLib/math/MathLib.h>
 
+
+
+Bounds Bounds::Union(const Bounds& a, const Bounds& b)
+{
+	Bounds result;
+	result.mins.x = Math::Min(a.mins.x, b.mins.x);
+	result.mins.y = Math::Min(a.mins.y, b.mins.y);
+	result.maxs.x = Math::Max(a.maxs.x, b.maxs.x);
+	result.maxs.y = Math::Max(a.maxs.y, b.maxs.y);
+	return result;
+}
+
+
+
+Graph::Graph(std::string name, const Color& color)
+	: m_name(name)
+	, m_color(color)
+{
+}
+
+void Graph::AddData(float data)
+{
+	m_data.push_back(data);
+	m_bounds.mins.x = 0.0f;
+	m_bounds.maxs.x = (float) m_data.size() - 1;
+
+	if (data < m_bounds.mins.y || m_data.size() == 1)
+		m_bounds.mins.y = data;
+	if (data > m_bounds.maxs.y || m_data.size() == 1)
+		m_bounds.maxs.y = data;
+}
+
+
+
+
 GraphPanel::GraphPanel()
 	: m_data(NULL)
 	, m_dataSize(0)
 	, m_dynamicRange(true)
 	, m_dynamicRangePadding(0.1f)
 	, m_font(NULL)
-	, m_minX(0)
-	, m_maxX(10)
-	, m_maxY(10)
-	, m_minY(0)
 {
 }
 
-
-void GraphPanel::AddGraph(const GraphInfo& graph)
+GraphPanel::~GraphPanel()
 {
-	m_graphs.push_back(graph);
+	for (unsigned int i = 0; i < m_graphs.size(); i++)
+		delete m_graphs[i];
 }
 
-void GraphPanel::AddGraph(const Color& color, int dataOffset, int dataStride)
+
+void GraphPanel::SetXBounds(float minX, float maxX)
 {
-	GraphInfo graph;
-	graph.color			= color;
-	graph.dataOffset	= dataOffset;
-	graph.dataStride	= dataStride;
-	m_graphs.push_back(graph);
+	m_bounds.mins.x = minX;
+	m_bounds.maxs.x = maxX;
+	m_minBounds.mins.x = minX;
+	m_minBounds.maxs.x = maxX;
+}
+
+void GraphPanel::SetYBounds(float minY, float maxY)
+{
+	m_bounds.mins.y = minY;
+	m_bounds.maxs.y = maxY;
+	m_minBounds.mins.y = minY;
+	m_minBounds.maxs.y = maxY;
 }
 
 void GraphPanel::SetDynamicRange(bool dynamicRange, float dynamicRangePadding)
@@ -35,15 +74,27 @@ void GraphPanel::SetDynamicRange(bool dynamicRange, float dynamicRangePadding)
 	m_dynamicRangePadding = dynamicRangePadding;
 }
 
-void GraphPanel::SetData(float* data, int dataSize)
-{
-	m_data = data;
-	m_dataSize = dataSize;
-}
-
 void GraphPanel::SetViewport(const Viewport& viewport)
 {
 	m_viewport = viewport;
+}
+
+
+Graph* GraphPanel::AddGraph(const std::string& name, const Color& color)
+{
+	Graph* graph = new Graph(name, color);
+	m_graphs.push_back(graph);
+	return graph;
+}
+
+Graph* GraphPanel::GetGraph(const std::string& name)
+{
+	for (unsigned int i = 0; i < m_graphs.size(); i++)
+	{
+		if (m_graphs[i]->GetName() == name)
+			return m_graphs[i];
+	}
+	return NULL;
 }
 
 void GraphPanel::Draw(Graphics* g)
@@ -58,21 +109,12 @@ void GraphPanel::Draw(Graphics* g)
 	
 	//-----------------------------------------------------------------------------
 	// Calculate view bounds
-
-	m_viewBounds.mins.x = (float) m_minX;
-	m_viewBounds.maxs.x = (float) m_maxX;
-	m_viewBounds.mins.y = (float) m_minY;
-	m_viewBounds.maxs.y = (float) m_maxY;
 	
-	ViewBounds dynamicBounds = m_viewBounds;
+	Bounds dynamicBounds = m_minBounds;
 
 	// Calculate the domain and range of the data.
 	for (unsigned int i = 0; i < m_graphs.size(); i++)
-	{
-		GetGraphRange(m_graphs[i],
-			dynamicBounds.mins.y, dynamicBounds.maxs.y,
-			dynamicBounds.mins.x, dynamicBounds.maxs.x);
-	}
+		dynamicBounds = Bounds::Union(dynamicBounds, m_graphs[i]->GetBounds());
 	
 	// Fit the view to the data's range.
 	if (m_dynamicRange)
@@ -81,20 +123,20 @@ void GraphPanel::Draw(Graphics* g)
 		float range = dynamicBounds.maxs.y - dynamicBounds.mins.y;
 		dynamicBounds.mins.y -= range * m_dynamicRangePadding * 0.5f;
 		dynamicBounds.maxs.y += range * m_dynamicRangePadding * 0.5f;
-		m_viewBounds.mins.y = dynamicBounds.mins.y;
-		m_viewBounds.maxs.y = dynamicBounds.maxs.y;
+		m_bounds.mins.y = dynamicBounds.mins.y;
+		m_bounds.maxs.y = dynamicBounds.maxs.y;
 	}
 		
 	// Fit the view to the data's domain.
-	m_viewBounds.mins.x = dynamicBounds.mins.x;
-	m_viewBounds.maxs.x = dynamicBounds.maxs.x;
+	m_bounds.mins.x = dynamicBounds.mins.x;
+	m_bounds.maxs.x = dynamicBounds.maxs.x;
 
 	//-----------------------------------------------------------------------------
 
 	char labelMin[32];
 	char labelMax[32];
-	sprintf_s(labelMin, "%.2f", m_viewBounds.mins.y);
-	sprintf_s(labelMax, "%.2f", m_viewBounds.maxs.y);
+	sprintf_s(labelMin, "%.2f", m_bounds.mins.y);
+	sprintf_s(labelMax, "%.2f", m_bounds.maxs.y);
 	int labelMinLength = strnlen_s(labelMin, 32);
 	int labelMaxLength = strnlen_s(labelMax, 32);
 	int labelTextLength = Math::Max(labelMinLength, labelMaxLength);
@@ -170,9 +212,9 @@ void GraphPanel::Draw(Graphics* g)
 
 	// Draw the line for y = 0 and x = 0.
 	Vector2f origin = GetPointOnGraph(Vector2f(0.0f, 0.0f));
-	if (0.0f > m_viewBounds.mins.y && 0.0f < m_viewBounds.maxs.y)
+	if (0.0f > m_bounds.mins.y && 0.0f < m_bounds.maxs.y)
 		g->DrawLine((float) m_graphViewport.x, origin.y, (float) m_graphViewport.x + m_graphViewport.width, origin.y, colorZeroY);
-	if (0.0f > m_viewBounds.mins.x && 0.0f < m_viewBounds.maxs.x)
+	if (0.0f > m_bounds.mins.x && 0.0f < m_bounds.maxs.x)
 		g->DrawLine(origin.x, (float) m_graphViewport.y, origin.x, (float) m_graphViewport.y + m_graphViewport.height, colorZeroX);
 
 	// Draw the individual graphs.
@@ -185,8 +227,8 @@ void GraphPanel::Draw(Graphics* g)
 Vector2f GraphPanel::GetPointOnGraph(const Vector2f& point)
 {
 	return Vector2f(
-		m_graphViewport.x + (point.x - m_viewBounds.mins.x) / (m_viewBounds.maxs.x - m_viewBounds.mins.x) * m_graphViewport.width,
-		m_graphViewport.y + m_graphViewport.height - ((point.y - m_viewBounds.mins.y) / (m_viewBounds.maxs.y - m_viewBounds.mins.y) * m_graphViewport.height));
+		m_graphViewport.x + (point.x - m_bounds.mins.x) / (m_bounds.maxs.x - m_bounds.mins.x) * m_graphViewport.width,
+		m_graphViewport.y + m_graphViewport.height - ((point.y - m_bounds.mins.y) / (m_bounds.maxs.y - m_bounds.mins.y) * m_graphViewport.height));
 }
 
 void GraphPanel::GetGraphRange(const GraphInfo& graph, float& rangeMin, float& rangeMax, float& domainMin, float& domainMax)
@@ -206,20 +248,19 @@ void GraphPanel::GetGraphRange(const GraphInfo& graph, float& rangeMin, float& r
 	}
 }
 
-void GraphPanel::DrawGraph(Graphics* g, const GraphInfo& graph)
+void GraphPanel::DrawGraph(Graphics* g, Graph* graph)
 {
-	int i, x;
-
 	glBegin(GL_LINE_STRIP);
-	glColor4ubv(graph.color.data());
+	glColor4ubv(graph->GetColor().data());
 
-	for (i = graph.dataOffset, x = 0; i < m_dataSize; i += graph.dataStride, x++)
+	for (int i = 0; i < graph->GetDataCount(); i++)
 	{
-		float y = m_data[i];
+		float x = (float) i;
+		float y = graph->GetData(i);
 
-		if (x >= m_viewBounds.mins.x && x <= m_viewBounds.maxs.x)
+		if (x >= m_bounds.mins.x && x <= m_bounds.maxs.x)
 		{
-			Vector2f point = GetPointOnGraph(Vector2f((float) x, y));
+			Vector2f point = GetPointOnGraph(Vector2f(x, y));
 			glVertex2fv(point.data());
 		}
 	}

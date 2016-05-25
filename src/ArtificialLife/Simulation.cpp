@@ -82,8 +82,8 @@ void Simulation::Update()
 {
 	m_worldAge++;
 
-	PARAMS.worldWidth  = 1200 + Math::Min(m_worldAge / 400000.0f, 1.0f) * 1500;
-	PARAMS.worldHeight = 1200 + Math::Min(m_worldAge / 400000.0f, 1.0f) * 1500;
+	//PARAMS.worldWidth  = 1200 + Math::Min(m_worldAge / 800000.0f, 1.0f) * 2000;
+	//PARAMS.worldHeight = 1200 + Math::Min(m_worldAge / 800000.0f, 1.0f) * 2000;
 
 	UpdateAgents();
 	UpdateSteadyStateGA();
@@ -92,6 +92,27 @@ void Simulation::Update()
 
 void Simulation::UpdateAgents()
 {
+	m_statistics.avgSize = 0.0f;
+	m_statistics.avgStrength = 0.0f;
+	m_statistics.avgFOV = 0.0f;
+	m_statistics.avgMaxSpeed = 0.0f;
+	m_statistics.avgGreenColor = 0.0f;
+	m_statistics.avgMutationRate = 0.0f;
+	m_statistics.avgNumCrossoverPoints = 0.0f;
+	m_statistics.avgLifeSpan = 0.0f;
+	m_statistics.avgBirthEnergyFraction = 0.0f;
+	m_statistics.avgNumRedNeurons = 0.0f;
+	m_statistics.avgNumGreenNeurons = 0.0f;
+	m_statistics.avgNumBlueNeurons = 0.0f;
+	m_statistics.avgNumInternalNeurGroups = 0.0f;
+	m_statistics.avgNumNeurons = 0.0f;
+	m_statistics.avgNumSynapses = 0.0f;
+	m_statistics.totalEnergy = 0.0f;
+	m_statistics.avgEnergyUsage = 0.0f;
+	m_statistics.avgEatAmount = 0.0f;
+	m_statistics.avgMateAmount = 0.0f;
+	m_statistics.avgFightAmount = 0.0f;
+
 	// Update all agents.
 	for (unsigned int i = 0; i < m_agents.size(); i++)
 	{
@@ -120,6 +141,27 @@ void Simulation::UpdateAgents()
 		// Update the agent.
 		agent->Update();
 		
+		m_statistics.avgSize += agent->GetSize();
+		m_statistics.avgStrength += agent->GetStrength();
+		m_statistics.avgFOV += agent->GetFOV();
+		m_statistics.avgMaxSpeed += agent->GetGenome()->GetMaxSpeed();
+		m_statistics.avgGreenColor += agent->GetGenome()->GetGreenColoration();
+		m_statistics.avgMutationRate += agent->GetGenome()->GetMutationRate();
+		m_statistics.avgNumCrossoverPoints += (float) agent->GetGenome()->GetNumCrossoverPoints();
+		m_statistics.avgLifeSpan += (float) agent->GetLifeSpan();
+		m_statistics.avgBirthEnergyFraction += agent->GetBirthEnergyFraction();
+		m_statistics.avgNumRedNeurons += (float) agent->GetGenome()->GetNumRedNeurons();
+		m_statistics.avgNumGreenNeurons += (float) agent->GetGenome()->GetNumGreenNeurons();
+		m_statistics.avgNumBlueNeurons += (float) agent->GetGenome()->GetNumBlueNeurons();
+		m_statistics.avgNumInternalNeurGroups += (float) agent->GetGenome()->GetNumInternalNeuralGroups();
+		m_statistics.avgNumNeurons += (float) agent->GetNeuralNet()->GetDimensions().numNeurons;
+		m_statistics.avgNumSynapses += (float) agent->GetNeuralNet()->GetDimensions().numSynapses;
+		m_statistics.totalEnergy += agent->GetEnergy();
+		m_statistics.avgEnergyUsage += agent->GetEnergyUsage();
+		m_statistics.avgEatAmount += agent->GetEatAmount();
+		m_statistics.avgMateAmount += agent->GetMateAmount();
+		m_statistics.avgFightAmount += agent->GetFightAmount();
+
 		// Kill the agent if its energy drops below zero.
 		if (agent->GetEnergy() <= 0.0f || agent->GetAge() >= agent->GetLifeSpan())
 		{
@@ -134,6 +176,28 @@ void Simulation::UpdateAgents()
 		}
 	}
 	
+	float avgDiv = 1.0f / (float) m_agents.size();
+	m_statistics.avgSize *= avgDiv;
+	m_statistics.avgStrength *= avgDiv;
+	m_statistics.avgFOV *= avgDiv;
+	m_statistics.avgMaxSpeed *= avgDiv;
+	m_statistics.avgGreenColor *= avgDiv;
+	m_statistics.avgMutationRate *= avgDiv;
+	m_statistics.avgNumCrossoverPoints *= avgDiv;
+	m_statistics.avgLifeSpan *= avgDiv;
+	m_statistics.avgBirthEnergyFraction *= avgDiv;
+	m_statistics.avgNumRedNeurons *= avgDiv;
+	m_statistics.avgNumGreenNeurons *= avgDiv;
+	m_statistics.avgNumBlueNeurons *= avgDiv;
+	m_statistics.avgNumInternalNeurGroups *= avgDiv;
+	m_statistics.avgNumNeurons *= avgDiv;
+	m_statistics.avgNumSynapses *= avgDiv;
+	m_statistics.avgEnergyUsage *= avgDiv;
+	m_statistics.avgEatAmount *= avgDiv;
+	m_statistics.avgMateAmount *= avgDiv;
+	m_statistics.avgFightAmount *= avgDiv;
+	m_statistics.avgEnergy = m_statistics.totalEnergy * avgDiv;
+
 	float mateThreshhold = 0.6f;
 
 	// Mate agents.
@@ -267,7 +331,6 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 	if ((int) m_agents.size() + 1 > Simulation::PARAMS.maxAgents)
 	{
 		m_statistics.numBirthsDenied++;
-		std::cout << "Birth denied!" << std::endl;
 		mommy->MateDelay();
 		daddy->MateDelay();
 		return NULL;
@@ -298,24 +361,21 @@ Agent* Simulation::Mate(Agent* mommy, Agent* daddy)
 	
 	mommy->OnMate();
 	daddy->OnMate();
-
-	std::cout << "An agent was born!" << std::endl;
 	
 	m_statistics.numAgentsBorn++;
 
 	return child;
 }
 
-void Simulation::Kill(Agent* agent)
+void Simulation::Kill(Agent*& agent)
 {
 	agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetAge() * Simulation::PARAMS.ageFitnessParam));
 	agent->SetHeuristicFitness(agent->GetHeuristicFitness() + (agent->GetEnergy() * Simulation::PARAMS.energyFitnessParam));
 
 	m_fittestList->Update(agent, agent->GetHeuristicFitness());
-	
-	std::cout << "Killing agent #" << agent->GetID() << " with fitness " << agent->GetHeuristicFitness() << std::endl;
 
 	delete agent;
+	agent = NULL;
 }
 
 
